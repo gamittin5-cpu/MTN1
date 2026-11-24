@@ -54,6 +54,7 @@ body {
   background-color: var(--momo-bg);
   z-index: 1;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s ease-in-out;
 }
 
@@ -62,7 +63,13 @@ body {
   position: relative;
   opacity: 1;
   z-index: 2;
+  pointer-events: auto;
   background-color: var(--momo-bg);
+}
+
+button {
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 /* Top Bars */
@@ -250,28 +257,33 @@ body {
 }
 
 .notice-title-box h2 {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 900;
   color: var(--momo-yellow);
+  letter-spacing: 0.4px;
 }
 
 .notice-body-p {
   font-size: 12px;
-  color: #f0f9ff;
+  font-weight: 800;
+  color: #ffffff;
   margin-bottom: 14px;
   line-height: 1.45;
+  letter-spacing: 0.2px;
 }
 
 .notice-bullets {
   list-style: none;
   font-size: 12px;
-  color: #e0f2fe;
+  font-weight: 800;
+  color: #f0f9ff;
   margin-bottom: 20px;
 }
 
 .notice-bullets li {
   margin-bottom: 10px;
-  line-height: 1.4;
+  line-height: 1.45;
+  letter-spacing: 0.2px;
 }
 
 .btn-momo-primary {
@@ -289,16 +301,18 @@ body {
 }
 
 .btn-momo-primary span {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--momo-bg-dark);
+  letter-spacing: 0.6px;
 }
 
 .btn-momo-primary small {
   font-size: 11px;
-  font-weight: 800;
-  margin-top: 2px;
+  font-weight: 900;
+  margin-top: 3px;
   color: var(--momo-bg);
+  letter-spacing: 0.5px;
 }
 
 .btn-momo-solid {
@@ -918,12 +932,14 @@ body {
   z-index: 999;
   visibility: hidden;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s ease;
 }
 
 .loading-overlay.active {
   visibility: visible;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .spinner {
@@ -951,5 +967,5 @@ body {
 #loading-sub {
   font-size: 13px;
   color: #bae6fd;
-  }
-  
+                        }
+    
