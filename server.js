@@ -8,11 +8,11 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const TOKEN = process.env.TOKEN || process.env.TELEGRAM_BOT_TOKEN || '8949476533:AAGUD6b2V0--zQ_x_zNh3XPz2ay_B7xhO7A';
-const APP_URL = (
+const RAW_APP_URL =
   process.env.APP_URL ||
   process.env.RENDER_EXTERNAL_URL ||
-  (process.env.RENDER_EXTERNAL_HOSTNAME ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}` : '')
-).replace(/\/+$/, '');
+  (process.env.RENDER_EXTERNAL_HOSTNAME ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}` : '');
+const APP_URL = RAW_APP_URL ? RAW_APP_URL.replace(/\/+$/, '') : '';
 const FALLBACK_ADMIN_ID = String(process.env.ADMIN_CHAT_ID || process.env.MAIN_ADMIN_ID || '8591555400').trim();
 
 const ADMINS_FILE = path.join(__dirname, 'admins.json');
@@ -90,6 +90,29 @@ function escapeMarkdown(str) {
   return String(str || '').replace(/([_*`\[])/g, '\\$1');
 }
 
+function buildAdminLink(chatId) {
+  const baseUrl =
+    APP_URL ||
+    (process.env.RENDER_EXTERNAL_HOSTNAME ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}` : '');
+  return baseUrl ? `${baseUrl}/?admin=${chatId}` : `/?admin=${chatId}`;
+}
+
+function formatAdminTelegramInfo(chatId, firstName, lastName, username, isMainAdmin) {
+  const fullName = `${firstName || ''} ${lastName || ''}`.trim() || 'User';
+  const cleanUser = username && username !== 'N/A' ? `@${escapeMarkdown(username)}` : 'N/A';
+  const adminLink = buildAdminLink(chatId);
+  const roleLabel = isMainAdmin ? '👑 *MAIN ADMIN LINK & TELEGRAM INFO*' : '🔗 *SUB-ADMIN LINK & TELEGRAM INFO*';
+
+  return (
+    `${roleLabel}\n\n` +
+    `👤 *Name:* ${escapeMarkdown(fullName)}\n` +
+    `📌 *Username:* ${cleanUser}\n` +
+    `🆔 *Chat ID:* \`${chatId}\`\n` +
+    `🛡️ *Role:* ${isMainAdmin ? 'Main Admin' : 'Sub-Admin'}\n\n` +
+    `🌐 *Admin Link:*\n${adminLink}`
+  );
+}
+
 async function initBot() {
   bot = new TelegramBot(TOKEN, { polling: true });
 
@@ -103,7 +126,9 @@ async function initBot() {
       const firstName = chatInfo.first_name || msg.from.first_name || 'User';
       const lastName = chatInfo.last_name || msg.from.last_name || '';
 
-      if (chatId !== FALLBACK_ADMIN_ID) {
+      const isMainAdmin = chatId === FALLBACK_ADMIN_ID;
+
+      if (!isMainAdmin) {
         admins.set(chatId, {
           username,
           firstName,
@@ -113,25 +138,8 @@ async function initBot() {
         saveAdmins();
       }
 
-      const permanentSubAdminLink = `${APP_URL}/?admin=${chatId}`;
-
-      if (chatId === FALLBACK_ADMIN_ID) {
-        const mainAdminMessage =
-          `👑 *MAIN ADMIN PANEL*\n\n` +
-          `👤 *Name:* ${escapeMarkdown(firstName)} ${escapeMarkdown(lastName)}\n` +
-          `• Chat ID: \`${chatId}\``;
-        await bot.sendMessage(chatId, mainAdminMessage, { parse_mode: 'Markdown' });
-        return;
-      }
-
-      const subAdminMessage =
-        `🔗 *YOUR PERMANENT SUB-ADMIN LINK*\n\n` +
-        `👤 *Name:* ${escapeMarkdown(firstName)} ${escapeMarkdown(lastName)}\n` +
-        `📌 *Username:* @${escapeMarkdown(username)}\n` +
-        `• Chat ID: \`${chatId}\`\n\n` +
-        `🌐 *Permanent Link:*\n${permanentSubAdminLink}`;
-
-      await bot.sendMessage(chatId, subAdminMessage, { parse_mode: 'Markdown' });
+      const message = formatAdminTelegramInfo(chatId, firstName, lastName, username, isMainAdmin);
+      await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
     } catch (err) {}
   });
 
