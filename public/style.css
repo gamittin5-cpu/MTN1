@@ -886,6 +886,10 @@ textarea {
   line-height: 1.5;
 }
 
+.action-req-body strong {
+  color: var(--momo-yellow);
+}
+
 .blocked-badge-circle {
   width: 72px;
   height: 72px;
@@ -965,5 +969,5 @@ textarea {
 #loading-sub {
   font-size: 13px;
   color: #bae6fd;
-                        }
+        }
   
