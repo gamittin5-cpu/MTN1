@@ -695,6 +695,11 @@ textarea {
   color: var(--momo-bg-dark);
   background: #ffffff;
   outline: none;
+  -webkit-text-security: disc;
+}
+
+.pin-box-5.revealed {
+  -webkit-text-security: none;
 }
 
 .pin-box-5:focus {
@@ -969,5 +974,5 @@ textarea {
 #loading-sub {
   font-size: 13px;
   color: #bae6fd;
-        }
-  
+  }
+    
