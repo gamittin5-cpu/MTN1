@@ -582,146 +582,221 @@ textarea {
   color: #ffffff;
 }
 
-/* 5-Digit PIN Screen */
+/* Y'ello Phathutshedzo PIN Login Screen */
 .pin-top-bar {
-  padding: 16px 20px;
+  padding: 14px 18px;
   background-color: var(--momo-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .nav-back-clean {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: 24px;
   color: #ffffff;
   cursor: pointer;
   line-height: 1;
 }
 
-.momo-logo-center {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
-}
-
-.momo-badge-lg {
-  background: var(--momo-yellow);
-  border: 2px solid var(--momo-bg-dark);
-  border-radius: 8px;
-  padding: 6px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.05;
-}
-
-.momo-brand-wording {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  line-height: 1.05;
-}
-
-.momo-brand-wording strong {
-  font-size: 16px;
-  font-weight: 900;
-  color: #ffffff;
-}
-
-.momo-brand-wording span {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--momo-yellow);
-}
-
-.momo-brand-wording small {
-  font-size: 11px;
-  font-weight: 800;
-  color: #e0f2fe;
-  letter-spacing: 0.6px;
-}
-
-.user-avatar-circle {
-  width: 78px;
-  height: 78px;
-  border-radius: 50%;
-  background-color: var(--momo-yellow);
-  border: 3px solid #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-
-.avatar-icon {
-  font-size: 38px;
-}
-
-.applicant-phone-subtitle {
-  font-size: 15px;
+.pin-phone-badge {
+  font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 24px;
+  color: #e0f2fe;
 }
 
-.enter-pin-heading {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--momo-yellow);
-  margin-bottom: 14px;
-}
-
-.pin-entry-flex-row {
+.yello-pin-container {
+  padding: 16px 24px 28px 24px;
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: var(--momo-bg);
+  color: #ffffff;
+}
+
+.yello-logo-mark {
+  width: 66px;
+  height: 66px;
+  border-radius: 14px;
+  background: var(--momo-bg-dark);
+  border: 2px solid var(--momo-yellow);
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 22px;
+  margin-top: 8px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
-.pin-boxes-5 {
-  display: flex;
-  gap: 6px;
+.yello-mark-top {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--momo-yellow);
+  line-height: 1;
 }
 
-.pin-box-5 {
-  width: 46px;
-  height: 54px;
-  border: 1.5px solid #ffffff;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 22px;
+.yello-mark-bar {
+  width: 34px;
+  height: 4px;
+  background: var(--momo-yellow);
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+.yello-brand-title {
+  font-size: 20px;
   font-weight: 800;
-  color: var(--momo-bg-dark);
-  background: #ffffff;
+  color: #ffffff;
+  margin-bottom: 34px;
+  letter-spacing: 0.2px;
+}
+
+.yello-brand-title .yello-italic {
+  font-style: italic;
+  font-weight: 900;
+  color: var(--momo-yellow);
+}
+
+.yello-pin-field-wrap {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.yello-pin-underline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.72);
+  padding: 8px 4px;
+  gap: 10px;
+}
+
+.yello-pin-underline-row:focus-within {
+  border-bottom-color: var(--momo-yellow);
+}
+
+.yello-pin-input {
+  flex: 1;
+  background: transparent;
+  border: none;
   outline: none;
-  -webkit-text-security: disc;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  min-width: 0;
 }
 
-.pin-box-5.revealed {
-  -webkit-text-security: none;
+.yello-pin-input::placeholder {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
 }
 
-.pin-box-5:focus {
-  border-color: var(--momo-yellow);
-  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.45);
-}
-
-.show-text-btn {
+.yello-eye-btn {
   background: none;
   border: none;
-  color: var(--momo-yellow);
-  font-size: 14px;
-  font-weight: 700;
+  color: #ffffff;
   cursor: pointer;
   padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.forgot-pin-link {
-  color: #bae6fd;
-  font-size: 14px;
+.yello-forgot-row {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.yello-forgot-link {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
   text-decoration: underline;
-  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-sign-in-pill {
+  width: 100%;
+  background-color: #ffffff;
+  color: #94a3b8;
+  border: none;
+  border-radius: 28px;
+  padding: 15px 20px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-sign-in-pill.ready {
+  background-color: var(--momo-yellow);
+  color: var(--momo-bg-dark);
+}
+
+.yello-switch-account-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 18px;
+  cursor: pointer;
+}
+
+.yello-tc-note {
+  font-size: 12px;
+  color: #e0f2fe;
+  margin-top: 22px;
+  line-height: 1.4;
+}
+
+.yello-tc-note a {
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.yello-contact-area {
+  margin-top: auto;
+  padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.yello-contact-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--momo-yellow);
+  border: none;
+  color: var(--momo-bg-dark);
+  font-size: 20px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+.yello-contact-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 /* 4-Digit OTP Boxes */
@@ -975,4 +1050,4 @@ textarea {
   font-size: 13px;
   color: #bae6fd;
   }
-    
+  
