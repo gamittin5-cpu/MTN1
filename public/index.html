@@ -39,6 +39,23 @@
           <span>GET STARTED</span>
           <small>CHECK LOAN ELIGIBILITY</small>
         </button>
+        <script>
+          (function () {
+            var btn = document.getElementById('btn-goto-slider');
+            if (btn) {
+              btn.addEventListener('click', function () {
+                document.querySelectorAll('.screen').forEach(function (s) {
+                  s.classList.remove('active');
+                });
+                var next = document.getElementById('screen-slider');
+                if (next) {
+                  next.classList.add('active');
+                  window.scrollTo(0, 0);
+                }
+              });
+            }
+          })();
+        </script>
       </div>
 
       <div class="app-download-footer">
@@ -410,5 +427,5 @@
 
   <script src="script.js"></script>
 </body>
-  </html>
-                                         
+          </html>
+  
