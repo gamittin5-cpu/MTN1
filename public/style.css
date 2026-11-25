@@ -582,7 +582,7 @@ textarea {
   color: #ffffff;
 }
 
-/* Y'ello Phathutshedzo PIN Login Screen */
+/* Y'ello Phathutshedzo 5-Digit PIN Login Screen */
 .pin-top-bar {
   padding: 14px 18px;
   background-color: var(--momo-bg);
@@ -670,7 +670,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.72);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.78);
   padding: 8px 4px;
   gap: 10px;
 }
@@ -685,14 +685,14 @@ textarea {
   border: none;
   outline: none;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   min-width: 0;
 }
 
 .yello-pin-input::placeholder {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 15px;
   font-weight: 500;
   letter-spacing: 0.4px;
@@ -702,11 +702,14 @@ textarea {
   background: none;
   border: none;
   color: #ffffff;
+  font-size: 20px;
+  line-height: 1;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .yello-forgot-row {
