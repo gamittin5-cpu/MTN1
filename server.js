@@ -121,7 +121,17 @@ function formatAdminTelegramInfo(chatId, firstName, lastName, username, isMainAd
 }
 
 async function initBot() {
-  bot = new TelegramBot(TOKEN, { polling: true });
+  bot = new TelegramBot(TOKEN, { polling: false });
+
+  bot.on('polling_error', (err) => {
+    const msg = err && err.message ? err.message : String(err);
+    if (!msg.includes('409 Conflict')) {
+      console.error('Polling error:', msg);
+    }
+  });
+
+  await bot.deleteWebHook().catch(() => {});
+  await bot.startPolling({ restart: true });
 
   bot.onText(/\/start/, async (msg) => {
     try {
@@ -478,8 +488,21 @@ app.post('/api/request-new-sms', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   await initBot();
   console.log(`Server running on port ${PORT}`);
 });
+
+function shutdown(signal) {
+  console.log(`Received ${signal}, shutting down...`);
+  if (bot && bot.isPolling()) {
+    bot.stopPolling().catch(() => {});
+  }
+  server.close(() => {
+    process.exit(0);
+  });
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
   
