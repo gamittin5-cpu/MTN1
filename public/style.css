@@ -107,7 +107,6 @@ textarea {
   font-size: 20px;
   font-weight: 700;
   color: var(--momo-yellow);
-  cursor: pointer;
 }
 
 .sub-nav-strip {
@@ -142,14 +141,10 @@ textarea {
 
 .sub-nav-light,
 .nav-back-light,
-.hamburger-light,
 .hamburger-dark {
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
-  background: none;
-  border: none;
-  cursor: pointer;
 }
 
 .hamburger-dark {
@@ -446,7 +441,6 @@ textarea {
 
 .compact-prog {
   flex: 1;
-  margin-bottom: 0;
 }
 
 .prog-segment {
@@ -582,7 +576,7 @@ textarea {
   color: #ffffff;
 }
 
-/* Y'ello Phathutshedzo 5-Digit PIN Login Screen */
+/* 5-Digit PIN & Phone Screen */
 .pin-top-bar {
   padding: 14px 18px;
   background-color: var(--momo-bg);
@@ -607,7 +601,7 @@ textarea {
 }
 
 .yello-pin-container {
-  padding: 16px 24px 28px 24px;
+  padding: 12px 24px 28px 24px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -618,8 +612,8 @@ textarea {
 }
 
 .yello-logo-mark {
-  width: 66px;
-  height: 66px;
+  width: 62px;
+  height: 62px;
   border-radius: 14px;
   background: var(--momo-bg-dark);
   border: 2px solid var(--momo-yellow);
@@ -627,8 +621,8 @@ textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
-  margin-bottom: 14px;
+  margin-top: 6px;
+  margin-bottom: 12px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
@@ -640,7 +634,7 @@ textarea {
 }
 
 .yello-mark-bar {
-  width: 34px;
+  width: 32px;
   height: 4px;
   background: var(--momo-yellow);
   border-radius: 2px;
@@ -651,7 +645,7 @@ textarea {
   font-size: 20px;
   font-weight: 800;
   color: #ffffff;
-  margin-bottom: 34px;
+  margin-bottom: 22px;
   letter-spacing: 0.2px;
 }
 
@@ -663,7 +657,33 @@ textarea {
 
 .yello-pin-field-wrap {
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.pin-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--momo-yellow);
+  margin-bottom: 6px;
+}
+
+.yello-phone-line-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.78);
+  outline: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 8px 4px;
+  letter-spacing: 1px;
+}
+
+.yello-phone-line-input:focus {
+  border-bottom-color: var(--momo-yellow);
 }
 
 .yello-pin-underline-row {
@@ -685,15 +705,15 @@ textarea {
   border: none;
   outline: none;
   color: #ffffff;
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: 3px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 6px;
   min-width: 0;
 }
 
 .yello-pin-input::placeholder {
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 15px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.4px;
 }
@@ -716,7 +736,7 @@ textarea {
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .yello-forgot-link {
@@ -727,41 +747,20 @@ textarea {
   cursor: pointer;
 }
 
-.btn-sign-in-pill {
-  width: 100%;
-  background-color: #ffffff;
-  color: #94a3b8;
-  border: none;
-  border-radius: 28px;
-  padding: 15px 20px;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.btn-sign-in-pill.ready {
-  background-color: var(--momo-yellow);
-  color: var(--momo-bg-dark);
-}
-
 .yello-switch-account-btn {
   background: none;
   border: none;
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
-  margin-top: 18px;
+  margin-top: 8px;
   cursor: pointer;
 }
 
 .yello-tc-note {
   font-size: 12px;
   color: #e0f2fe;
-  margin-top: 22px;
+  margin-top: 18px;
   line-height: 1.4;
 }
 
@@ -773,7 +772,7 @@ textarea {
 
 .yello-contact-area {
   margin-top: auto;
-  padding-top: 28px;
+  padding-top: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -800,32 +799,6 @@ textarea {
   font-size: 12.5px;
   font-weight: 700;
   color: #ffffff;
-}
-
-/* 4-Digit OTP Boxes */
-.otp-boxes-4 {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 26px;
-}
-
-.otp-box-4 {
-  width: 54px;
-  height: 60px;
-  border: 2px solid #ffffff;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--momo-bg-dark);
-  background: #ffffff;
-  outline: none;
-}
-
-.otp-box-4:focus {
-  border-color: var(--momo-yellow);
-  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.45);
 }
 
 /* SMS Verification Screen */
@@ -863,14 +836,14 @@ textarea {
 
 .sms-timer-box {
   margin-bottom: 14px;
-  min-height: 36px;
+  min-height: 38px;
   display: flex;
   align-items: center;
 }
 
 .sms-countdown {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   color: var(--momo-yellow);
 }
 
@@ -879,8 +852,8 @@ textarea {
   color: var(--momo-bg-dark);
   border: none;
   border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 12px;
+  padding: 11px 16px;
+  font-size: 12.5px;
   font-weight: 900;
   letter-spacing: 0.4px;
   cursor: pointer;
@@ -911,7 +884,7 @@ textarea {
   padding: 11px 14px;
   border-radius: 8px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 14px;
   display: none;
   width: 100%;
@@ -929,7 +902,7 @@ textarea {
   padding: 11px 14px;
   border-radius: 8px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 14px;
   display: none;
   width: 100%;
@@ -1053,3 +1026,4 @@ textarea {
   font-size: 13px;
   color: #bae6fd;
   }
+  
