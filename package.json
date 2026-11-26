@@ -1,13 +1,13 @@
 {
-  "name": "momo-zambia-portal",
+  "name": "momo-zambia-loan-portal",
   "version": "1.0.0",
-  "description": "MoMo Zambia Loan & Verification Portal with Telegram Bot Integration",
+  "description": "MTN Zambia MoMo loan flow with Telegram admin controls",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.1",
+    "express": "^4.19.2",
     "node-telegram-bot-api": "^0.66.0"
   }
 }
