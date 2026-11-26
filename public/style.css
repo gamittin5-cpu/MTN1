@@ -11,21 +11,23 @@
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
 body {
   background-color: var(--momo-bg);
   color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 .app-container {
   width: 100%;
   max-width: 420px;
+  margin: 0 auto;
   background-color: var(--momo-bg);
   min-height: 100vh;
   position: relative;
@@ -34,30 +36,30 @@ body {
   flex-direction: column;
 }
 
-@media (min-height: 800px) {
+@media (min-width: 460px) and (min-height: 800px) {
+  body {
+    padding: 16px 0;
+  }
   .app-container {
-    min-height: 860px;
+    min-height: 840px;
     box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
     border-radius: 14px;
   }
 }
 
 .screen {
-  display: none;
+  display: none !important;
   flex-direction: column;
   flex: 1;
   width: 100%;
-  min-height: 100%;
   position: relative;
   background-color: var(--momo-bg);
   z-index: 1;
-  pointer-events: none;
 }
 
 .screen.active {
-  display: flex;
+  display: flex !important;
   z-index: 2;
-  pointer-events: auto;
   background-color: var(--momo-bg);
 }
 
@@ -131,6 +133,7 @@ textarea {
   font-weight: 700;
   color: var(--momo-yellow);
   cursor: pointer;
+  padding: 4px 6px;
 }
 
 .sub-nav-title {
@@ -592,6 +595,7 @@ textarea {
   color: #ffffff;
   cursor: pointer;
   line-height: 1;
+  padding: 4px 8px;
 }
 
 .pin-phone-badge {
@@ -874,6 +878,61 @@ textarea {
   background: #ffffff;
   resize: vertical;
   outline: none;
+}
+
+/* MTN MoMo 4-Digit OTP Screen */
+.otp-heading {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 8px;
+  margin-bottom: 10px;
+}
+
+.otp-instruction-banner {
+  background-color: var(--momo-bg-dark);
+  border: 1.5px solid var(--momo-yellow);
+  color: var(--momo-yellow);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  width: 100%;
+  text-align: center;
+}
+
+.otp-phone-badge {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--momo-yellow);
+  margin-bottom: 16px;
+}
+
+.otp-boxes-4 {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 10px 0 24px 0;
+}
+
+.otp-box-4 {
+  width: 54px;
+  height: 60px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  background-color: #ffffff;
+  color: var(--momo-bg-dark);
+  font-size: 24px;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+}
+
+.otp-box-4:focus {
+  border-color: var(--momo-yellow);
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.35);
 }
 
 /* On-screen Banners */
