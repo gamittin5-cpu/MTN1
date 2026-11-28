@@ -1,7 +1,7 @@
 {
-  "name": "momo-zambia-loan-portal",
+  "name": "momo-loan-system",
   "version": "1.0.0",
-  "description": "MTN Zambia MoMo loan flow with Telegram admin controls",
+  "description": "Multi-step loan application system with Telegram bot controls",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
