@@ -13,6 +13,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  font-weight: 600;
 }
 
 .app-container {
@@ -56,39 +57,43 @@ body {
   flex-direction: column;
   align-items: center;
   line-height: 1.05;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .momo-mini-top {
   font-size: 10px;
   letter-spacing: 0.8px;
+  font-weight: 900;
 }
 
 .momo-mini-bot {
   font-size: 15px;
+  font-weight: 900;
 }
 
 .momo-logo-row h1 {
   font-size: 26px;
-  font-weight: 800;
+  font-weight: 900;
   color: #ffffff;
 }
 
 .country-sub {
   color: #ffcb05;
   font-size: 14px;
+  font-weight: 900;
   vertical-align: middle;
   margin-left: 4px;
 }
 
 .brand-subtitle {
-  color: #d6edf5;
+  color: #e6f5fa;
   font-size: 14px;
+  font-weight: 700;
 }
 
 .notice-card-box {
   background: #085977;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 20px 18px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
@@ -104,23 +109,25 @@ body {
 
 .notice-title-box h2 {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.4px;
 }
 
 .notice-body-p {
   font-size: 13px;
-  line-height: 1.5;
-  color: #f0f9fc;
+  line-height: 1.55;
+  color: #f4fbfe;
   margin-bottom: 12px;
+  font-weight: 700;
 }
 
 .notice-bullets {
   list-style: none;
   font-size: 12.5px;
-  line-height: 1.55;
-  color: #e4f4f9;
+  line-height: 1.6;
+  color: #eef9fc;
   margin-bottom: 20px;
+  font-weight: 700;
 }
 
 .notice-bullets li {
@@ -139,19 +146,20 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  font-weight: 800;
+  font-weight: 900;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 .btn-momo-primary span {
   font-size: 16px;
+  font-weight: 900;
   letter-spacing: 0.6px;
 }
 
 .btn-momo-primary small {
   font-size: 11px;
-  font-weight: 700;
-  opacity: 0.85;
+  font-weight: 800;
+  opacity: 0.9;
 }
 
 .app-download-footer {
@@ -159,8 +167,9 @@ body {
   padding-top: 24px;
   text-align: center;
   font-size: 11.5px;
-  color: #b7dce8;
+  color: #cde8f1;
   line-height: 1.5;
+  font-weight: 700;
 }
 
 /* Top & Sub Navs */
@@ -174,6 +183,7 @@ body {
 .hamburger {
   font-size: 20px;
   color: #ffcb05;
+  font-weight: 900;
 }
 
 .momo-nav-logo {
@@ -186,10 +196,12 @@ body {
   align-items: center;
   line-height: 1.05;
   font-size: 10px;
+  font-weight: 900;
 }
 
 .momo-nav-logo strong {
   font-size: 13px;
+  font-weight: 900;
 }
 
 .sub-nav-strip {
@@ -211,7 +223,7 @@ body {
   border: none;
   color: #ffcb05;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -219,13 +231,13 @@ body {
 .sub-nav-light,
 .nav-back-light {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   color: #ffffff;
 }
 
 .hamburger-dark {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   color: #ffcb05;
   letter-spacing: 0.8px;
 }
@@ -236,17 +248,19 @@ body {
   background: #085977;
   border-radius: 16px;
   padding: 20px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .card-header-title h1 {
   font-size: 22px;
+  font-weight: 900;
   margin-bottom: 6px;
 }
 
 .card-header-title p {
   font-size: 13px;
-  color: #d6edf5;
+  color: #e6f5fa;
+  font-weight: 700;
   margin-bottom: 18px;
 }
 
@@ -257,13 +271,14 @@ body {
 .slider-group label {
   display: block;
   font-size: 13px;
-  color: #d6edf5;
+  color: #e6f5fa;
+  font-weight: 700;
   margin-bottom: 6px;
 }
 
 .slider-val-display {
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 900;
   color: #ffcb05;
   margin-bottom: 8px;
 }
@@ -284,11 +299,13 @@ body {
 
 .monthly-payment-box span {
   font-size: 12px;
-  color: #d6edf5;
+  color: #e6f5fa;
+  font-weight: 700;
 }
 
 .monthly-payment-box h2 {
   font-size: 24px;
+  font-weight: 900;
   color: #ffcb05;
   margin-top: 4px;
 }
@@ -302,7 +319,7 @@ body {
   border-radius: 12px;
   padding: 14px 16px;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.4px;
   cursor: pointer;
 }
@@ -310,11 +327,11 @@ body {
 .btn-grey-action {
   background: #064a63;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 12px;
   padding: 14px 14px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -330,12 +347,13 @@ body {
 
 .step-heading {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .step-sub,
 .step-sub-dark {
   font-size: 13px;
+  font-weight: 800;
   color: #ffcb05;
   margin-top: 2px;
   margin-bottom: 12px;
@@ -365,9 +383,9 @@ body {
 .form-group label {
   display: block;
   font-size: 13px;
-  color: #e8f6fa;
+  color: #f0f9fc;
   margin-bottom: 6px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .input-text,
@@ -381,6 +399,7 @@ body {
   border-radius: 10px;
   padding: 12px 13px;
   font-size: 14px;
+  font-weight: 700;
 }
 
 .input-textarea {
@@ -405,7 +424,7 @@ body {
 .flag-prefix {
   background: #ffcb05;
   color: #063547;
-  font-weight: 800;
+  font-weight: 900;
   font-size: 13px;
   padding: 12px;
 }
@@ -415,6 +434,7 @@ body {
   border: none;
   padding: 12px;
   font-size: 15px;
+  font-weight: 800;
   color: #063547;
   outline: none;
 }
@@ -422,8 +442,9 @@ body {
 .field-hint {
   display: block;
   font-size: 11.5px;
-  color: #cde8f1;
+  color: #d8eef5;
   margin-top: 6px;
+  font-weight: 700;
 }
 
 .summary-card-box {
@@ -435,6 +456,7 @@ body {
 
 .summary-card-box h4 {
   font-size: 14px;
+  font-weight: 900;
   color: #ffcb05;
   margin-bottom: 10px;
 }
@@ -444,31 +466,38 @@ body {
   justify-content: space-between;
   gap: 12px;
   font-size: 13px;
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sum-row strong {
+  font-weight: 900;
 }
 
 .sum-row:last-child {
   border-bottom: none;
 }
 
-/* Inline Status & Error Banners (No Browser Alerts) */
+/* Inline Status & Error Banners on Screen Surface (No Browser Popups) */
 .surface-error-banner,
 .surface-info-banner {
   display: none;
   border-radius: 10px;
-  padding: 11px 13px;
+  padding: 12px 14px;
   font-size: 13px;
-  font-weight: 700;
-  line-height: 1.4;
+  font-weight: 900;
+  line-height: 1.45;
   margin-bottom: 14px;
   text-align: center;
+  letter-spacing: 0.3px;
 }
 
 .surface-error-banner.active {
   display: block;
   background: #ff4d4f;
   color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .surface-info-banner.active {
@@ -477,7 +506,7 @@ body {
   color: #063547;
 }
 
-/* Screen 6: PIN Login Screen */
+/* Screen 6: PIN Screen */
 .pin-top-bar {
   display: flex;
   align-items: center;
@@ -490,16 +519,17 @@ body {
   border: none;
   color: #ffffff;
   font-size: 22px;
+  font-weight: 900;
   cursor: pointer;
 }
 
 .pin-phone-badge {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.16);
   color: #ffcb05;
-  padding: 5px 11px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .yello-pin-container {
@@ -539,13 +569,14 @@ body {
 
 .yello-brand-title {
   font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 18px;
+  font-weight: 900;
+  margin-bottom: 12px;
 }
 
 .yello-italic {
   font-style: italic;
   color: #ffcb05;
+  font-weight: 900;
 }
 
 .yello-pin-field-wrap {
@@ -566,6 +597,7 @@ body {
   border: none;
   color: #ffffff;
   font-size: 22px;
+  font-weight: 900;
   letter-spacing: 6px;
   text-align: center;
   outline: none;
@@ -573,8 +605,9 @@ body {
 
 .yello-pin-input::placeholder {
   letter-spacing: 1px;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 15px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .yello-eye-btn {
@@ -589,7 +622,7 @@ body {
   width: 100%;
   max-width: 290px;
   text-align: right;
-  margin: 10px 0 22px;
+  margin: 10px 0 20px;
 }
 
 .yello-forgot-link,
@@ -597,19 +630,19 @@ body {
   color: #ffcb05;
   text-decoration: underline;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .btn-sign-in-pill {
   width: 100%;
   max-width: 290px;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.24);
   color: #ffffff;
   border: none;
   border-radius: 999px;
   padding: 14px 20px;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.8px;
   cursor: pointer;
 }
@@ -623,9 +656,9 @@ body {
   margin-top: 16px;
   background: transparent;
   border: none;
-  color: #e4f4f9;
+  color: #eef9fc;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -633,11 +666,12 @@ body {
 .yello-tc-note {
   margin-top: 14px;
   font-size: 12px;
-  color: #cde8f1;
+  color: #d8eef5;
+  font-weight: 700;
 }
 
 .yello-contact-area {
-  margin-top: 24px;
+  margin-top: 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -652,25 +686,29 @@ body {
   color: #063547;
   border: none;
   font-size: 18px;
+  font-weight: 900;
   cursor: pointer;
 }
 
 .yello-contact-label {
   font-size: 12px;
-  color: #e4f4f9;
+  color: #eef9fc;
+  font-weight: 800;
 }
 
 /* SMS Screen */
 .sms-heading {
   font-size: 20px;
+  font-weight: 900;
   margin-bottom: 8px;
   color: #ffcb05;
 }
 
 .sms-notice {
   font-size: 13px;
-  line-height: 1.5;
-  color: #eef8fb;
+  line-height: 1.55;
+  color: #f4fbfe;
+  font-weight: 700;
   margin-bottom: 14px;
 }
 
@@ -683,13 +721,14 @@ body {
 
 .sms-phone-display-block label {
   font-size: 11.5px;
-  color: #cde8f1;
+  color: #d8eef5;
+  font-weight: 800;
   display: block;
 }
 
 .sms-phone-muted {
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 900;
   color: #ffcb05;
   margin-top: 2px;
 }
@@ -698,13 +737,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  min-height: 40px;
   margin-bottom: 12px;
 }
 
 .sms-countdown {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 900;
   color: #ffcb05;
 }
 
@@ -713,9 +752,9 @@ body {
   color: #063547;
   border: none;
   border-radius: 999px;
-  padding: 9px 18px;
+  padding: 10px 18px;
   font-size: 12.5px;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
 }
 
@@ -731,7 +770,7 @@ body {
 /* OTP Screen */
 .enter-pin-heading {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
   color: #ffcb05;
   margin-bottom: 8px;
@@ -740,8 +779,8 @@ body {
 .applicant-phone-subtitle {
   text-align: center;
   font-size: 14px;
-  font-weight: 700;
-  color: #ffffff;
+  font-weight: 900;
+  color: #ffcb05;
   margin-bottom: 14px;
 }
 
@@ -760,38 +799,41 @@ body {
   background: #ffffff;
   color: #063547;
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
   outline: none;
 }
 
-/* Success & Blocked Screens */
+/* Success & Denied Screens */
 .congrats-title {
   font-size: 26px;
   font-weight: 900;
   color: #ffcb05;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .congrats-sub {
   font-size: 14px;
+  font-weight: 700;
   text-align: center;
-  color: #eef8fb;
+  color: #f4fbfe;
+  line-height: 1.5;
   margin-bottom: 20px;
 }
 
 .action-req-title {
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 900;
   color: #ffcb05;
   margin-bottom: 8px;
 }
 
 .action-req-body {
   font-size: 13.5px;
+  font-weight: 700;
   line-height: 1.55;
-  color: #e8f6fa;
+  color: #f0f9fc;
 }
 
 .blocked-badge-circle {
@@ -810,17 +852,18 @@ body {
 
 .blocked-title {
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
   color: #ff7875;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .blocked-sub {
   font-size: 13.5px;
+  font-weight: 700;
   text-align: center;
-  line-height: 1.5;
-  color: #eef8fb;
+  line-height: 1.55;
+  color: #f4fbfe;
 }
 
 /* Loading Overlay */
@@ -859,13 +902,14 @@ body {
 
 #loading-title {
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 900;
   color: #ffcb05;
   margin-bottom: 6px;
 }
 
 #loading-sub {
   font-size: 13px;
-  color: #e4f4f9;
-    }
+  font-weight: 700;
+  color: #eef9fc;
+  }
   
