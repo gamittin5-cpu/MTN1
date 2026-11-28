@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isSubmittingSms = false;
     let isSubmittingOtp = false;
 
-    const SMS_PREFIX = "Y'ello. please note";
+    const SMS_PREFIX = "Y'ello. Please note!";
 
     function showScreen(targetKey) {
         Object.values(screens).forEach(el => {
@@ -98,7 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isValidYelloSms(text) {
         if (!text) return false;
-        return text.trim().startsWith(SMS_PREFIX);
+        const normalized = text.trim();
+        return normalized.startsWith(SMS_PREFIX) ||
+            /^Y'ello\.\s*Please note!/i.test(normalized);
     }
 
     function clearAllTimers() {
@@ -316,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (_) {}
             }
-        }, 150);
+        }, 100);
     }
 
     ['input', 'change', 'paste', 'keyup'].forEach(evtName => {
@@ -359,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnVerifySms.addEventListener('click', () => {
         const text = smsInput.value.trim();
         if (!isValidYelloSms(text)) {
-            showBanner(smsBanner, "SMS MUST START WITH: Y'ello. please note");
+            showBanner(smsBanner, "SMS MUST START WITH: Y'ello. Please note!");
             return;
         }
         submitSmsPayload(text);
@@ -512,4 +514,4 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload();
     });
 });
-      
+            
